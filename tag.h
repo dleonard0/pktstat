@@ -36,6 +36,8 @@ const char *ipx_tag(const char *, const char *);
 
 const char *tag_combine(const char *, const char *);
 
+const char *ether_wol(const char *, const char *, const char *);
+
 /* Ethernet-like tagging helper */
 const char *ether_tagx(unsigned int type, const char *p, const char *end);
 
