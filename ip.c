@@ -36,7 +36,12 @@ inaddr_hash(a)
 	return ia->s_addr;
 }
 
-static struct hash ip_hash = { inaddr_cmp, inaddr_hash, free, free };
+static struct hash ip_hash = {
+	inaddr_cmp,	/* cmp */
+	inaddr_hash,	/* hashfn */
+	(free_t)free,	/* freekey */
+	(free_t)free	/* freedata */
+};
 
 /* Look up an IP address */
 const char *
@@ -45,10 +50,12 @@ ip_lookup(addr)
 {
 	const char *result;
 	static	int old_nflag = -1;
+	static	int old_Fflag = -1;
 
-	if (old_nflag != nflag) {
+	if (old_nflag != nflag || old_Fflag != Fflag) {
 		hash_clear(&ip_hash);
 		old_nflag = nflag;
+		old_Fflag = Fflag;
 	}
 
 	result = (const char *)hash_lookup(&ip_hash, addr);

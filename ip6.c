@@ -52,10 +52,12 @@ ip6_lookup(addr)
 {
 	const char *result;
 	static	int old_nflag = -1;
+	static	int old_Fflag = -1;
 
-	if (old_nflag != nflag) {
+	if (old_nflag != nflag || old_Fflag != Fflag) {
 		hash_clear(&ip6_hash);
 		old_nflag = nflag;
+		old_Fflag = Fflag;
 	}
 
 	result = (const char *)hash_lookup(&ip6_hash, addr);
