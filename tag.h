@@ -30,3 +30,7 @@ const char *icmp_tag(const char *, const char *, const struct ip *);
 const char *tag_combine(const char *, const char *);
 
 
+/* Reset hostname and port lookups */
+void ip_reset(void);
+void tcp_reset(void);
+void udp_reset(void);

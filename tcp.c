@@ -64,6 +64,12 @@ static struct hash tcp_hashtab = {
 	(free_t)free 		/* freedata */
 };
 
+void
+tcp_reset()
+{
+	hash_clear(&tcp_hashtab);
+}
+
 /* Look up a TCP port's symbolic name */
 const char *
 tcp_lookup(port)
@@ -73,7 +79,7 @@ tcp_lookup(port)
 	static int oldnflag = -1;
 
 	if (oldnflag != nflag) {
-		hash_clear(&tcp_hashtab);
+		tcp_reset();
 		oldnflag = nflag;
 	}
 

@@ -43,6 +43,12 @@ static struct hash ip_hash = {
 	(free_t)free	/* freedata */
 };
 
+void
+ip_reset()
+{
+	hash_clear(&ip_hash);
+}
+
 /* Look up an IP address */
 const char *
 ip_lookup(addr)
@@ -53,7 +59,7 @@ ip_lookup(addr)
 	static	int old_Fflag = -1;
 
 	if (old_nflag != nflag || old_Fflag != Fflag) {
-		hash_clear(&ip_hash);
+		ip_reset();
 		old_nflag = nflag;
 		old_Fflag = Fflag;
 	}

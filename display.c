@@ -19,6 +19,7 @@
 #include "main.h"
 #include "resize.h"
 #include "ifc.h"
+#include "tag.h"
 
 #ifndef NBBY
 # define NBBY 8	/* Number of bits per byte */
@@ -194,6 +195,14 @@ display_update(period)
 		total_time = 0;
 		maxbps = -1;
 		minbps = -1;
+		period = 0;
+		while (nflows)		/* clear flows now */
+			flow_del(flows);
+		for (i = 0; i < 3; i++)	/* clear averages */
+			avg[i] = 0;
+		ip_reset();
+		udp_reset();
+		tcp_reset();
 		break;
 	case '?':			/* show help line */
 		if (showhelp > 0)
@@ -275,7 +284,7 @@ display_update(period)
 		/* Display sophisticated load averages for the -T flag */
 		if (period > 0.5)
 			printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
-		if (total_time > 0) {
+		if (total_time > 0.5) {
 			printw("avg: %-6s ", 
 				mega(BITS(total_octets / total_time), "%.1f"));
 			printw("[%s ", mega(BITS(avg[0]), "%.1f"));

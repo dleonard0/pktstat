@@ -48,6 +48,12 @@ static struct hash udp_hashtab = {
 	(free_t)free		/* freedata */
 };
 
+void
+udp_reset()
+{
+	hash_clear(&udp_hashtab);
+}
+
 /* Look up an IP address */
 const char *
 udp_lookup(port)
@@ -57,7 +63,7 @@ udp_lookup(port)
 	static int oldnflag = -1;
 
 	if (oldnflag != nflag) {
-		hash_clear(&udp_hashtab);
+		udp_reset();
 		oldnflag = nflag;
 	}
 
