@@ -71,7 +71,7 @@ udp_lookup(port)
 			se = NULL;
 		else {
 			display_message("resolving udp port %u", port);
-			se = getservbyport(port, "udp");
+			se = getservbyport(htons(port), "udp");
 			display_message("");
 		}
 		if (se == NULL) {

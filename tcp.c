@@ -88,7 +88,7 @@ tcp_lookup(port)
 			se = NULL;
 		else {
 			display_message("resolving tcp port %u", port);
-			se = getservbyport(port, "tcp");
+			se = getservbyport(htons(port), "tcp");
 			display_message("");
 		}
 		if (se == NULL) {
