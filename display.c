@@ -22,6 +22,7 @@ display_open(device, filter)
 	initscr();
 	cbreak();
 	noecho();
+	nodelay(stdscr, TRUE);
 }
 
 void
@@ -35,11 +36,24 @@ display_update(period)
 	double period;
 {
 	int i;
-	int count;
 	unsigned long sum;
 	double bps = 0;
+	int maxx, maxy, y, x;
 
 	erase();
+
+	switch (getch()) {
+	case ('L'&0x3f):	/* control-L */
+		clear(); 
+		break;
+	case 'q':
+		exit(0);
+	case ERR:		/* no key */
+	default:
+		break;	
+	}
+
+	getmaxyx(stdscr, maxy, maxx);
 	printw("device: %s\n", display_device);
 	if (display_filter)
 		printw("filter: %s\n", display_filter);
@@ -70,8 +84,10 @@ display_update(period)
 	printw("min %-8.1f max %-8.1f\n", minbps, maxbps);
 	printw("\n");
 
-	count = 0;
-	for (i = 0; i < nflows && count < 10; i++) {
+	for (i = 0; i < nflows; i++) {
+		getyx(stdscr, y, x);
+		if (y >= maxy - 2)
+			break;
 		if (flows[i].octets == 0 && flows[i].keepalive == 0)
 			continue;
 		if (flows[i].octets == 0)
@@ -86,7 +102,6 @@ display_update(period)
 		if (flows[i].desc[0] != '\0')
 		printw("%8s            %s\n", "", flows[i].desc);
 		attrset(A_NORMAL);
-		count++;
 	}
 	for (i = 0; i < nflows; i++)
 		if (flows[i].octets > 0)
