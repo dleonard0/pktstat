@@ -139,9 +139,9 @@ tcp_tag(p, end, ip, ip6)
 		snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
 	}
 	if (ip6) {
-		snprintf(src, sizeof src, "%s:%s", 
+		snprintf(src, sizeof src, "%s,%s", 
 			ip6_lookup(&ip6->ip6_src), tcp_lookup(sport));
-		snprintf(dst, sizeof src, "%s:%s", 
+		snprintf(dst, sizeof src, "%s,%s", 
 			ip6_lookup(&ip6->ip6_dst), tcp_lookup(dport));
 		snprintf(tag, sizeof tag, "tcp6 %s", tag_combine(src, dst));
 	}

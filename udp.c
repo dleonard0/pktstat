@@ -115,9 +115,9 @@ udp_tag(p, end, ip, ip6)
 		snprintf(tag, sizeof tag, "udp %s", tag_combine(src, dst));
 	}
 	if (ip6) {
-		snprintf(src, sizeof src, "%s:%s", 
+		snprintf(src, sizeof src, "%s,%s", 
 			ip6_lookup(&ip6->ip6_src), udp_lookup(sport));
-		snprintf(dst, sizeof dst, "%s:%s", 
+		snprintf(dst, sizeof dst, "%s,%s", 
 			ip6_lookup(&ip6->ip6_dst), udp_lookup(dport));
 		snprintf(tag, sizeof tag, "udp6 %s", tag_combine(src, dst));
 	}
