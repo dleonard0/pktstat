@@ -15,6 +15,7 @@ tcp_http(f, data, end)
 
 	if (memcmp(data, "GET ", 4) == 0 ||
 	    memcmp(data, "POST ", 5) == 0 ||
+	    memcmp(data, "CONNECT ", 8) == 0 ||
 	    memcmp(data, "HEAD ", 5) == 0) {
 		for (d = data; d < end && *d != ' '; d++)
 			;
