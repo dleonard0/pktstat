@@ -12,6 +12,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <err.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include "flow.h"
