@@ -1,0 +1,67 @@
+.\"	$Id$
+.Dd January 25, 2002
+.Dt TCPSTAT 1
+.Os
+.Sh NAME
+.Nm tcpstat
+.Nd display packet activity on a crt
+.Sh SYNOPSIS
+.\" For a program:  program [-abc] file ...
+.Nm tcpstat
+.Op Fl c
+.Op Fl i Ar interface
+.Op Fl k Ar keepcount
+.Op Fl n
+.Op Fl t
+.Op Fl w Ar waittime
+.Op Ar filter-expr
+.Sh DESCRIPTION
+The
+.Nm
+program displays a real-time summary of packet activity on an interface.
+Each line displays the data associated with a particular class of packets.
+Normally, the class is determined by the packet header.
+.Pp
+.Bl -tag -width 12ex -indent
+.It Fl c
+combine some packet classes into one class. For example, TCP packets
+are combined into one flow class.
+.It Fl i Ar interface
+Listen on the interface instead of using a default one.
+.It Fl k Ar keepcount
+When no data has been seen for a particular class, retain an entry
+on the display for this many screen refreshes.
+.It Fl n
+Do not try and resolve hostnames or port numbers.
+.It Fl t
+Sort the display by the packet class, rather than the number of octets.
+.It Fl w Ar waittime
+Refresh the display every
+.Ar waittime
+seconds.
+The default time is 5 seconds.
+.It Ar filter-expr
+Ignore all data not matching the given filter-expression.
+If no filter is provided, every packet is considered.
+.\" The following requests should be uncommented and used where appropriate.
+.\" .Sh EXAMPLES
+.\" This next request is for sections 2 and 3 function return values only.
+.\" .Sh RETURN VALUES
+.\" The next request is for sections 2 and 3 error and signal handling only.
+.\" .Sh ERRORS
+.\" This next request is for section 4 only.
+.\" .Sh DIAGNOSTICS
+.\" This next request is for sections 1, 6, 7 & 8 only.
+.\" .Sh ENVIRONMENT
+.\" .Sh FILES
+.Sh SEE ALSO
+.Xr bpf 4 ,
+.Xr tcpdump 8
+.\" .Sh COMPATIBILITY
+.\" .Sh STANDARDS
+.Sh AUTHORS
+David Leonard,
+.Pa d+tcpstat@itee.uq.edu.au
+.\" .Sh HISTORY
+.\" .Sh BUGS
+.\" .Sh CAVEATS

@@ -55,25 +55,25 @@ main(argc, argv)
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "w:i:ctnk:")) != -1)
+	while ((ch = getopt(argc, argv, "ci:k:ntw:")) != -1)
 		switch (ch) {
-		case 'w':
-			waitsec = atoi(optarg);
+		case 'c':
+			combine = 1;
 			break;
 		case 'i':
 			interface = optarg;
 			break;
-		case 'c':
-			combine = 1;
-			break;
-		case 't':
-			tflag = 1;
+		case 'k':
+			keepalive = atoi(optarg);
 			break;
 		case 'n':
 			nflag = 1;
 			break;
-		case 'k':
-			keepalive = atoi(optarg);
+		case 't':
+			tflag = 1;
+			break;
+		case 'w':
+			waitsec = atoi(optarg);
 			break;
 		default:
 			error = 1;
