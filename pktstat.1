@@ -134,9 +134,14 @@ David Leonard,
 .\" .Sh HISTORY
 .Sh BUGS
 .Pp
-DNS lookups can take too much time, leading to missed packets.
+DNS lookups can take too much time, possibly leading to missed packets.
 .Pp
-The data rates do not take into account datalink framing or compression.
+The data rates do not take into account data link framing overhead or
+compression savings at the data link layer.
+.Pp
+The direction of traffic is not taken into account: both ingress and
+egress data rates are combined. If you want to separate them, you will need
+to use a filter expression.
 .Pp
 Descriptive information for X11, FTP and HTTP flows is derived from the
 very first packets sent on those protocols.
