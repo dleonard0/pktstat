@@ -22,6 +22,20 @@ static char *redirecttab[4] = {
 	"net", "host", "tos-net", "tos-host"
 };
 
+static char *typetab[] = {
+/* 0*/	"echo", NULL, NULL, NULL, "sourcequench",
+/* 5*/	NULL, "althostaddr", NULL, "echo", "routeradvert",
+/*10*/	"routersolicit", "timxceed", "paramprob", "tstamp", "tstamp",
+/*15*/	"info", "info", "addrmask", "addrmask", NULL,
+/*20*/	NULL, NULL, NULL, NULL, NULL,
+/*25*/	NULL, NULL, NULL, NULL, NULL,
+/*30*/	"traceroute", "dataconverr", "mobile-redir", "ipv6-where", "ipv6-where",
+/*35*/	"mobile-reg", "mobile-reg", NULL, NULL, "skip",
+/*40*/	"photuris"
+};
+
+#define lengthof(a) (sizeof (a) / sizeof (a)[0])
+
 const char *
 icmp_tag(p, end, ip)
 	const char *p;
@@ -35,28 +49,29 @@ icmp_tag(p, end, ip)
 	src = ip_lookup(&ip->ip_src);
 	dst = ip_lookup(&ip->ip_dst);
 	switch (icmp->icmp_type) {
-	case ICMP_ECHOREPLY:
-		snprintf(tag, sizeof tag, "icmp echo-reply %s -> %s", src, dst);
-		return tag;
-	case ICMP_ECHO:
-		snprintf(tag, sizeof tag, "icmp echo %s -> %s", src, dst);
-		return tag;
 	case ICMP_REDIRECT:
-		if (icmp->icmp_code > 3)
+		if (icmp->icmp_code >= lengthof(redirecttab))
 			goto bad;
 		snprintf(tag, sizeof tag, "icmp redirect %s %s -> %s",
 			redirecttab[icmp->icmp_code], src, dst);
 		return tag;
 	case ICMP_UNREACH:
-		if (icmp->icmp_code > 15)
+		if (icmp->icmp_code >= lengthof(unreachtab))
 			goto bad;
 		snprintf(tag, sizeof tag, "icmp unreach %s %s -> %s",
 			unreachtab[icmp->icmp_code], src, dst);
 		return tag;
 	default:
 	bad:
-		snprintf(tag, sizeof tag, "icmp %02x/%02x %s -> %s",
-			icmp->icmp_type, icmp->icmp_code, src, dst);
+		if (icmp->icmp_type >= lengthof(typetab) ||
+		    typetab[icmp->icmp_type] == NULL)
+			snprintf(tag, sizeof tag, "icmp %02x/%02x %s -> %s",
+				icmp->icmp_type, icmp->icmp_code, src, dst);
+		else {
+			snprintf(tag, sizeof tag, "icmp %s %s",
+				typetab[icmp->icmp_type],
+				tag_combine(src, dst));
+		}
 		return tag;
 	}
 }
