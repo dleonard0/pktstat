@@ -18,6 +18,30 @@ static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
 
+static
+const char *
+mega(x, fmt)
+	double x;
+	const char *fmt;
+{
+	static char buf[80];
+	static char suffix[] = " kMGTPE";
+	int i;
+	int len;
+
+	i = 0;
+	while (x >= 1000 && suffix[i]) {
+		x /= 1000.0;
+		i++;
+	}
+	snprintf(buf, sizeof buf - 1, fmt, x);
+	len = strlen(buf);
+	if (suffix[i] != ' ')
+		buf[len++] = suffix[i];
+	buf[len] = '\0';
+	return buf;
+}
+
 void
 display_open(device, filter)
 	const char *device, *filter;
@@ -82,15 +106,18 @@ display_update(period)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
-		printw("cur %-8.1f ", BPS(bps));
+		printw("cur: %-6s ", mega(BPS(bps), "%5.1f"));
 	}
 	if (total_octets)
-		printw("avg %-8.1f", 
-			BPS(total_octets / total_time));
-	printw("min %-8.1f max %-8.1f (%s)\n", BPS(minbps), BPS(maxbps), BPSS);
+		printw("avg: %-6s ", 
+			mega(BPS(total_octets / total_time)), "%5.1f");
+	printw("min: %-6s ",
+		mega(BPS(minbps), "%5.1f"));
+	printw("max: %-6s %s\n", 
+		mega(BPS(maxbps), "%5.1f"), BPSS);
 
 	printw("\n");
-	attron(A_UNDERLINE); printw("%8s", BPSS);
+	attron(A_UNDERLINE); printw("%6s", BPSS);
 	attrset(A_NORMAL); printw(" ");
 	attron(A_UNDERLINE); printw("%4s", "%");
 	attrset(A_NORMAL); printw(" ");
@@ -109,15 +136,15 @@ display_update(period)
 		else if (flows[i].keepalive < keepalive)
 			attron(A_BOLD);
 		if (flows[i].octets)
-			printw("%8.1f %3d%% ",
-				flows[i].octets / period,
+			printw("%6s %3d%% ",
+				mega(BPS(flows[i].octets / period), "%5.1f"),
 				(int)(100 * flows[i].octets / period / maxbps));
 		else
-			printw("%8s %4s ", "", "");
-		printw("%.*s\n", maxx - 15, flows[i].tag);
+			printw("%6s %4s ", "", "");
+		printw("%.*s\n", maxx - 13, flows[i].tag);
 		if (flows[i].desc[0] != '\0') {
-			printw("%8s %4s ", "", "");
-			printw("%.*s\n", maxx - 15, flows[i].desc);
+			printw("%6s %4s ", "", "");
+			printw("%.*s\n", maxx - 13, flows[i].desc);
 		}
 		attrset(A_NORMAL);
 	}
