@@ -51,6 +51,7 @@ main(argc, argv)
 	u_char *fn;
 	struct timeval start;
 	int i;
+	int snaplen = 96;
 	char *expr = NULL;
 	int exprlen;
 
@@ -93,7 +94,7 @@ main(argc, argv)
 		interface = pcap_lookupdev(errbuf);
 	if (!interface) 
 		errx(1, "pcap_lookupdev: %s", errbuf);
-	p = pcap_open_live(interface, 64, 1, waitsec * 1000, errbuf);
+	p = pcap_open_live(interface, snaplen, 1, waitsec * 1000, errbuf);
 	if (!p) 
 		errx(1, "%s: %s", interface, errbuf);
 
