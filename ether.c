@@ -18,12 +18,22 @@ struct ifnet { int ignore; };
 
 #include "tag.h"
 
+struct pppoe_header {
+	u_int8_t	vertype;
+	u_int8_t	code;
+	u_int16_t	sessionid;
+	u_int16_t	len;
+};
+
+/* Return the tag for an ethernet frame */
+
 const char *
 ether_tag(p, end)
         const char *p;
 	const char *end;
 {
 	struct ether_header eh;
+	struct pppoe_header ph;
 	static char tag[80];
 
 	memcpy(&eh, p, sizeof eh);	/* avoid bus alignment probs */
@@ -38,9 +48,13 @@ ether_tag(p, end)
 	case ETHERTYPE_ARP:
 	case ETHERTYPE_REVARP:
 		return "ether arp";
-#ifdef ETHERTYPE_PPOE
+#ifdef ETHERTYPE_PPPOE
 	case ETHERTYPE_PPPOE:
-		return "ether pppoe";
+		p += ETHER_HDR_LEN;
+		memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
+		if (ph.code != 0)
+			return "pppoe";
+		return ppp_tag(p + sizeof ph, end);
 #endif
 	default:
 		snprintf(tag, sizeof tag, "ether %02x",
