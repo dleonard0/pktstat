@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 
 #include "tag.h"
+#include "flow.h"
 #include "hash.h"
 #include "main.h"
 #include "display.h"
@@ -103,7 +104,7 @@ ip_tag(p, end)
 {
 	const struct ip *ip;
 	const char *tcpend;
-	static char tag[256];
+	static char tag[TAGLEN];
 	int hlen;
 
 	ip = (struct ip *)p;

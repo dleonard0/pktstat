@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 
 #include "tag.h"
+#include "flow.h"
 #include "hash.h"
 #include "main.h"
 #include "display.h"
@@ -71,7 +72,7 @@ udp_lookup(port)
 	if (result == NULL) {
 		struct servent *se;
 		u_int16_t *a2;
-		char buf[32];
+		char buf[TAGLEN];
 
 		if (nflag)
 			se = NULL;
@@ -100,8 +101,8 @@ udp_tag(p, end, ip, ip6)
 	const struct ip *ip;
 	const struct ip6_hdr *ip6;
 {
-	static char src[32], dst[32];
-	static char tag[256];
+	static char src[TAGLEN], dst[TAGLEN];
+	static char tag[TAGLEN];
 	struct udphdr *udp = (struct udphdr *)p;
 	u_int16_t sport = ntohs(udp->uh_sport);
 	u_int16_t dport = ntohs(udp->uh_dport);

@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 
 #include "tag.h"
+#include "flow.h"
 #include "hash.h"
 #include "main.h"
 #include "display.h"
@@ -107,7 +108,7 @@ ip6_tag(p, end)
 	const char *end;
 {
 	const struct ip6_hdr *ip6;
-	static char tag[256];
+	static char tag[TAGLEN];
 
 	ip6 = (struct ip6_hdr *)p;
 	if ((ip6->ip6_vfc & IPV6_VERSION_MASK) != IPV6_VERSION) {

@@ -5,18 +5,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/param.h>
-
-/*
-#ifdef BSD
-struct arphdr { int ignore; };
-#endif
-struct ifnet { int ignore; };
-
-#include <sys/queue.h>
-#include <netinet/in.h>
-*/
-
 #include <netipx/ipx.h>
+
+#include "tag.h"
+#include "flow.h"
 
 #if defined(__linux__)
 # if 1 /* linux is a dog's breakfast */
@@ -65,8 +57,6 @@ struct ipxhdr {
 # endif /* the nightmare */
 #endif /* linux */
 
-#include "tag.h"
-
 static struct {
 	u_int8_t pt;
 	const char *name;
@@ -106,8 +96,8 @@ ipx_tag(p, end)
 #else /* BSD */
 	struct ipx h;
 #endif
-	static char tag[256];
-	char src[64], dst[64], pt[64];
+	static char tag[TAGLEN];
+	char src[TAGLEN], dst[TAGLEN], pt[TAGLEN];
 	int i;
 	const char *ptname;
 

@@ -87,7 +87,7 @@ tcp_lookup(port)
 	if (result == NULL) {
 		struct servent *se;
 		u_int16_t *a2;
-		char buf[32];
+		char buf[TAGLEN];
 
 		if (nflag)
 			se = NULL;
@@ -118,8 +118,8 @@ tcp_tag(p, end, ip, ip6)
 	const struct ip *ip;
 	const struct ip6_hdr *ip6;
 {
-	static char src[32], dst[32];
-	static char tag[256];
+	static char src[TAGLEN], dst[TAGLEN];
+	static char tag[TAGLEN];
 	struct tcphdr *tcp = (struct tcphdr *)p;
 	struct flow *f = NULL;
 	u_int16_t sport, dport;
@@ -274,7 +274,7 @@ link_ftp_port(d, tag, end)
 	    u_int16_t port;
 	    unsigned char a[2];
 	} up;
-	char buf[256], *b;
+	char buf[TAGLEN], *b;
 	unsigned int v[6];
 
 	for (b = buf; d < end && b < buf+1+sizeof buf && 
@@ -307,7 +307,7 @@ link_ftp_eport(d, tag, end, defaddr, defaddr6)
 {
         struct in_addr addr;
 	unsigned int port;
-	char buf[256], *b;
+	char buf[TAGLEN], *b;
 	char delim;
 
 	for (b = buf; d < end && b < buf+1+sizeof buf && 

@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 
 #include "tag.h"
+#include "flow.h"
 
 static char *unreachtab[16] = {
 	"net", "host", "protocol", "port", "need-frag", "src-fail",
@@ -43,7 +44,7 @@ icmp_tag(p, end, ip)
 	const struct ip *ip;
 {
 	const char *src, *dst;
-	static char tag[256];
+	static char tag[TAGLEN];
 	struct icmp *icmp = (struct icmp *)p;
 
 	src = ip_lookup(&ip->ip_src);
