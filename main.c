@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <err.h>
+#include <errno.h>
 #include <pcap.h>
 #include <poll.h>
 #include <sys/time.h>
@@ -200,8 +201,11 @@ main(argc, argv)
 		pfd[1].events = POLLIN;
 		pfd[1].revents = 0;
 
-		if (poll(pfd, 2, wflag * 1000) == -1)
+		if (poll(pfd, 2, wflag * 1000) == -1) {
+			if (errno == EINTR)
+				continue;
 			err(1, "poll");
+		}
 
 		if (pfd[0].revents) {
 			cnt = pcap_dispatch(p, -1, handler, fn);
