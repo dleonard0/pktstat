@@ -20,13 +20,15 @@ program displays a real-time summary of packet activity on an interface.
 Each line displays the data associated with a particular class of packets.
 Normally, the class is determined by the packet header.
 .Pp
+.Nm
+understands the following command line options:
 .Bl -tag -width 12ex -offset indent
 .It Fl B
 Display data rates in bytes per second (Bps) instead of
 in bits per second (bps).
 .It Fl c
 Do not combine some packet classes into one class.
-For example, TCP flows are shown as separate streams.
+For example, TCP connections are kept as two separate flows.
 .It Fl F
 Show full hostnames.
 Normally, hostnames are truncated to the first component of their domain name
