@@ -30,7 +30,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7.2p"
+#define VERSION "1.7.2q"
 char version[] = VERSION;
 
 /* When the packet capture interval started */
