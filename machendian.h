@@ -1,4 +1,9 @@
+/* David Leonard, 2004. Public domain. */
+/* $Id$ */
+
 /*
+ * Machine-dependent types and endian conversion.
+ *
  * The following macros convert from specific to native endianness:
  *
  *	swap16(x)	swap32(x)
@@ -8,12 +13,14 @@
  *	htole16(x)	htole32(x)
  *	htobe16(x)	htobe32(x)
  *
- * These integer types should also be defined:
+ * These integer types should also be defined after include this file:
  *
  *	u_int8_t	int8_t
  *	u_int16_t	int16_t
  *	u_int32_t	int32_t
  *
+ * The Berkeley socket macros ntohs, ntohl, htons, htonl are assumed to
+ * work on 16 (?to?s) and 32 (?to?l) bit integers.
  */
 
 #include <sys/types.h>
