@@ -17,6 +17,7 @@
 #include "flow.h"
 #include "main.h"
 #include "tcp.h"
+#include "display.h"
 
 static void link_ftp_eport(const char *, const char *, const char *, 
 	const struct in_addr *);
@@ -50,14 +51,21 @@ tcp_hash(a)
 	return *ia;
 }
 
-static struct hash tcp_hashtab = { tcp_cmp, tcp_hash };
+static struct hash tcp_hashtab = { tcp_cmp, tcp_hash, free, free };
 
 /* Look up an IP address */
 const char *
-tcp_lookup(port)
-	u_int16_t port;
+tcp_lookup(port_n)
+	u_int16_t port_n;
 {
 	const char *result;
+	static int oldnflag = -1;
+	u_int16_t port = ntohs(port_n);
+
+	if (oldnflag != nflag) {
+		hash_clear(&tcp_hashtab);
+		oldnflag = nflag;
+	}
 
 	result = (const char *)hash_lookup(&tcp_hashtab, &port);
 	if (result == NULL) {
@@ -67,8 +75,13 @@ tcp_lookup(port)
 
 		if (nflag)
 			se = NULL;
-		else
-			se = getservbyport(htons(port), "tcp");
+		else if (port > IPPORT_USERRESERVED)
+			se = NULL;
+		else {
+			display_message("resolving tcp port %u", port);
+			se = getservbyport(port, "tcp");
+			display_message("");
+		}
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);
 			result = buf;

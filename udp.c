@@ -15,6 +15,7 @@
 #include "tag.h"
 #include "hash.h"
 #include "main.h"
+#include "display.h"
 
 static int
 udp_cmp(a, b)
@@ -36,7 +37,7 @@ udp_hash(a)
 	return *ia;
 }
 
-static struct hash udp_hashtab = { udp_cmp, udp_hash };
+static struct hash udp_hashtab = { udp_cmp, udp_hash, free, free };
 
 /* Look up an IP address */
 const char *
@@ -44,6 +45,12 @@ udp_lookup(port)
 	u_int16_t port;
 {
 	const char *result;
+	static int oldnflag = -1;
+
+	if (oldnflag != nflag) {
+		hash_clear(&udp_hashtab);
+		oldnflag = nflag;
+	}
 
 	result = (const char *)hash_lookup(&udp_hashtab, &port);
 	if (result == NULL) {
@@ -53,8 +60,11 @@ udp_lookup(port)
 
 		if (nflag)
 			se = NULL;
-		else
+		else {
+			display_message("resolving udp port %u", htons(port));
 			se = getservbyport(htons(port), "udp");
+			display_message("");
+		}
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);
 			result = buf;
