@@ -54,7 +54,7 @@ udp_lookup(port)
 		if (nflag)
 			se = NULL;
 		else
-			se = getservbyport(port, "udp");
+			se = getservbyport(htons(port), "udp");
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);
 			result = buf;
@@ -77,11 +77,13 @@ udp_tag(p, end, ip)
 	static char src[32], dst[32];
 	static char tag[256];
 	struct udphdr *udp = (struct udphdr *)p;
+	u_int16_t sport = ntohs(udp->uh_sport);
+	u_int16_t dport = ntohs(udp->uh_dport);
 
 	snprintf(src, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_src), udp_lookup(udp->uh_sport));
+		ip_lookup(&ip->ip_src), udp_lookup(sport));
 	snprintf(dst, sizeof dst, "%s:%s", 
-		ip_lookup(&ip->ip_dst), udp_lookup(udp->uh_dport));
+		ip_lookup(&ip->ip_dst), udp_lookup(dport));
 	snprintf(tag, sizeof tag, "udp %s", tag_combine(src, dst));
 	return tag;
 }

@@ -176,8 +176,8 @@ tag_combine(src, dst)
 	if (!combine) 
 		snprintf(buf, sizeof buf, "%s -> %s", src, dst);
 	else if (strcmp(src, dst) < 0)
-		snprintf(buf, sizeof buf, "%s - %s", src, dst);
+		snprintf(buf, sizeof buf, "%s <-> %s", src, dst);
 	else
-		snprintf(buf, sizeof buf, "%s - %s", dst, src);
+		snprintf(buf, sizeof buf, "%s <-> %s", dst, src);
 	return buf;
 }

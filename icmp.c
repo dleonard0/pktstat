@@ -10,6 +10,17 @@
 
 #include "tag.h"
 
+static char *unreachtab[16] = {
+	"net", "host", "protocol", "port", "need-frag", "src-fail",
+	"unknown-net", "unknown-host",
+	"isolated", "prohib-net", "prohib-host", "tos-net", "tos-host",
+	"filter-prohib", "host-prec", "prec-cutoff"
+};
+
+static char *redirecttab[4] = {
+	"net", "host", "tos-net", "tos-host"
+};
+
 const char *
 icmp_tag(p, end, ip)
 	const char *p;
@@ -30,9 +41,19 @@ icmp_tag(p, end, ip)
 		snprintf(tag, sizeof tag, "icmp echo %s -> %s", src, dst);
 		return tag;
 	case ICMP_REDIRECT:
-		snprintf(tag, sizeof tag, "icmp redirect %s -> %s", src, dst);
+		if (icmp->icmp_code > 3)
+			goto bad;
+		snprintf(tag, sizeof tag, "icmp redirect %s %s -> %s",
+			redirecttab[icmp->icmp_code], src, dst);
+		return tag;
+	case ICMP_UNREACH:
+		if (icmp->icmp_code > 15)
+			goto bad;
+		snprintf(tag, sizeof tag, "icmp unreach %s %s -> %s",
+			unreachtab[icmp->icmp_code], src, dst);
 		return tag;
 	default:
+	bad:
 		snprintf(tag, sizeof tag, "icmp %02x/%02x %s -> %s",
 			icmp->icmp_type, icmp->icmp_code, src, dst);
 		return tag;

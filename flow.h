@@ -3,9 +3,11 @@
 
 struct flow {
 	char		tag[80];
+	char		desc[80];
 	unsigned int	taghash;
 	unsigned long	octets;
 	int		keepalive;
+	int		dontdel;
 };
 
 extern int nflows;

@@ -13,6 +13,7 @@
 
 #include "tag.h"
 #include "hash.h"
+#include "flow.h"
 
 extern int nflag;
 
@@ -54,7 +55,7 @@ tcp_lookup(port)
 		if (nflag)
 			se = NULL;
 		else
-			se = getservbyport(port, "tcp");
+			se = getservbyport(htons(port), "tcp");
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);
 			result = buf;
@@ -77,11 +78,68 @@ tcp_tag(p, end, ip)
 	static char src[32], dst[32];
 	static char tag[256];
 	struct tcphdr *tcp = (struct tcphdr *)p;
+	struct flow *f = NULL;
+	u_int16_t sport = ntohs(tcp->th_sport);
+	u_int16_t dport = ntohs(tcp->th_dport);
 
 	snprintf(src, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_src), tcp_lookup(tcp->th_sport));
+		ip_lookup(&ip->ip_src), tcp_lookup(sport));
 	snprintf(dst, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_dst), tcp_lookup(tcp->th_dport));
+		ip_lookup(&ip->ip_dst), tcp_lookup(dport));
 	snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
+
+	/* mark some flows as long-lived so we can preserve desc state */
+	if ((tcp->th_flags & (TH_SYN|TH_FIN|TH_RST)) != 0) {
+		f = findflow(tag);
+		if ((tcp->th_flags & TH_SYN) != 0)
+			f->dontdel = 1;
+		if ((tcp->th_flags & (TH_FIN|TH_RST)) != 0) {
+			f->dontdel = 0;	/* can reclaim now */
+			/* f->desc[0] = '\0'; */ /* keep the url around */
+		}
+	}
+
+	/* XXX HTTP */
+	if (sport == 80 || dport == 80
+	 || sport == 8080 || dport == 8080
+	 || sport == 3128 || dport == 3128) {
+		const char *data = p + (tcp->th_off << 2);
+		const char *d;
+		if (memcmp(data, "GET ", 4) == 0 ||
+		    memcmp(data, "POST ", 5) == 0 ||
+		    memcmp(data, "HEAD ", 5) == 0) {
+			if (!f)
+				f = findflow(tag);
+			for (d = data; d < end && *d != ' '; d++)
+				;
+			if (d < end)
+				d++;
+			for (; d < end && *d != '\r' && *d != ' ' 
+			    && *d != ';'; d++)
+				;
+			snprintf(f->desc, sizeof f->desc, "%.*s",
+				d - data, data);
+	        }
+	}
+
+	/* XXX FTP */
+	if (sport == 21 || dport == 21) {
+		const char *data = p + (tcp->th_off << 2);
+		const char *d;
+		if (memcmp(data, "RETR ", 5) == 0 ||
+		    memcmp(data, "STOR ", 5) == 0 ||
+		    memcmp(data, "NLST ", 5) == 0 ||
+		    memcmp(data, "PORT ", 5) == 0 ||
+		    memcmp(data, "ABOR ", 5) == 0 ||
+		    memcmp(data, "LIST ", 5) == 0) {
+			if (!f)
+				f = findflow(tag);
+			for (d = data; d < end && *d != '\r' && *d != '\n'; d++)
+				;
+			snprintf(f->desc, sizeof f->desc, "%.*s",
+				 d - data, data);
+	        }
+	}
+
 	return tag;
 }

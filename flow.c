@@ -42,10 +42,12 @@ findflow(tag)
 			    maxflows * sizeof *flows);
 		}
 	}
+	flows[nflows].taghash = taghash;
 	strncpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
+	flows[nflows].desc[0] = '\0';
 	flows[nflows].octets = 0;
 	flows[nflows].keepalive = -1;
-	flows[nflows].taghash = taghash;
+	flows[nflows].dontdel = 0;
 	return &flows[nflows++];
 }
 

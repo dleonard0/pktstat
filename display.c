@@ -35,6 +35,7 @@ display_update(period)
 	double period;
 {
 	int i;
+	int count;
 	unsigned long sum;
 	double bps = 0;
 
@@ -69,7 +70,10 @@ display_update(period)
 	printw("min %-8.1f max %-8.1f\n", minbps, maxbps);
 	printw("\n");
 
-	for (i = 0; i < nflows && i < 10; i++) {
+	count = 0;
+	for (i = 0; i < nflows && count < 10; i++) {
+		if (flows[i].octets == 0 && flows[i].keepalive == 0)
+			continue;
 		if (flows[i].octets == 0)
 			attron(A_DIM);
 		else if (flows[i].keepalive < keepalive)
@@ -79,14 +83,17 @@ display_update(period)
 			(int)(100 * flows[i].octets / period / maxbps),
 			/* (int)(flows[i].octets * 100 / sum), */
 			flows[i].tag);
+		if (flows[i].desc[0] != '\0')
+		printw("%8s            %s\n", "", flows[i].desc);
 		attrset(A_NORMAL);
+		count++;
 	}
 	for (i = 0; i < nflows; i++)
 		if (flows[i].octets > 0)
 			flows[i].keepalive = keepalive;
-		else {
+		else if (flows[i].keepalive > 0) {
 			flows[i].keepalive--;
-			if (flows[i].keepalive <= 0) {
+			if (flows[i].keepalive <= 0 && !flows[i].dontdel) {
 				flow_del(&flows[i]);
 				i--;	/* cause new flow slips in */
 			}
