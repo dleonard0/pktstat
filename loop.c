@@ -7,8 +7,12 @@
 #include <sys/socket.h>
 
 #include "tag.h"
+#include "flow.h"
 
-/* Used when the device's datalink type is DLT_LOOP */
+/*
+ * Used when the device's datalink type is DLT_LOOP (loopback).
+ * XXX Plenty more protocols could be handled here...
+ */
 
 const char *
 loop_tag(p, end)

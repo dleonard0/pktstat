@@ -5,6 +5,7 @@
 #include <net/ppp_defs.h>
 
 #include "tag.h"
+#include "flow.h"
 
 /* When the datalink type is DLT_PPP, we decode PPP-level packets */
 const char *
