@@ -6,6 +6,7 @@
  */
 
 #include <err.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -15,7 +16,7 @@
 #include "ifc.h"
 
 static int s = -1;
-static const char ifname[IFNAMSIZ];
+static char ifname[IFNAMSIZ];
 
 /* Specify the interface name for future ifc_flags calls */
 void
