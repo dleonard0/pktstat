@@ -28,7 +28,7 @@ static const char *snap_tag(const char *, const char *);
 static const char *ethertype(u_int16_t);
 
 struct pppoe_header {
-	u_int8_t	vertype;
+	u_int8_t	vertype;		/* 0x11 */
 	u_int8_t	code;
 	u_int16_t	sessionid;
 	u_int16_t	len;
@@ -47,6 +47,9 @@ ether_tag(p, end)
 	static char buf[TAGLEN];
 
 	memcpy(&eh, p, sizeof eh);	/* avoid bus alignment probs */
+
+	if ((tag = ether_wol(p, end, (char *)&eh.ether_shost)) != NULL)
+		return tag;
 
 	type = ntohs(eh.ether_type);
 
@@ -119,10 +122,20 @@ ether_tagx(type, p, end)
 #endif
 #if defined(ETHERTYPE_PPPOE)
 	case ETHERTYPE_PPPOE:
+	case ETHERTYPE_PPPOEDISC:
+	   {
+		int len;
 		memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
-		if (ph.code != 0)
-			return "pppoe";
-		return ppp_tag(p + sizeof ph, end);
+		if (ph.vertype != 0x11 || ph.code != 0) 
+			return type == ETHERTYPE_PPPOE
+				? "pppoe"
+				: "pppoe-disc";
+		len = ntohl(ph.len);
+		p += sizeof ph;
+		if (len < end - p)
+			end = p + len;
+		return ppp_tag(p-2, end);
+	   }
 #endif
 	case 0x8137 /* ETHERTYPE_IPX */:
 		return ipx_tag(p, end);
