@@ -1,3 +1,8 @@
+1.7.4
+Add support for fragments
+consistent use of hexadecimal prefix '0x' in display
+use commas to separate port numbers from IPv6 addresses
+minor fixes
 1.7.3c
 check for out-of-memory condition, and handle gracefully
 1.7.3b
