@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include <pcap.h>
+#include <poll.h>
 #include <sys/time.h>
 
 #include "main.h"
@@ -15,6 +16,7 @@
 
 int Bflag = 0;
 int cflag = 0;
+int Eflag = 1;
 int Fflag = 0;
 int kflag = 10;
 int nflag = 0;
@@ -72,6 +74,11 @@ main(argc, argv)
 		case 'c':
 			cflag = 1;		/* no-combine */
 			break;
+#if 0 /* notyet */
+		case 'E':
+			Eflag = 1;		/* ignore errors from pcap */
+			break;
+#endif
 		case 'F':
 			Fflag = 1;		/* full hostname */
 			break;
@@ -102,7 +109,7 @@ main(argc, argv)
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
 		    " [-BcFntT] [-i interface]"
-		    " [-k keepcount] [-w wait] [filter-expr]\n",
+		    " [-k keeptime] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);
 	}
@@ -112,7 +119,7 @@ main(argc, argv)
 		interface = pcap_lookupdev(errbuf);
 	if (!interface) 
 		errx(1, "pcap_lookupdev: %s", errbuf);
-	p = pcap_open_live(interface, snaplen, 1, wflag * 1000, errbuf);
+	p = pcap_open_live(interface, snaplen, 1, 0, errbuf);
 	if (!p) 
 		errx(1, "%s", errbuf);
 
@@ -179,9 +186,28 @@ main(argc, argv)
 	for (;;) {
 		struct timeval now, diff;
 		double period;
+		char errmsg[80];
+		int error = 0;
+		int cnt;
+		struct pollfd pfd[2];
 
-		if (pcap_dispatch(p, 0, handler, fn) == -1)
-			errx(1, "%s", pcap_geterr(p));
+		pfd[0].fd = pcap_fileno(p);
+		pfd[0].events = POLLIN;
+		pfd[0].revents = 0;
+		pfd[1].fd = STDIN_FILENO;
+		pfd[1].events = POLLIN;
+		pfd[1].revents = 0;
+
+		if (poll(pfd, 2, wflag * 1000) == -1)
+			err(1, "poll");
+
+		if (pfd[0].revents) {
+			cnt = pcap_dispatch(p, -1, handler, fn);
+			if (cnt == -1) {
+				snprintf(errmsg, sizeof errmsg, pcap_geterr(p));
+				error = 1;
+			}
+		}
 
 		/* Figure out how long how much time it really took */
 		if (gettimeofday(&now, NULL) == -1)
@@ -190,10 +216,29 @@ main(argc, argv)
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
 
 		/* Update the display if the -w period has passed */
-		if (period >= wflag) {
+		if (period >= wflag || pfd[1].revents) {
 			display_update(period);
 			start = now;
 			flow_zero();
+		}
+
+		/* Display pcap errors */
+		if (error) {
+			int t = (wflag - period) * 1000000;
+			struct timespec ts;
+
+			if (Eflag) {
+				display_close();
+				errx(1, "%s", errmsg);
+			}
+
+			display_message(errmsg);
+			if (t) {
+				/* sleep for the rest of the period */
+				ts.tv_sec = t / 1000000;
+				ts.tv_nsec = t % 1000000;
+				nanosleep(&ts, NULL);
+			}
 		}
 	}
 
