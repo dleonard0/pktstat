@@ -19,6 +19,36 @@ struct ifnet { int ignore; };
 #include <netipx/ipx.h>
 
 #if defined(__linux__)
+# if 1 /* linux is a dog's breakfast */
+/* Because of the insanity of linux distros, we have to declare the
+ * ipx header structure here. EVEN THOUGH THE KERNEL KNOWS IT.
+ */
+/* (these defines from OpenBSD <netipx/ipx.h>) */
+#define IPXPROTO_UNKWN          0       /* Unknown */
+#define IPXPROTO_RI             1       /* RIP Routing Information */
+#define IPXPROTO_PXP            4       /* IPX Packet Exchange Protocol */
+#define IPXPROTO_SPX            5       /* SPX Sequenced Packet */
+#define IPXPROTO_NCP            17      /* NCP NetWare Core */
+#define IPXPROTO_NETBIOS        20      /* Propagated Packet */
+#define XXX     __attribute__((__packed__))
+typedef struct {
+	u_int32_t	net	XXX;
+	u_int8_t	node[6] XXX;
+	u_int16_t	sock	XXX;
+} ipx_address, ipx_addr_t;
+struct ipxhdr {
+        u_int16_t       ipx_sum XXX;    /* Checksum */
+        u_int16_t       ipx_len XXX;    /* Length, in bytes, including header */
+        u_int8_t        ipx_tc  XXX;    /* Transport Control (i.e. hop count) */
+        u_int8_t        ipx_pt  XXX;    /* Packet Type (i.e. lev 2 protocol) */
+        ipx_addr_t      ipx_dna XXX;    /* Destination Network Address */
+        ipx_addr_t      ipx_sna XXX;    /* Source Network Address */
+};
+# else /* linux is cool */
+/*
+ * kernel.org tarballs contain include/linux/ipx.h which only needs
+ * these defines to make IPX header structures available.
+ */
 #define IPXPROTO_UNKWN          IPX_TYPE_UNKNOWN
 #define IPXPROTO_RI             IPX_TYPE_RIP
 #define IPXPROTO_PXP            IPX_TYPE_SAP
@@ -32,7 +62,8 @@ struct ifnet { int ignore; };
 #define ipx_pt	ipx_type
 #define ipx_dna	ipx_dest
 #define ipx_sna	ipx_source
-#endif
+# endif /* the nightmare */
+#endif /* linux */
 
 #include "tag.h"
 
@@ -49,7 +80,7 @@ static struct {
 #define nproto (sizeof prototab / sizeof prototab[0])
 
 #if defined(__linux__)
-/* Convert ipx addr to string. (isn't there one in libc?) */
+/* Convert ipx addr to string. (why isn't there one in libc?) */
 static const char *
 ipx_ntoa(addr)
 	ipx_address	addr;
