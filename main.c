@@ -17,7 +17,7 @@
 
 int Bflag = 0;
 int cflag = 0;
-int Eflag = 1;
+int Eflag = 0;
 int Fflag = 0;
 int kflag = 10;
 int nflag = 0;
@@ -75,11 +75,9 @@ main(argc, argv)
 		case 'c':
 			cflag = 1;		/* no-combine */
 			break;
-#if 0 /* notyet */
 		case 'E':
-			Eflag = 1;		/* ignore errors from pcap */
+			Eflag = 1;		/* XXX undocumented - ignore errors from pcap */
 			break;
-#endif
 		case 'F':
 			Fflag = 1;		/* full hostname */
 			break;
@@ -233,7 +231,7 @@ main(argc, argv)
 			int t = (wflag - period) * 1000000;
 			struct timespec ts;
 
-			if (Eflag) {
+			if (!Eflag) {
 				display_close();
 				errx(1, "%s", errmsg);
 			}

@@ -7,7 +7,7 @@
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
 .Nm pktstat
-.Op Fl BcEFntT
+.Op Fl BcFntT
 .Op Fl i Ar interface
 .Op Fl k Ar keeptime
 .Op Fl w Ar waittime
@@ -29,11 +29,9 @@ in bits per second (bps).
 Do not combine some packet classes into one class.
 For example, TCP connections are kept as two separate flows.
 .\" .It Fl E
-.\" Exit on errors from the
+.\" Don't exit on errors from the
 .\" .Xr pcap 3
 .\" library.
-.\" Otherwise, the error message is displayed on the screen and retried at
-.\" the end of the display period.
 .It Fl F
 Show full hostnames.
 Normally, hostnames are truncated to the first component of their domain name
