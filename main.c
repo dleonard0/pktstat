@@ -14,6 +14,7 @@
 #include "tag.h"
 #include "flow.h"
 #include "display.h"
+#include "abbrev.h"
 
 int Bflag = 0;
 int cflag = 0;
@@ -44,7 +45,7 @@ handler(context, hdr, data)
 		(const char *(*)(const char *, const char *))context;
 	struct flow *flow;
 
-	tag = (*fn)(data, data + hdr->caplen);
+	tag = abbrev_tag((*fn)(data, data + hdr->caplen));
 	flow = findflow(tag);
 	flow->octets += hdr->len;
 	flow->total_octets += hdr->len;
@@ -72,8 +73,14 @@ main(argc, argv)
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "BcEFi:k:lntTw:")) != -1)
+	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lntTw:")) != -1)
 		switch (ch) {
+		case 'A':
+			abbrev_add_file(optarg, 0);
+			break;
+		case 'a':
+			abbrev_add(optarg);
+			break;
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
 			break;
@@ -124,7 +131,9 @@ main(argc, argv)
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
 		    " [-BcFlntT] [-i interface]"
-		    " [-k keeptime] [-w wait] [filter-expr]\n",
+		    " [-k keeptime] [-w wait]"
+		    " [-a abbrev] [-A file]"
+		    " [filter-expr]\n",
 		    argv[0]);
 		exit(1);
 	}
@@ -272,11 +281,22 @@ tag_combine(src, dst)
 	const char *dst;
 {
 	static char buf[80];
-	if (cflag) 
+	static char buf2[80];
+	const char *res;
+
+	if (cflag) {
 		snprintf(buf, sizeof buf, "%s -> %s", src, dst);
-	else if (strcmp(src, dst) < 0)
+		res = abbrev_tag(buf);
+	} else {
 		snprintf(buf, sizeof buf, "%s <-> %s", src, dst);
-	else
-		snprintf(buf, sizeof buf, "%s <-> %s", dst, src);
-	return buf;
+		res = abbrev_tag(buf);
+		if (res == buf) {
+			snprintf(buf2, sizeof buf2, "%s <-> %s", dst, src);
+			res = abbrev_tag(buf2);
+			if (res == buf2)
+				if (strcmp(src, dst) < 0)
+					res = buf;
+		}
+	}
+	return res;
 }

@@ -8,6 +8,8 @@
 .Sh SYNOPSIS
 .Nm pktstat
 .Op Fl BcFlntT
+.Op Fl a Ar abbrev
+.Op Fl A Ar file
 .Op Fl i Ar interface
 .Op Fl k Ar keeptime
 .Op Fl w Ar waittime
@@ -22,6 +24,18 @@ Normally, the class is determined by the packet header.
 .Nm
 understands the following command line options:
 .Bl -tag -width 12ex -offset indent
+.It Fl a Ar abbrev
+Add
+.Ar abbrev
+to the list of abbreviation patterns.
+
+.It Fl A Ar file
+Read abbreviation patterns from the given file.
+Abbreviation patterns must be on separate lines.
+Leading and trailing whitespace is ignored;
+blank lines and lines starting with
+.Ql #
+are ignored.
 .It Fl B
 Display data rates in bytes per second (Bps) instead of
 in bits per second (bps).
@@ -118,6 +132,26 @@ In addition to being tagged, some protocol-state information can
 be associated with a flow. This is displayed immediately below a flow line.
 Descriptive information for FTP, HTTP, and X11 connections is determined
 from simple decoding of some packets.
+.\"
+.Ss Abbreviations
+.Pp
+Abbreviation patterns are a way of further aggregating flows.
+Flow names are constructed in stages from the protocol and host addresses of
+the packets. At various stages, abbreviations patterns are applied to the
+the partially constructed flow name, and replaced by the pattern's name if
+matched.
+.Pp
+Abbreviations Take the form
+.Op Ar name Ns Li @ Ns
+.Ar pattern .
+The
+.Ar pattern
+part can contain the wildcard character
+.Ql *
+which matches zero or more characters.
+If the optional
+.Ar name
+part is not specified, the name of the pattern is the pattern text itself.
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.
