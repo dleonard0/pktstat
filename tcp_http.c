@@ -7,6 +7,10 @@
 #include "flow.h"
 #include "tcp.h"
 
+/*
+ * Look for HTTP command words (e.g. GET, POST etc) and use it and the
+ * following object argument as a description for the flow.
+ */
 void
 tcp_http(f, data, end)
 	struct flow *f;

@@ -73,6 +73,11 @@ struct x11state {
 	int	goodness;
 };
 
+/*
+ * Watch the X11 protocol carefully and look for string atom changes.
+ * Typically the WM_NAME, WM_CLASS or WM_COMMAND atoms contain a good
+ * description of the activity that's causing the traffic.
+ */
 void
 tcp_x11(f, data, end)
 	struct flow *f;

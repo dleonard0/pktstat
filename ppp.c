@@ -6,8 +6,7 @@
 
 #include "tag.h"
 
-/* Used, when the datalink type is DLT_PPP */
-
+/* When the datalink type is DLT_PPP, we decode PPP-level packets */
 const char *
 ppp_tag(p, end)
 	const char *p;
@@ -23,9 +22,9 @@ ppp_tag(p, end)
 	case PPP_IPV6:
 		return ip6_tag(p + PPP_HDRLEN, end);
 	case PPP_IPX:
-		return "ipx";		/* XXX */
+		return "ipx";		/* XXX - could decode further? */
 	case PPP_AT:
-		return "appletalk";	/* XXX */
+		return "appletalk";	/* XXX - could decode further? */
 
 	/* ppp private protocols */
 	case PPP_IPCP:
@@ -45,7 +44,7 @@ ppp_tag(p, end)
 	case PPP_COMP:
 		return "ppp-comp (comp/decompression fault)";
 	default:
-		snprintf(tag, sizeof tag, "ppp 0x%04x", PPP_PROTOCOL(p));
+		snprintf(tag, sizeof tag, "ppp-0x%04x", PPP_PROTOCOL(p));
 		return tag;
 	}
 }
