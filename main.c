@@ -22,7 +22,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.5.1"
+#define VERSION "1.5.2"
 
 /* Receive a packet and determine its category tag */
 static void
