@@ -8,6 +8,9 @@ struct flow {
 	unsigned long	octets;
 	int		keepalive;
 	int		dontdel;
+	u_int32_t	seq[2];		/* seq no for TCP */
+	void		*udata;
+	void		(*freeudata)(void *);
 };
 
 extern int nflows;

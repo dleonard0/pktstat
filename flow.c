@@ -49,6 +49,8 @@ findflow(tag)
 	flows[nflows].octets = 0;
 	flows[nflows].keepalive = -1;
 	flows[nflows].dontdel = 0;
+	flows[nflows].udata = NULL;
+	flows[nflows].freeudata = NULL;
 	return &flows[nflows++];
 }
 
@@ -90,6 +92,8 @@ flow_del(f)
 {
 	int i = f - flows;
 
+	if (f->freeudata)
+		(*f->freeudata)(f->udata);
 	if (nflows > 1 && i != nflows -1) {
 		memcpy(f, &flows[nflows-1], sizeof (struct flow));
 	}
