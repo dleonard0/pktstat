@@ -25,7 +25,7 @@ loop_tag(p, end)
 	memcpy(&af, p, sizeof af);
 	p += sizeof af;
 
-	switch (af) {
+	switch (ntohl(af)) {
 	case AF_INET:
 		return ip_tag(p, end);
 	case AF_INET6:
