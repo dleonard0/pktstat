@@ -12,7 +12,8 @@
 
 #if defined(__linux__)
 # if 1 /* linux is a dog's breakfast */
-/* Because of the insanity of linux distros, we have to declare the
+/*
+ * Because of the insanity of linux distros, we have to declare the
  * ipx header structure here. EVEN THOUGH THE KERNEL KNOWS IT.
  */
 /* (these defines from OpenBSD <netipx/ipx.h>) */
@@ -24,9 +25,9 @@
 #define IPXPROTO_NETBIOS        20      /* Propagated Packet */
 #define XXX     __attribute__((__packed__))
 typedef struct {
-	u_int32_t	net	XXX;
-	u_int8_t	node[6] XXX;
-	u_int16_t	sock	XXX;
+	u_int32_t 	net		XXX;
+	u_int8_t 	host[6];	XXX;
+	u_int16_t	port		XXX;
 } ipx_address, ipx_addr_t;
 struct ipxhdr {
         u_int16_t       ipx_sum XXX;    /* Checksum */
@@ -36,10 +37,11 @@ struct ipxhdr {
         ipx_addr_t      ipx_dna XXX;    /* Destination Network Address */
         ipx_addr_t      ipx_sna XXX;    /* Source Network Address */
 };
+#undef XXX
 # else /* linux is cool */
 /*
  * kernel.org tarballs contain include/linux/ipx.h which only needs
- * these defines to make IPX header structures available.
+ * these defines to make IPX header structures compatible with my reference.
  */
 #define IPXPROTO_UNKWN          IPX_TYPE_UNKNOWN
 #define IPXPROTO_RI             IPX_TYPE_RIP
@@ -57,6 +59,8 @@ struct ipxhdr {
 # endif /* the nightmare */
 #endif /* linux */
 
+static const char *my_ipx_ntoa(void *);
+
 static struct {
 	u_int8_t pt;
 	const char *name;
@@ -69,23 +73,59 @@ static struct {
 };
 #define nproto (sizeof prototab / sizeof prototab[0])
 
-#if defined(__linux__)
-/* Convert ipx addr to string. (why isn't there one in libc?) */
+/*
+ * Notes on the representation of IPX addresses
+ * --------------------------------------------
+ *
+ * IPX addresses (unlike IP addresses) are essentially unstructured.
+ * The format for display IPX addresses varies. Microsoft's WinSNMP parser
+ * accepts one of '-', ':', '.' after the 8-digit hex net number.
+ * (This is probably because RFC1298, section 2.4, describes just a raw string)
+ *
+ * Bowever, <http://netcert.tripod.com/ccna/internetworking/ipx.html>
+ * gives '4a.0000.0c00.23fe' as an example. Novell themselves, in
+ * <www.novell.com/documentation/lg/nw6p/ipx_enu/data/hvvqznoa.html>
+ * give the example of 'FEDCBA98 1A2B3C5D7E9F 0453'.
+ *
+ * A discussion at <www.cs.helsinki.fi/linux/linux-kernel/2001-44/0742.html>
+ * notes that ipx addresses look like hex floating point (ie xxx.xxx).
+ * And a google-cached network course from boerner.net gives an example
+ * IPX host address as '000008A2:0060973E97F3'.
+ *
+ * Cisco IOS reports IPX addresses in the 'dotted triplet' form,
+ * with an example from a CCNA study guide given as '010a.0123.0123.0123'.
+ * NetBSD's libc has an ipx_ntoa() that yields representations such as
+ * '8A2H.00:60:97:3E:97:F3.65535'.
+ *
+ * Clearly, this is an insane and exciting world of mental trauma
+ * that is as appealling as having a sharp pointy stick jabbed into your
+ * eye. Because I am not that familiar with IPX, I would really
+ * appreciate feedback/advice on this -- as long as the advice is 
+ * NOT "let the user specify". I want to know what the best representation
+ * to use for the expected users of pktstat would be. For now, I'll
+ * use Cisco's representation, suffixed by a colon and the decimal port number.
+ */
 static const char *
-ipx_ntoa(addr)
-	ipx_address	addr;
+my_ipx_ntoa(addr)
+	void *addr;
 {
-	static char buf[] = "00000000:000000000000:0000";
+	static char buf[] = "00000000.0000.0000.0000:0000";
+	u_int32_t ipx_net;
+	u_int8_t  ipx_host[6];
+	u_int16_t ipx_port;
+
+	memcpy(&ipx_net,  addr, 4);
+	memcpy(&ipx_host, addr + 4, 6);
+	memcpy(&ipx_port, addr + 10, 2);
 
 	snprintf(buf, sizeof buf, 
-		"%08lX:%02X%02X%02X%02X%02X%02X:%04X",
-		(unsigned long) htonl(addr.net),
-		addr.node[0], addr.node[1], addr.node[2],
-		addr.node[3], addr.node[4], addr.node[5],
-		htons(addr.sock));
+		"%8lX.%02X%02X.%02X%02X.%02X%02X:%u",
+		(unsigned long) ntohl(ipx_net),
+		ipx_host[0], ipx_host[1], ipx_host[2],
+		ipx_host[3], ipx_host[4], ipx_host[5],
+		ntohs(ipx_port));
 	return buf;
 }
-#endif
 
 const char *
 ipx_tag(p, end)
@@ -102,8 +142,8 @@ ipx_tag(p, end)
 	const char *ptname;
 
 	memcpy(&h, p, sizeof h);
-	snprintf(dst, sizeof src, "%s", ipx_ntoa(h.ipx_dna));
-	snprintf(src, sizeof src, "%s", ipx_ntoa(h.ipx_sna));
+	snprintf(dst, sizeof src, "%s", my_ipx_ntoa(&h.ipx_dna));
+	snprintf(src, sizeof src, "%s", my_ipx_ntoa(&h.ipx_sna));
 
 	ptname = NULL;
 	for (i = 0; i < sizeof prototab / sizeof prototab[0]; i++)
