@@ -71,6 +71,7 @@ main(argc, argv)
 	int snaplen = 1500;
 	char *expr = NULL;
 	int exprlen;
+	int blankAflag = 0;
 
 	/* Process command line options */
 	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lntTw:")) != -1)
@@ -79,7 +80,10 @@ main(argc, argv)
 			abbrev_add_file(optarg, 0);
 			break;
 		case 'a':
-			abbrev_add(optarg);
+			if (!*optarg)
+				blankAflag = 1;
+			else
+				abbrev_add(optarg);
 			break;
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
@@ -137,6 +141,9 @@ main(argc, argv)
 		    argv[0]);
 		exit(1);
 	}
+
+	if (!blankAflag)
+		abbrev_add_default_files();
 
 	/* Open the interface */
 	if (interface == NULL)

@@ -122,7 +122,9 @@ abbrev_add_file(filename, ignore_open_error)
 	int ignore_open_error;
 {
 	FILE *f;
-	char pattern[1024], *p, *q;
+	char pattern[1024];		/* XXX arbitrary limit? */
+	char *p, *q;
+	char *endpattern = pattern + sizeof pattern;
 
 	f = fopen(filename, "r");
 	if (!f) {
@@ -134,21 +136,39 @@ abbrev_add_file(filename, ignore_open_error)
 		/* Ignore leading space */
 		while (*p == ' ' || *p == '\t')
 			p++;
-		/* Ignore commenst */
+		/* Ignore comment lines */
 		if (*p == '#')
 			continue;
-		/* Search for end of string */
-		for (q = p; q < pattern + sizeof pattern - 1 && *q; q++)
+		/* Search for end of line */
+		for (q = p; q < endpattern && *q; q++)
 			if (*q == '\n')
 				break;
 		/* Ignore trailing space */
-		while (q > p && (*(q-1) == ' ' || *(q-1) == '\t'))
+		while (q > p && (q[-1] == ' ' || q[-1] == '\t'))
 			q--;
 		/* Terminate string */
 		*q = '\0';
-		abbrev_add(p);
+		/* Add it */
+		if (*p)
+			abbrev_add(p);
 	}
 	if (ferror(f))
 		warn("%s", filename);
 	fclose(f);
+}
+
+/* Try loading .pktstatrc, $HOME/.pktstatrc and /etc/pktstatrc */
+void
+abbrev_add_default_files()
+{
+	char path[FILENAME_MAX];
+	char *home;
+
+	abbrev_add_file(".pktstatrc", 1);
+	home = getenv("HOME");
+	if (home) {
+		snprintf(path, sizeof path, "%s/.pktstatrc", home);
+		abbrev_add_file(path, 1);
+	}
+	abbrev_add_file("/etc/pktstatrc", 1);
 }
