@@ -19,6 +19,13 @@
 #include "hash.h"
 #include "main.h"
 #include "display.h"
+#include "frag.h"
+
+static int inaddr_cmp(const void *a, const void *b);
+static unsigned int inaddr_hash(const void *a);
+static const char *ip_fragment(const char *p, const char *end, 
+		u_int16_t offset);
+static const char *ip_pkt_tag(const char *p, const char *end);
 
 static int
 inaddr_cmp(a, b)
@@ -47,10 +54,16 @@ static struct hash ip_hash = {
 	(free_t)free	/* freedata */
 };
 
+static struct fragtab *ip_fragtab = NULL;
+
 void
 ip_reset()
 {
 	hash_clear(&ip_hash);
+	if (ip_fragtab) {
+		fragtab_free(ip_fragtab);
+		ip_fragtab = NULL;
+	}
 }
 
 /* Look up an IP address */
@@ -100,36 +113,91 @@ ip_lookup(addr)
 	return result;
 }
 
-const char *
-ip_tag(p, end)
+/* Handle a fragment */
+static const char *
+ip_fragment(p, end, offset)
+	const char *p;
+	const char *end;
+	u_int16_t offset;
+{
+	const struct ip *ip = (const struct ip *)p;
+	struct ipfkey {
+		struct in_addr src, dst;
+		u_int16_t id;
+	} ipfkey;
+	u_int16_t next_offset;
+	int paylen = ntohs(ip->ip_len) - (ip->ip_hl << 2);
+	const char *tag;
+
+	memcpy(&ipfkey.src, &ip->ip_src, sizeof ipfkey.src);
+	memcpy(&ipfkey.dst, &ip->ip_dst, sizeof ipfkey.dst);
+	memcpy(&ipfkey.id, &ip->ip_id, sizeof ipfkey.id);
+
+	if (offset & IP_MF) {
+		if (paylen & 7)
+			return "ip fragments";	/* bad length */
+		next_offset = (offset & IP_OFFMASK) + (paylen >> 3);
+	} else
+		next_offset = 0;
+
+	if (ip_fragtab == NULL)
+		ip_fragtab = fragtab_new(sizeof ipfkey, 1024);
+	fragtab_put(ip_fragtab, &ipfkey, p, end - p, offset & IP_OFFMASK,
+		next_offset);
+
+	if ((offset & IP_OFFMASK) == 0)
+		tag = ip_pkt_tag(p, end);
+	else {
+		int len;
+		char *dp;
+		dp = (char *)fragtab_get(ip_fragtab, &ipfkey, 0, &len);
+		if (dp)
+			tag = ip_pkt_tag(dp, dp + len);
+		else
+			tag = "ip fragments";	/* out of order! */
+	}
+		
+	if (fragtab_check(ip_fragtab, &ipfkey, 0, 0)) {
+		fragtab_del(ip_fragtab, &ipfkey);
+	}
+	return tag;
+}
+
+static const char *
+ip_pkt_tag(p, end)
 	const char *p;
 	const char *end;
 {
-	const struct ip *ip;
-	const char *tcpend;
+	const struct ip *ip = (const struct ip *)p;
+	const char *pktend;
 	static char tag[TAGLEN];
 	int hlen;
 
-	ip = (struct ip *)p;
-	if (ip->ip_v != IPVERSION) {
-		snprintf(tag, sizeof tag, "ip version %u", ip->ip_v);
-		return tag;
-	}
+	pktend = p + ntohs(ip->ip_len);
+	if (end < pktend)
+		pktend = end;
 	hlen = ip->ip_hl << 2;
-	tcpend = p + ntohs(ip->ip_len);
-	if (end < tcpend)
-		tcpend = end;
+
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:
-		return tcp_tag(p + hlen, tcpend, ip, NULL);
+		return tcp_tag(p + hlen, pktend, ip, NULL);
 	case IPPROTO_UDP:
-		return udp_tag(p + hlen, tcpend, ip, NULL);
+		return udp_tag(p + hlen, pktend, ip, NULL);
 	case IPPROTO_ICMP:
-		return icmp_tag(p + hlen, tcpend, ip);
+		return icmp_tag(p + hlen, pktend, ip);
 	case IPPROTO_IGMP:
 		snprintf(tag, sizeof tag, "igmp %s", 
 		    tag_combine(ip_lookup(&ip->ip_src), ip_lookup(&ip->ip_dst))
 		);
+		return tag;
+	case IPPROTO_IPV6:	/* RFC1933 4.1.5 */
+		snprintf(tag, sizeof tag, "ip %s", ip6_tag(p + hlen, end));
+		/*
+		 * XXX should we include the ipv4 encap src/dest in the tag??
+		 * If we do, the tag looks cluttered... I think we are more
+		 * interested in what the content of the data is, rather
+		 * than how the data is encoded.
+		 */
 		return tag;
 	default:
 		snprintf(tag, sizeof tag, "ip proto %u %s", ip->ip_p,
@@ -138,3 +206,25 @@ ip_tag(p, end)
 		return tag;
 	}
 }
+
+const char *
+ip_tag(p, end)
+	const char *p;
+	const char *end;
+{
+	const struct ip *ip = (struct ip *)p;
+	u_int16_t offset;
+	static char tag[TAGLEN];
+
+	if (ip->ip_v != IPVERSION) {
+		snprintf(tag, sizeof tag, "ip version %u", ip->ip_v);
+		return tag;
+	}
+
+	offset = ntohs(ip->ip_off);
+	if ((offset & (IP_MF | IP_OFFMASK)) != 0)
+		return ip_fragment(p, end, offset);
+
+	return ip_pkt_tag(p, end);
+}
+
