@@ -2,8 +2,8 @@
 /* $Id$ */
 
 struct flow {
-	char		tag[80];
-	char		desc[80];
+	char		tag[128];
+	char		desc[128 - 2];
 	unsigned int	taghash;
 	unsigned long	octets;
 	unsigned long	total_octets;
@@ -13,6 +13,7 @@ struct flow {
 	void		*udata;
 	void		(*freeudata)(void *);
 	struct timeval	lastseen;
+	int		packets;
 };
 
 extern int nflows;
@@ -25,3 +26,4 @@ void	     flow_del(struct flow *);
 int	     octetcmp(const void *, const void *);
 int	     tagcmp(const void *, const void *);
 int	     lastcmp(const void *, const void *);
+int	     packetcmp(const void *, const void *);

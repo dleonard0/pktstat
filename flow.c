@@ -54,6 +54,7 @@ findflow(tag)
 	flows[nflows].dontdel = 0;
 	flows[nflows].udata = NULL;
 	flows[nflows].freeudata = NULL;
+	flows[nflows].packets = 0;
 	return &flows[nflows++];
 }
 
@@ -96,14 +97,27 @@ lastcmp(a, b)
 		return fb->lastseen.tv_sec - fa->lastseen.tv_sec;
 }
 
+/* Compare flows by their packet count (reverse order) */
+int
+packetcmp(a, b)
+	const void *a;
+	const void *b;
+{
+	const struct flow *fa = (const struct flow *)a;
+	const struct flow *fb = (const struct flow *)b;
+	return strcmp(fa->packets, fb->packets);
+}
+
 /* Zero the octet count on all flows */
 void
 flow_zero()
 {
 	int i;
 
-	for (i = 0; i < nflows; i++)
+	for (i = 0; i < nflows; i++) {
 		flows[i].octets = 0;
+		flows[i].packets = 0;
+	}
 }
 
 /* Remove a flow */

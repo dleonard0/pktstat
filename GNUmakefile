@@ -9,6 +9,7 @@ include Makefile
 
 OBJS=	${SRCS:.c=.o}
 MAN=	${PROG}.cat1
+CFLAGS=	-I/usr/include/pcap
 PREFIX?=/usr/local
 BINDIR=	${PREFIX}/bin
 MANDIR=	${PREFIX}/man
