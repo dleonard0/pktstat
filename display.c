@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <curses.h>
 #include <sys/types.h>
+#include <stdarg.h>
 
 #include "display.h"
 #include "flow.h"
@@ -73,6 +74,7 @@ display_update(period)
 	double bps = 0;
 	int maxx, maxy, y, x;
 	int redraw_needed = 0;
+	int clearflows = 0;
 
 	if (resize_needed) {
 		resize();
@@ -90,12 +92,16 @@ display_update(period)
 		break;
 	case 'n':
 		nflag = !nflag;
-		while (nflows)
-			flow_del(flows);	/* because tags change */
+		clearflows = 1;
 		break;
 	case 'b':
 	case 'B':
 		Bflag = !Bflag;
+		break;
+	case 'f':
+	case 'F':
+		Bflag = !Fflag;
+		clearflows = 1;
 		break;
 	case ERR:		/* no key */
 	default:
@@ -187,6 +193,35 @@ display_update(period)
 				i--;	/* cause new flow slips in */
 			}
 		}
+
+	refresh();
+
+	/* If tag names will change, we need to reset everything */
+	if (clearflows)
+		while (nflows)
+			flow_del(flows);
+}
+
+void
+display_message(const char *fmt, ...)
+{
+	int maxy, maxx;
+	char *buf;
+	va_list ap;
+
+	if (resize_needed)
+		resize();
+
+	getmaxyx(stdscr, maxy, maxx);
+	buf = alloca(maxx);
+
+	va_start(ap, fmt);
+	vsnprintf(buf, maxx - 2, fmt, ap);
+	va_end(ap);
+
+	move(maxy - 1, 0);
+	clrtoeol();
+	addstr(buf);
 
 	refresh();
 }

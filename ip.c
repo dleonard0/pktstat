@@ -14,6 +14,7 @@
 #include "tag.h"
 #include "hash.h"
 #include "main.h"
+#include "display.h"
 
 static int
 inaddr_cmp(a, b)
@@ -35,7 +36,7 @@ inaddr_hash(a)
 	return ia->s_addr;
 }
 
-static struct hash ip_hash = { inaddr_cmp, inaddr_hash };
+static struct hash ip_hash = { inaddr_cmp, inaddr_hash, free, free };
 
 /* Look up an IP address */
 const char *
@@ -43,22 +44,33 @@ ip_lookup(addr)
 	const struct in_addr *addr;
 {
 	const char *result;
+	static	int old_nflag = -1;
+
+	if (old_nflag != nflag) {
+		hash_clear(&ip_hash);
+		old_nflag = nflag;
+	}
 
 	result = (const char *)hash_lookup(&ip_hash, addr);
 	if (result == NULL) {
 		struct hostent *he;
 		struct in_addr *a2;
-		char *s;
+		char *s, *t;
 
 		if (nflag)
 			he = NULL;
-		else
+		else {
+			display_message("resolving %s", inet_ntoa(*addr));
 			he = gethostbyaddr((char *)addr, sizeof *addr, AF_INET);
+			display_message("");
+		}
 		if (he == NULL)
 			s = inet_ntoa(*addr);
 		else {
-			char *t = strchr(he->h_name, '.');
-			if (t) *t = '\0';
+			if (!Fflag) {
+				t = strchr(he->h_name, '.');
+				if (t) *t = '\0';
+			}
 			s = he->h_name;
 		}
 		result = strdup(s);

@@ -8,11 +8,9 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm pktstat
-.Op Fl c
+.Op Fl BcFnt
 .Op Fl i Ar interface
 .Op Fl k Ar keepcount
-.Op Fl n
-.Op Fl t
 .Op Fl w Ar waittime
 .Op Ar filter-expr
 .Sh DESCRIPTION
@@ -29,6 +27,10 @@ in bits per second (bps).
 .It Fl c
 Do not combine packet classes into one class. For example, TCP flows
 are shown as separate streams.
+.It Fl F
+Show full hostnames.
+Normally, hostnames are truncated to the first component of their domain name
+before display.
 .It Fl i Ar interface
 Listen on the given interface instead of using a default one.
 .It Fl k Ar keepcount
@@ -74,6 +76,10 @@ flag (numeric display)
 toggle the
 .Fl B
 flag (bps or Bps)
+.It Ic f | F
+toggle the
+.Fl F
+flag (full hostnames)
 .El
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES

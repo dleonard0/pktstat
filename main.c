@@ -18,6 +18,7 @@ int kflag = 10;
 int tflag = 0;
 int nflag = 0;
 int Bflag = 0;
+int Fflag = 0;
 
 const char *version = "1.3.1";
 
@@ -61,13 +62,16 @@ main(argc, argv)
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "Bci:k:ntw:")) != -1)
+	while ((ch = getopt(argc, argv, "BcFi:k:ntw:")) != -1)
 		switch (ch) {
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
 			break;
 		case 'c':
 			cflag = 1;		/* no-combine */
+			break;
+		case 'F':
+			Fflag = 1;		/* full hostname */
 			break;
 		case 'i':
 			interface = optarg;	/* interface */
@@ -92,7 +96,7 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", version);
 		fprintf(stderr, "usage: %s"
-		    " [-Bcnt] [-i interface]"
+		    " [-BcFnt] [-i interface]"
 		    " [-k keepcount] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);
