@@ -117,7 +117,7 @@ ip6_tag(p, end)
 		/* XXX */
 		snprintf(tag, sizeof tag, "icmp6 %s",
 		    tag_combine(ip6_lookup(&ip6->ip6_src),
-		    ip6_lookup(&ip6->ip6_dst)), ip6->ip6_nxt);
+		    ip6_lookup(&ip6->ip6_dst)));
 		return tag;
 	default:
 		snprintf(tag, sizeof tag, "ip6 %s proto %u",
