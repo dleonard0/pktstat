@@ -23,14 +23,22 @@ struct xConnClientPrefix {
 #define U16(v)	(state->byteorder == BE ? betoh16(v) : letoh16(v))
 #define U32(v)	(state->byteorder == BE ? betoh32(v) : letoh32(v))
 
-struct xChangePropertyReq {
+struct xReq {
 	u_int8_t	reqType;
 #define X_ChangeProperty 18 
+	u_int8_t	data0;
+	u_int16_t	length;	/* number of 32-bit words */
+};
+
+struct xChangePropertyReq {
+	u_int8_t	reqType;
 	u_int8_t	mode;
 	u_int16_t	length;	/* number of 32-bit words */
 	u_int32_t	window;
 	u_int32_t	property;
 #define XA_WM_COMMAND	34
+#define XA_WM_NAME	39
+#define XA_WM_CLASS	67
 	u_int32_t	type;
 #define XA_STRING	31
 	u_int8_t	format;	/* bits per element */
@@ -40,8 +48,7 @@ struct xChangePropertyReq {
 
 struct x11state {
 	char	byteorder;
-	int	skipbytes;
-	int	dontcare;
+	int	goodness;
 };
 
 void
@@ -51,12 +58,12 @@ tcp_x11(f, data, end)
 	const char *end;
 {
 	struct x11state *state;
-	const struct xChangePropertyReq *req;
 
 	if (data == end)
 		return;
 
 	state = (struct x11state *)f->udata;
+
 	if (state == NULL) {
 		const struct xConnClientPrefix *p;
 		state = (struct x11state *)malloc(sizeof (struct x11state));
@@ -64,49 +71,53 @@ tcp_x11(f, data, end)
 		f->freeudata = free;
 		p = (const struct xConnClientPrefix *)data;
 		state->byteorder = p->byteOrder;
-		state->skipbytes = (sizeof *p) +  U16(p->nbytesAuthProto)
-		    + U16(p->nbytesAuthString);
-		state->skipbytes = (state->skipbytes + 3) & ~3; /* eek! */
-		state->dontcare = 0;
+		state->goodness = 0;
+		/* Unlikely to have the WM props in the first pkt */
+		return;
 	}
 
-	if (state->dontcare)
-		return;
+	while (data + sizeof (struct xReq) <= end) {
+		const struct xReq *xr = (const struct xReq *)data;
+		const struct xChangePropertyReq *chp =
+			(const struct xChangePropertyReq *)data;
+		const char *nextdata = data + 4 * U16(xr->length);
 
-	while (1) {
-		if (state->skipbytes >= (end - data)) {
-			state->skipbytes -= (end - data);
-			return;
-		}
-
-		data += state->skipbytes;
-		state->skipbytes = 0;
-
-		/*
-		 * Look for a WM_COMMAND property being set to a
-		 * string, and save its list as the description
+		/* 
+		 * Look for a change to a WM_NAME or WM_COMMAND atom
 		 */
-		req = (const struct xChangePropertyReq *)data;
-
-		if (req->reqType == X_ChangeProperty
-		    && U32(req->property) == XA_WM_COMMAND
-		    && U32(req->type) == XA_STRING
-		    && req->format == 8)
+		if (xr->reqType == X_ChangeProperty
+		    && data + sizeof *chp < end
+		    && U32(chp->type) == XA_STRING
+		    && chp->format == 8)
 		{
-			const char *cmd = (const char *)(req + 1);
-			int len = U32(req->nUnits);
-			int i;
-			if (len > 0 && cmd[len-1] == '\0')
+			const char *cmd = data + sizeof *chp;
+			int i, len = U32(chp->nUnits);
+			int goodness;
+			u_int32_t property = U32(chp->property);
+
+			/* We prefer some properties over others */
+			goodness = 
+			    property == XA_WM_COMMAND ? 2 :
+			    property == XA_WM_NAME ? 1 : 
+			    property == XA_WM_CLASS ? 0 : 
+				-1;
+
+			if (goodness > state->goodness)
+			{
+			    if (len > 0 && cmd[len-1] == '\0')
 				len--;
-			for (i = 0; i < sizeof f->desc - 1 && i < len; i++)
+			    for (i = 0; i < sizeof f->desc - 1 && i < len; i++)
 				if (cmd[i])
 					f->desc[i] = cmd[i];
 				else
 					f->desc[i] = ' ';
-			f->desc[i] = '\0';
-			state->dontcare = 1;	/* stop processing the data stream */
-			return;
+			    f->desc[i] = '\0';
+			    state->goodness = goodness;
+			}
 		}
-		state->skipbytes = U16(req->length) * 4;
+
+		if (nextdata <= data)
+			break;			/* hmm, avoid going backwards */
+		data = nextdata;
 	}
 }
