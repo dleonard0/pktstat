@@ -27,20 +27,23 @@ Normally, the class is determined by the packet header.
 Do not combine packet classes into one class. For example, TCP flows
 are shown as separate streams.
 .It Fl i Ar interface
-Listen on the interface instead of using a default one.
+Listen on the given interface instead of using a default one.
 .It Fl k Ar keepcount
 When no data has been seen for a particular class, retain an entry
 on the display for this many screen refreshes.
+Default 10.
 .It Fl n
-Do not try and resolve hostnames or port numbers.
+Do not try and resolve hostnames or service port numbers.
+(DNS lookups can stall display updates.)
 .It Fl t
-Sort the display by the number of octets rather than by
-the packet class string.
+"Top" mode.
+Sorts the display by octet count, rather than by
+the packet class.
 .It Fl w Ar waittime
 Refresh the display every
 .Ar waittime
 seconds.
-The default time is 5 seconds.
+The default is 5 seconds.
 .It Ar filter-expr
 Ignore all data not matching the given filter-expression.
 If no filter is provided, every packet is considered.
