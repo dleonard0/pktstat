@@ -20,8 +20,7 @@
 The
 .Nm
 program displays a real-time summary of packet activity on an interface.
-Each line displays the data rate associated with a particular class of packets.
-The class is determined by the packet header.
+Each line displays the data rate associated with different classes of packets.
 .Pp
 .Nm
 understands the following command line options:
@@ -30,6 +29,7 @@ understands the following command line options:
 Add
 .Ar abbrev
 to the list of abbreviation patterns.
+(See below for details.)
 .It Fl A Ar file
 Read abbreviation patterns from the given
 .Ar file .
@@ -67,7 +67,7 @@ Display and sort flows by when they were last seen.
 .It Fl m Ar maxbps
 Fix the maximum bit rate for the interface at
 .Ar maxbps
-instead of auto detecting it.
+instead of auto-detecting it.
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
 .It Fl p
@@ -81,15 +81,19 @@ Sorts the display by bit count (or packet count if
 was given) instead of by
 the name.
 .It Fl T
-Show bit (byte) totals for flows.
+Show totals.
 .It Fl w Ar waittime
 Refresh the display every
 .Ar waittime
 seconds.
 The default is 5 seconds.
 .It Ar filter-expr
-Ignore all data not matching the given filter-expression.
+Only consider packets matching the given
+.Ar filter-expr .
 If no filter is provided, all packets are considered.
+See
+.Xr tcpdump 8
+for information on valid expressions.
 .El
 .Pp
 If the terminal supports it, the display briefly highlights in bold
@@ -188,26 +192,27 @@ If the optional
 .Ar name
 is not specified, the the pattern text itself is used as the name.
 .Pp
-Patterns are checked in the order given on the command line or in the file.
-So, as soon as one of the patterns matches, the rest are ignored at that
-stage.
-Recall that patterns can be applied multiple times on a tag.
+Patterns are checked in the order given on the command line or in the files,
+i.e. as soon as one of the patterns matches a tag, no further patterns
+are considered.
+Recall that patterns can be applied multiple times to a tag.
 .Pp
-A file of patterns can contain blank lines. Comment lines that
-commence with a
+A patterns file can contain blank lines, which are ignored.
+Comment lines that commence with a
 .Ql #
 character are also ignored.
 .Pp
-After processing command line arguments,
+After processing all command line abbreviations and
+abbreviation files,
 .Nm pktstat
-then looks for and loads
+looks for and loads the files
 .Pa ".pktstatrc" ,
 .Pa $HOME/.pktstatrc
 and
 .Pa /etc/pktstatrc .
-(This behaviour is suppressed if the
+This behaviour is suppressed by supplying an
 .Fl A Ic none
-option is given.)
+option.
 .Sh EXAMPLES
 .Pp
 Here are the contents of my
