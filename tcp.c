@@ -100,9 +100,7 @@ tcp_tag(p, end, ip)
 	}
 
 	/* XXX HTTP */
-	if (sport == 80 || dport == 80
-	 || sport == 8080 || dport == 8080
-	 || sport == 3128 || dport == 3128) {
+	if (dport == 80 || dport == 8080 || dport == 3128) {
 		const char *data = p + (tcp->th_off << 2);
 		const char *d;
 		if (memcmp(data, "GET ", 4) == 0 ||
@@ -123,7 +121,7 @@ tcp_tag(p, end, ip)
 	}
 
 	/* XXX FTP */
-	if (sport == 21 || dport == 21) {
+	if (dport == 21) {
 		const char *data = p + (tcp->th_off << 2);
 		const char *d;
 		if (memcmp(data, "RETR ", 5) == 0 ||
