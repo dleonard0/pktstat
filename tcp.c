@@ -16,6 +16,7 @@
 #include "hash.h"
 #include "flow.h"
 #include "main.h"
+#include "tcp.h"
 
 static void link_ftp_eport(const char *, const char *, const char *, 
 	const struct in_addr *);
@@ -93,56 +94,59 @@ tcp_tag(p, end, ip)
 	struct flow *f = NULL;
 	u_int16_t sport = ntohs(tcp->th_sport);
 	u_int16_t dport = ntohs(tcp->th_dport);
+	const char *data, *d;
+	int direction;
 
 	snprintf(src, sizeof src, "%s:%s", 
 		ip_lookup(&ip->ip_src), tcp_lookup(sport));
 	snprintf(dst, sizeof src, "%s:%s", 
 		ip_lookup(&ip->ip_dst), tcp_lookup(dport));
 	snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
+	direction = (strcmp(src, dst) > 0 ? 0 : 1);
+
+	f = findflow(tag);
 
 	/* mark some flows as long-lived so we can preserve desc state */
 	if ((tcp->th_flags & (TH_SYN|TH_FIN|TH_RST)) != 0) {
-		f = findflow(tag);
-		if ((tcp->th_flags & TH_SYN) != 0)
+		if ((tcp->th_flags & TH_SYN) != 0) {
 			f->dontdel = 1;
+			f->seq[direction] = ntohl(tcp->th_seq) + 1;
+		}
 		if ((tcp->th_flags & (TH_FIN|TH_RST)) != 0) {
 			f->dontdel = 0;	/* can reclaim now */
 			/* f->desc[0] = '\0'; */ /* keep the url around */
 		}
 	}
 
-	/* XXX HTTP */
-	if (dport == 80 || dport == 8080 || dport == 3128) {
-		const char *data = p + (tcp->th_off << 2);
-		const char *d;
-		if (memcmp(data, "GET ", 4) == 0 ||
-		    memcmp(data, "POST ", 5) == 0 ||
-		    memcmp(data, "HEAD ", 5) == 0) {
-			if (!f)
-				f = findflow(tag);
-			for (d = data; d < end && *d != ' '; d++)
-				;
-			if (d < end)
-				d++;
-			for (; d < end && *d != '\r' && *d != ' ' 
-			    && *d != ';'; d++)
-				;
-			snprintf(f->desc, sizeof f->desc, "%.*s",
-				d - data, data);
-	        }
+	/* Keep track of the sequence numbers, ignoring dups */
+	if (ntohl(tcp->th_seq) != f->seq[direction])
+		return tag;
+	data = p + (tcp->th_off << 2);
+	f->seq[direction] += (end - data);
+
+	switch (dport) {
+	case 80:
+	case 8080:
+	case 3128:
+		tcp_http(f, data, end);
+		break;
+	case 6000:
+		tcp_x11(f, data, end);
+		break;
 	}
 
-	/* XXX FTP - RFC2428 */
+	/* 
+	 * XXX FTP - RFC2428
+	 *
+	 * FTP is handled here because we want to associate the
+	 * control stream with the data stream at the TCP layer.
+	 */
 	if (dport == 21) {
-		const char *data = p + (tcp->th_off << 2);
-		const char *d;
 		if (memcmp(data, "RETR ", 5) == 0 ||
 		    memcmp(data, "STOR ", 5) == 0 ||
 		    memcmp(data, "NLST ", 5) == 0 ||
 		    memcmp(data, "ABOR ", 5) == 0 ||
 		    memcmp(data, "LIST ", 5) == 0) {
-			if (!f)
-				f = findflow(tag);
 			for (d = data; d < end && *d != '\r' && *d != '\n'; d++)
 				;
 			snprintf(f->desc, sizeof f->desc, "%.*s",
@@ -165,7 +169,7 @@ tcp_tag(p, end, ip)
 	}
 
 	if (sport == 21) {
-	    const char *d = p + (tcp->th_off << 2);
+	    d = data;
 	    if (memcmp(d, "227 ", 4) == 0) {
 		while (d < end && *d != '(')
 			d++;

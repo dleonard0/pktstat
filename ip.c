@@ -86,11 +86,11 @@ ip_tag(p, end)
 	hlen = ip->ip_hl << 2;
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:
-		return tcp_tag(p + hlen, p + ip->ip_len, ip);
+		return tcp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
 	case IPPROTO_UDP:
-		return udp_tag(p + hlen, p + ip->ip_len, ip);
+		return udp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
 	case IPPROTO_ICMP:
-		return icmp_tag(p + hlen, p + ip->ip_len, ip);
+		return icmp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
 	case IPPROTO_IGMP:
 		snprintf(tag, sizeof tag, "igmp %s", 
 		    tag_combine(ip_lookup(&ip->ip_src), ip_lookup(&ip->ip_dst))
