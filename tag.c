@@ -10,7 +10,12 @@
 #include "flow.h"
 #include "abbrev.h"
 
-/* Combine source and dest to make a combined tag unless -c flag given */
+/*
+ * Combine source and dest to make a combined tag unless -c flag given
+ * What combining means is that we sometimes have flows which are not
+ * directional. So we cnovert a->b and b->a tags to get a<->b. The left and
+ * right sides are sorted lexicographically, so that tags are unambiguous.
+ */
 const char *
 tag_combine(src, dst)
 	const char *src;
@@ -27,6 +32,7 @@ tag_combine(src, dst)
 		snprintf(buf, sizeof buf, "%s <-> %s", src, dst);
 		res = abbrev_tag(buf);
 		if (res == buf) {
+			/* The abbreviations could match a reverse combine: */
 			snprintf(buf2, sizeof buf2, "%s <-> %s", dst, src);
 			res = abbrev_tag(buf2);
 			if (res == buf2)
