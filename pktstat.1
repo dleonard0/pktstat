@@ -22,7 +22,7 @@ program displays a real-time summary of packet activity on an interface.
 Each line displays the data associated with a particular class of packets.
 Normally, the class is determined by the packet header.
 .Pp
-.Bl -tag -width 12ex -indent
+.Bl -tag -width 12ex -offset indent
 .It Fl B
 Dispay data rates in bytes per second (Bps) instead of
 in bits per second (bps).
@@ -55,6 +55,26 @@ If no filter is provided, every packet is considered.
 If the terminal supports it, the display briefly highlights in bold
 new connections or old connections carrying data after a period
 of inactivity.
+.Pp
+During display, the following keystrokes are recognised:
+.Bl -tag -width Ic -offset indent
+.It Ic q
+quit
+.It Ic Ctrl-L
+redraw screen
+.It Ic t
+toggle the
+.Fl t
+flag (top mode)
+.It Ic n
+toggle the
+.Fl n
+flag (numeric display)
+.It Ic b | B
+toggle the
+.Fl B
+flag (bps or Bps)
+.El
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.
