@@ -71,7 +71,7 @@ ether_tag(p, end)
 
 const char *
 ether_tagx(type, p, end)
-	u_int16_t type;
+	unsigned int type;	/* should be u_int16_t */
 	const char *p;
 	const char *end;
 {

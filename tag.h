@@ -37,7 +37,7 @@ const char *ipx_tag(const char *, const char *);
 const char *tag_combine(const char *, const char *);
 
 /* Ethernet-like tagging helper */
-const char *ether_tagx(u_int16_t type, const char *p, const char *end);
+const char *ether_tagx(unsigned int type, const char *p, const char *end);
 
 /* Flush hostname and port lookup caches */
 void ip_reset(void);

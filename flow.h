@@ -16,7 +16,7 @@ struct flow {
 	unsigned long	total_packets;
 	double		keepalive;
 	int		dontdel;
-	u_int32_t	seq[2];		/* seq no for TCP */
+	unsigned long	seq[2];		/* seq no for TCP */
 	void		*udata;
 	void		(*freeudata)(void *);
 	struct timeval	lastseen;

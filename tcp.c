@@ -151,7 +151,8 @@ tcp_tag(p, end, ip, ip6)
 	if ((tcp->th_flags & (TH_SYN|TH_FIN|TH_RST)) != 0) {
 		if ((tcp->th_flags & TH_SYN) != 0) {
 			f->dontdel = 1;
-			f->seq[direction] = ntohl(tcp->th_seq) + 1;
+			f->seq[direction] = (ntohl(tcp->th_seq) + 1) 
+						& 0xffffffffUL;
 		}
 		if ((tcp->th_flags & (TH_FIN|TH_RST)) != 0) {
 			f->dontdel = 0;	/* can reclaim now */
@@ -163,7 +164,8 @@ tcp_tag(p, end, ip, ip6)
 	if (ntohl(tcp->th_seq) != f->seq[direction])
 		return tag;
 	data = p + (tcp->th_off << 2);
-	f->seq[direction] += (end - data);
+	f->seq[direction] = (f->seq[direction] + (end - data))
+				& 0xffffffffUL;
 
 	switch (dport) {
 	case 80:
