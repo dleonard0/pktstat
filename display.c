@@ -110,7 +110,7 @@ display_update(period)
 	}
 	if (total_octets)
 		printw("avg: %-6s ", 
-			mega(BPS(total_octets / total_time)), "%5.1f");
+			mega(BPS(total_octets / total_time), "%5.1f"));
 	printw("min: %-6s ",
 		mega(BPS(minbps), "%5.1f"));
 	printw("max: %-6s %s\n", 
