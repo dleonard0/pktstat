@@ -497,32 +497,34 @@ display_message(const char *fmt, ...)
 static void
 printhelp()
 {
-	attrset(A_UNDERLINE); if (tflag) attron(A_REVERSE); printw("t");
-	attroff(A_UNDERLINE); printw("op");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (lflag) attron(A_REVERSE); printw("l");
-	attroff(A_UNDERLINE); printw("ast");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (nflag) attron(A_REVERSE); printw("n");
-	attroff(A_UNDERLINE); printw("umeric");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (Bflag) attron(A_REVERSE); printw("b");
-	attroff(A_UNDERLINE); printw("its");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (pflag) attron(A_REVERSE); printw("p");
-	attroff(A_UNDERLINE); printw("ackets");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
-	attroff(A_UNDERLINE); printw("ullname");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); if (Tflag) attron(A_REVERSE); printw("T");
-	attroff(A_UNDERLINE); printw("otal");
-	attrset(0); printw(" ");
-	attrset(A_UNDERLINE); printw("r");
-	attroff(A_UNDERLINE); printw("eset ");
-	attrset(A_UNDERLINE); printw("q");
-	attroff(A_UNDERLINE); printw("uit ");
-	attrset(A_UNDERLINE); printw("?");
-	attroff(A_UNDERLINE); printw("help");
+	static struct helplabel {
+		int	*flagp;
+		const char *name;
+	} helplabels[] = {
+		{ &tflag, "top" },
+		{ &lflag, "last" },
+		{ &nflag, "numeric" },
+		{ &Bflag, "Byte" },
+		{ &pflag, "packet" },
+		{ &Fflag, "FQDN" },
+		{ &Tflag, "Total" },
+		{ NULL,   "reset" },
+		{ NULL,   "quit" },
+		{ NULL,   "?help" },
+	};
+#define nhelplabels (sizeof helplabels / sizeof helplabels[0])
+
+	struct helplabel *h;
+
+	for (h = helplabels; h < helplabels + nhelplabels; h++) {
+		attrset(A_UNDERLINE);
+		if (h->flagp && *h->flagp)
+			attron(A_REVERSE);
+		printw("%c", h->name[0]);
+		attroff(A_UNDERLINE);
+		printw((char *)h->name + 1);
+		attrset(0);
+		printw(" ");
+	}
 	printw(" - pktstat %s", version);
 }
