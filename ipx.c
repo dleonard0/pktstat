@@ -26,7 +26,7 @@
 #define XXX     __attribute__((__packed__))
 typedef struct {
 	u_int32_t 	net		XXX;
-	u_int8_t 	host[6];	XXX;
+	u_int8_t 	host[6] 	XXX;
 	u_int16_t	port		XXX;
 } ipx_address, ipx_addr_t;
 struct ipxhdr {
