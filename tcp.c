@@ -15,7 +15,19 @@
 #include "hash.h"
 #include "flow.h"
 
+static void link_ftp_eport(const char *, const char *, const char *, 
+	const struct in_addr *);
+static void link_ftp_port(const char *, const char *, const char *);
+
 extern int nflag;
+
+/* a hack to remember recent FTP port commands */
+static struct {
+    char ctltag[80];
+    char datatag[80];
+    struct in_addr addr;
+    u_int16_t port;
+} ftp;
 
 static int
 tcp_cmp(a, b)
@@ -120,14 +132,13 @@ tcp_tag(p, end, ip)
 	        }
 	}
 
-	/* XXX FTP */
+	/* XXX FTP - RFC2428 */
 	if (dport == 21) {
 		const char *data = p + (tcp->th_off << 2);
 		const char *d;
 		if (memcmp(data, "RETR ", 5) == 0 ||
 		    memcmp(data, "STOR ", 5) == 0 ||
 		    memcmp(data, "NLST ", 5) == 0 ||
-		    memcmp(data, "PORT ", 5) == 0 ||
 		    memcmp(data, "ABOR ", 5) == 0 ||
 		    memcmp(data, "LIST ", 5) == 0) {
 			if (!f)
@@ -136,8 +147,126 @@ tcp_tag(p, end, ip)
 				;
 			snprintf(f->desc, sizeof f->desc, "%.*s",
 				 d - data, data);
+			/* Copy the desc to the data flow if it is known */
+			if (ftp.datatag[0] != '\0'  &&
+			    strcmp(ftp.ctltag, tag) == 0)
+			{
+			    struct flow *f2 = findflow(ftp.datatag);
+			    snprintf(f2->desc, sizeof f2->desc,
+				"%.*s", d - data - 5, data + 5);
+			    ftp.ctltag[0] = '\0';
+			    ftp.datatag[0] = '\0';
+			}
 	        }
+		if (memcmp(data, "PORT ", 5) == 0) 
+			link_ftp_port(data + 5, tag, end);
+		if (memcmp(data, "EPRT ", 5) == 0) 
+			link_ftp_eport(data + 5, tag, end, &ip->ip_src);
+	}
+
+	if (sport == 21) {
+	    const char *d = p + (tcp->th_off << 2);
+	    if (memcmp(d, "227 ", 4) == 0) {
+		while (d < end && *d != '(')
+			d++;
+		if (++d < end)
+			link_ftp_port(d, tag, end);
+	    }
+	    else if (memcmp(d, "229 ", 4) == 0) {
+		while (d < end && *d != '(')
+			d++;
+		if (++d < end)
+			link_ftp_eport(d, tag, end, &ip->ip_src);
+	    }
+	}
+
+	/* Try to complete an FTP association */
+	if (ftp.datatag[0] == '\0' && ftp.ctltag[0] != '\0' && 
+	     ip->ip_dst.s_addr == ftp.addr.s_addr && dport == ftp.port)
+	{
+		/* Complete association so that future descs are copied */
+		strncpy(ftp.datatag, tag, sizeof ftp.datatag);
 	}
 
 	return tag;
+}
+
+/*
+ * Parse and remember the port address so that we can associate it
+ * back to the control flow
+ */
+static void
+link_ftp_port(d, tag, end)
+	const char *d;
+	const char *tag;
+	const char *end;
+{
+	union {
+	    struct in_addr addr;
+	    char a[4];
+	} ua;
+	union {
+	    u_int16_t port;
+	    char a[2];
+	} up;
+	char buf[256], *b;
+
+	for (b = buf; d < end && b < buf+1+sizeof buf && 
+	    *d != ')' && *d != '\r';)
+		*b++ = *d++;
+	*b = '\0';
+
+	if (sscanf(buf, "%u,%u,%u,%u,%u,%u", ua.a+0, ua.a+1, ua.a+2,
+	    ua.a+3, up.a+0, up.a+1) == 6)
+	{
+	    ftp.port = ntohs(up.port);
+	    ftp.addr = ua.addr;
+	    strncpy(ftp.ctltag, tag, sizeof ftp.ctltag);
+	    ftp.datatag[0] = '\0';
+	}
+}
+
+
+static void
+link_ftp_eport(d, tag, end, defaddr)
+	const char *d;
+	const char *tag;
+	const char *end;
+	const struct in_addr *defaddr;
+{
+        struct in_addr addr;
+	u_int16_t port;
+	int af;
+	char buf[256], *b;
+	char delim;
+
+	for (b = buf; d < end && b < buf+1+sizeof buf && 
+	    *d != ')' && *d != '\r';)
+		*b++ = *d++;
+	*b = '\0';
+
+	delim = buf[0];
+	if (buf[1] == delim && buf[2] == delim && defaddr) {
+		addr.s_addr = defaddr->s_addr;
+		if (sscanf(buf + 3, "%u", &port) != 1)
+			return;
+		goto gotit;
+	}
+
+	if (buf[1] != '1' || buf[2] != delim)	/* only handle AF_INET */
+		return;
+
+	b = buf+3;
+	while (*b && *b != delim)
+		b++;
+	if (!*b) return;
+	*b++ = '\0';
+	if (sscanf(b, "%u", &port) != 1)
+		return;
+	addr.s_addr = inet_addr(buf+3);
+gotit:
+	ftp.port = port;
+	ftp.addr = addr;
+	strncpy(ftp.ctltag, tag, sizeof ftp.ctltag);
+	ftp.datatag[0] = '\0';
 }
