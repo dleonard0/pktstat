@@ -42,7 +42,7 @@ static const char *display_device, *display_filter;
 static int display_opened = 0;
 static volatile int resize_needed = 0;
 static double avg[3] = { 0.0, 0.0, 0.0 };
-static double showhelp = 0;
+static int showhelp = 0;
 static int wasdown = 0;
 
 static unsigned long total_packets = 0;
@@ -227,7 +227,7 @@ display_update(period)
 		if (showhelp > 0)
 			showhelp = 0;
 		else
-			showhelp = 5;
+			showhelp = 1;
 		break;
 	case ERR:			/* no key */
 		break;
@@ -424,15 +424,18 @@ display_update(period)
 			if (!pflag) printw("%4s ", "");
 			if (Tflag)
 				printw("%6s ", "");
-			addch(ACS_LLCORNER);
+			/* Show a right angle if the connection is live */
+			if (flows[i].dontdel)
+				addch(ACS_LLCORNER);
+			else
+				addch('-');
 			printw(" %.*s\n", MIN(maxx - LLEN - 2, 
 			    sizeof flows[i].desc - 1), flows[i].desc);
 		}
 		attrset(A_NORMAL);
 	}
 
-	if (showhelp > 0) {
-		showhelp -= period;
+	if (showhelp) {
 		move(maxy - 1, 0);
 		printhelp();
 	}
@@ -483,7 +486,7 @@ display_message(const char *fmt, ...)
 	clrtoeol();
 	if (buf[0])
 		addstr(buf);
-	else if (showhelp > 0)
+	else if (showhelp)
 		printhelp();
 
 	refresh();
