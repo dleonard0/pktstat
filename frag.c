@@ -137,6 +137,10 @@ frag_find(fragp, index)
 	return fragp;
 }
 
+/*
+ * Searches a chain in the hashtable for the bucket with the given key.
+ * Returns the end of the chain, if not found.
+ */
 static struct bucket **
 bucket_find(fragtab, key)
 	struct fragtab *fragtab;
