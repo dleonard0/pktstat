@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include "flow.h"
@@ -64,7 +65,7 @@ tcp_http(f, data, end, toserver)
 			memcpy(cp, f->desc, sizeof cp);
 			snprintf(f->desc, sizeof f->desc, "%c%c%c %.*s",
 				data[9], data[10], data[11],
-				sizeof cp, cp);
+				(int)sizeof cp, cp);
 		}
 	}
 }
