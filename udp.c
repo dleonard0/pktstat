@@ -70,8 +70,8 @@ udp_lookup(port)
 		if (nflag)
 			se = NULL;
 		else {
-			display_message("resolving udp port %u", htons(port));
-			se = getservbyport(htons(port), "udp");
+			display_message("resolving udp port %u", port);
+			se = getservbyport(port, "udp");
 			display_message("");
 		}
 		if (se == NULL) {
