@@ -90,7 +90,7 @@ display_update(period)
 		break;
 	case 'n':
 		nflag = !nflag;
-		while (flows)
+		while (nflows)
 			flow_del(flows);	/* because tags change */
 		break;
 	case 'b':
