@@ -360,10 +360,9 @@ display_update(period)
 
 	/* Print information about the filter (if any) */
 	move(2, 0);
-	if (display_filter) {
+	if (display_filter)
 		printw("filter: %s", display_filter);
-		clrtoeol();
-	}
+	clrtoeol();
 	move(3, 0);
 
 /* Computing the indent for tag descripions now */
