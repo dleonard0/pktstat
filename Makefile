@@ -14,9 +14,12 @@ MANDIR=         ${TRUEPREFIX}/man/cat
 
 PROG=		pktstat
 SRCS=		main.c flow.c display.c hash.c resize.c ifc.c abbrev.c tag.c \
+		frag.c \
 		ether.c ppp.c loop.c sll.c \
 		ip.c tcp.c udp.c icmp.c ip6.c ipx.c \
-		tcp_http.c tcp_x11.c tcp_sup.c
+		tcp_http.c tcp_x11.c 
+#SRCS+=		tcp_sup.c
 
 LDADD=		-lpcap -lcurses -lm
 CFLAGS=         -I/usr/include/pcap
+CFLAGS=         -Wall -ggdb
