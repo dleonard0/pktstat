@@ -1,6 +1,11 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * The main module. Here we process command line arguments, and
+ * interface pcap to our tag and flow display modules.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -16,6 +21,7 @@
 #include "display.h"
 #include "abbrev.h"
 
+/* Flags set by command-line options */
 int Bflag = 0;
 int cflag = 0;
 int Eflag = 0;
@@ -30,15 +36,19 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7.3c"
+/* Current release version */
+#define VERSION "1.7.4"
 char version[] = VERSION;
 
-/* When the packet capture interval started */
+/* The system time when the current packet capture cycle started */
 static struct timeval starttime;
 
-/* Receive a packet from libpcap and determine its category tag */
+/*
+ * Receive a packet from libpcap and determine its category tag.
+ * This is called directly from libpcap.
+ */
 static void
-handler(context, hdr, data)
+upcall_from_pcap(context, hdr, data)
 	u_char *context;
 	const struct pcap_pkthdr *hdr;
 	const u_char *data;
@@ -48,7 +58,10 @@ handler(context, hdr, data)
 		(const char *(*)(const char *, const char *))context;
 	struct flow *flow;
 
+	/* 'Tag' this packet. ie identify it in a human-readable way */
 	tag = abbrev_tag((*fn)(data, data + hdr->caplen));
+
+	/* Find which tracked flow the packet belongs to and account it */
 	flow = findflow(tag);
 	flow->octets += hdr->len;
 	flow->total_octets += hdr->len;
@@ -71,7 +84,7 @@ main(argc, argv)
 	char *interface = NULL;
 	int error = 0;
 	int datalink_type;
-	u_char *fn;
+	const char *(*fn)(const char *, const char *);
 	int i;
 	int snaplen = 1500;
 	char *expr = NULL;
@@ -180,23 +193,23 @@ main(argc, argv)
 	datalink_type = pcap_datalink(p);
 	switch (datalink_type) {
 	case DLT_PPP:
-		fn = (u_char *)ppp_tag;
+		fn = ppp_tag;
 		break;
 	case DLT_EN10MB:
-		fn = (u_char *)ether_tag;
+		fn = ether_tag;
 		break;
 #if defined(DLT_LINUX_SLL)
 	case DLT_LINUX_SLL:
-		fn = (u_char *)sll_tag;
+		fn = sll_tag;
 		break;
 #endif
 #if defined(DLT_LOOP)
 	case DLT_LOOP:
-		fn = (u_char *)loop_tag;
+		fn = loop_tag;
 		break;
 #endif
 	case DLT_RAW:
-		fn = (u_char *)ip_tag;
+		fn = ip_tag;
 		break;
 	default:
 		errx(1, "unknown datalink type %d", datalink_type);
@@ -253,20 +266,22 @@ main(argc, argv)
 		int cnt;
 		struct pollfd pfd[2];
 
+		/* Wait for something to happen */
 		pfd[0].fd = pcap_fileno(p);
 		pfd[0].events = POLLIN;
 		pfd[0].revents = 0;
 		pfd[1].fd = STDIN_FILENO;
 		pfd[1].events = POLLIN;
 		pfd[1].revents = 0;
-
 		if (poll(pfd, 2, wflag * 1000) == -1) {
 			if (errno != EINTR) 
 				err(1, "poll");
 		}
 
+		/* Handle packet arrivals */
 		if (pfd[0].revents) {
-			cnt = pcap_dispatch(p, -1, handler, fn);
+			cnt = pcap_dispatch(p, -1, upcall_from_pcap,
+				(u_char *)fn);
 			if (cnt == -1) {
 				snprintf(errmsg, sizeof errmsg, pcap_geterr(p));
 				error = 1;
@@ -279,14 +294,14 @@ main(argc, argv)
 		timersub(&now, &starttime, &diff);
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
 
-		/* Update the display if the -w period has passed */
+		/* Update the flow display if the delay period has passed */
 		if (period >= wflag || pfd[1].revents) {
 			display_update(period);
 			starttime = now;
 			flow_zero();
 		}
 
-		/* Display pcap errors */
+		/* Display pcap errors as soon as we can */
 		if (error) {
 			int t = (wflag - period) * 1000000;
 			struct timespec ts;
