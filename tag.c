@@ -13,8 +13,11 @@
 /*
  * Combine source and dest to make a combined tag unless -c flag given
  * What combining means is that we sometimes have flows which are not
- * directional. So we cnovert a->b and b->a tags to get a<->b. The left and
- * right sides are sorted lexicographically, so that tags are unambiguous.
+ * uni-directional. So we convert a->b and b->a tags to get a<->b. The left and
+ * right sides are ordered lexicographically, so that we get only a<->b and
+ * not also b<->a.
+ * XXX the ordering should be biased to have the local host/net on the left
+ * of combined flows.
  */
 const char *
 tag_combine(src, dst)

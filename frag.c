@@ -2,7 +2,8 @@
  * Fragment storage.
  *
  * Fragments are stored in keyed buckets.
- * A bucket is an ordered list of unique, indexed packets.
+ * A packet bucket is an ordered list of unique, indexed packets,
+ * intended for eventual reassembly into a complete packet.
  * It is up to the caller to free a bucket when it is
  * no longer needed. Very old buckets are deleted automatically.
  */
