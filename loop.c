@@ -8,6 +8,8 @@
 
 #include "tag.h"
 
+/* Used when the device's datalink type is DLT_LOOP */
+
 const char *
 loop_tag(p, end)
         const char *p;
