@@ -16,6 +16,8 @@ int keepalive = 10;
 int tflag = 0;
 int nflag = 0;
 
+const char *version = "1.0";
+
 /* Receive a packet and determine its category tag */
 static void
 handler(context, hdr, data)
@@ -82,6 +84,7 @@ main(argc, argv)
 
 	/* Handle usage errors */
 	if (error) {
+		fprintf(stderr, "pktstat version %s\n", version);
 		fprintf(stderr, 
 		    "usage: %s [-c] [-k keepalive]"
 		    " [-w wait] [-i interface] [filter-expr]\n",
