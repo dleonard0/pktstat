@@ -201,9 +201,8 @@ main(argc, argv)
 		pfd[1].revents = 0;
 
 		if (poll(pfd, 2, wflag * 1000) == -1) {
-			if (errno == EINTR)
-				continue;
-			err(1, "poll");
+			if (errno != EINTR) 
+				err(1, "poll");
 		}
 
 		if (pfd[0].revents) {
