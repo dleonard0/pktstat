@@ -54,7 +54,7 @@ findflow(tag)
 			    maxflows * sizeof *flows);
 		}
 		if (flows == NULL)
-			errx(1, "malloc");	
+			errx(1, "malloc/realloc");	
 	}
 	flows[nflows].taghash = taghash;
 	strncpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
