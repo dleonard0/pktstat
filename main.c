@@ -23,11 +23,12 @@ int Fflag = 0;
 int kflag = 10;
 int lflag = 0;
 int nflag = 0;
+int pflag = 0;
 int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7"
+#define VERSION "1.7.1"
 char version[] = VERSION;
 
 /* When the packet capture interval started */
@@ -50,6 +51,7 @@ handler(context, hdr, data)
 	flow->octets += hdr->len;
 	flow->total_octets += hdr->len;
 	flow->lastseen = starttime;
+	flow->packets++;
 }
 
 /* main */
@@ -74,7 +76,7 @@ main(argc, argv)
 	int blankAflag = 0;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lntTw:")) != -1)
+	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lnptTw:")) != -1)
 		switch (ch) {
 		case 'A':
 			abbrev_add_file(optarg, 0);
@@ -113,6 +115,9 @@ main(argc, argv)
 		case 'n':
 			nflag = 1;		/* no-lookup */
 			break;
+		case 'p':
+			pflag = 1;		/* show packets, not bits */
+			break;
 		case 't':
 			if (lflag) {
 				warnx("-t incompatible with -l");
@@ -134,7 +139,7 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
-		    " [-BcFlntT] [-i interface]"
+		    " [-BcFlnptT] [-i interface]"
 		    " [-k keeptime] [-w wait]"
 		    " [-a abbrev] [-A file]"
 		    " [filter-expr]\n",
