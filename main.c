@@ -56,7 +56,7 @@ main(argc, argv)
 	u_char *fn;
 	struct timeval start;
 	int i;
-	int snaplen = 96;
+	int snaplen = 1500;
 	char *expr = NULL;
 	int exprlen;
 
@@ -91,8 +91,8 @@ main(argc, argv)
 	/* Handle usage errors */
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", version);
-		fprintf(stderr, 
-		    "usage: %s [-Bcnt] [-i interface]"
+		fprintf(stderr, "usage: %s"
+		    " [-Bcnt] [-i interface]"
 		    " [-k keepcount] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);
