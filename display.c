@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <curses.h>
 #include <stdarg.h>
+#include <math.h>
 #include <sys/types.h>
 
 #include <sys/socket.h>
@@ -26,6 +27,10 @@ static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
 static volatile int resize_needed = 0;
+static double avg[3] = { 0.0, 0.0, 0.0 };
+
+static const char *mega(double, const char *);
+static const char *days(double);
 
 static
 const char *
@@ -208,17 +213,38 @@ display_update(period)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
-		printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
 	}
-	if (total_time > 0)
-		printw("avg: %-6s ", 
-			mega(BITS(total_octets / total_time), "%.1f"));
-	if (minbps >= 0)
-		printw("min: %-6s ",
-			mega(BITS(minbps), "%.1f"));
-	if (maxbps >= 0)
-		printw("max: %-6s ", 
-			mega(BITS(maxbps), "%.1f"));
+
+	/* Compute 1, 5 and 15 minute averages */
+	for (i = 0; i < 3; i++) {
+		static double T[3] = { 60, 5 * 60, 15 * 60 };
+		double eT = exp(-1.0/(T[i] / period));
+		avg[i] = avg[i] * eT + sum * (1.0 - eT);
+	}
+
+	if (!Tflag) {
+		printw("load averages: ");
+		printw("%6s ", mega(BITS(avg[0]), "%.1f"));
+		printw("%6s ", mega(BITS(avg[1]), "%.1f"));
+		printw("%6s ", mega(BITS(avg[2]), "%.1f"));
+	} else {
+		if (period > 0.5)
+			printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
+		if (total_time > 0) {
+			printw("avg: %-6s ", 
+				mega(BITS(total_octets / total_time), "%.1f"));
+			printw("[%s ", mega(BITS(avg[0]), "%.1f"));
+			printw("%s ", mega(BITS(avg[1]), "%.1f"));
+			printw("%s] ", mega(BITS(avg[2]), "%.1f"));
+		}
+		if (minbps >= 0)
+			printw("min: %-6s ",
+				mega(BITS(minbps), "%.1f"));
+		if (maxbps >= 0)
+			printw("max: %-6s ", 
+				mega(BITS(maxbps), "%.1f"));
+	}
+
 	clrtoeol();
 	printw("%s\n", BPSS);
 

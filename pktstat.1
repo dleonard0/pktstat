@@ -62,6 +62,8 @@ of inactivity.
 .Pp
 Simple statistics about the interface are also displayed such as 
 the current and average bit rates (measured just above the data link layer).
+Load averages refer to bit rate decayed averages for the last 1, 5 and 15
+minutes.
 .Pp
 During display, the following keystrokes are recognised:
 .Bl -tag -width Ic -offset indent
@@ -124,12 +126,15 @@ David Leonard,
 .Pa d+pktstat@itee.uq.edu.au
 .\" .Sh HISTORY
 .Sh BUGS
+.Pp
 DNS lookups can take too much time, leading to missed packets.
+.Pp
 The data rates do not take into account datalink framing or compression.
+.Pp
 Keystrokes are only recognised at the time the screen is refreshed,
 so it may take two screen refreshes before a change to the
-.Op F
+.Fl F
 or
-.Op n
+.Fl n
 flag takes effect.
 .\" .Sh CAVEATS
