@@ -1,3 +1,5 @@
+/* David Leonard, 2002. Public domain. */
+/* $Id$ */
 
 extern int Bflag;
 extern int cflag;

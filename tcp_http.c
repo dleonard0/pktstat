@@ -1,5 +1,6 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>

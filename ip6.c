@@ -1,6 +1,8 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/* Internet protocol version 6 */
+
 #include <pcap.h>
 #include <netdb.h>
 #include <string.h>
