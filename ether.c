@@ -21,6 +21,7 @@ struct ifnet { int ignore; };
 #endif
 
 #include "tag.h"
+#include "flow.h"
 
 static const char *llc_tag(const char *, const char *,
     const char *, const char *);
