@@ -7,7 +7,7 @@ struct flow {
 	unsigned int	taghash;
 	unsigned long	octets;
 	unsigned long	total_octets;
-	int		keepalive;
+	double		keepalive;
 	int		dontdel;
 	u_int32_t	seq[2];		/* seq no for TCP */
 	void		*udata;
