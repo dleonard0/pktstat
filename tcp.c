@@ -14,12 +14,11 @@
 #include "tag.h"
 #include "hash.h"
 #include "flow.h"
+#include "main.h"
 
 static void link_ftp_eport(const char *, const char *, const char *, 
 	const struct in_addr *);
 static void link_ftp_port(const char *, const char *, const char *);
-
-extern int nflag;
 
 /* a hack to remember recent FTP port commands */
 static struct {
@@ -153,7 +152,7 @@ tcp_tag(p, end, ip)
 			{
 			    struct flow *f2 = findflow(ftp.datatag);
 			    snprintf(f2->desc, sizeof f2->desc,
-				"%.*s", d - data - 5, data + 5);
+				"ftp-data: %.*s", d - data - 5, data + 5);
 			    ftp.ctltag[0] = '\0';
 			    ftp.datatag[0] = '\0';
 			}
