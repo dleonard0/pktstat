@@ -37,7 +37,7 @@ int Tflag = 0;
 int wflag = 5;
 
 /* Current release version */
-#define VERSION "1.7.4"
+#define VERSION "1.7.5"
 char version[] = VERSION;
 
 /* The system time when the current packet capture cycle started */

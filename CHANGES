@@ -1,3 +1,8 @@
+1.7.5
+fixed DLT_LOOP endian bug
+fixed PPPoE decoding
+catch for fragment decoding bug
+wake-on-lan
 1.7.4
 Add support for fragments
 consistent use of hexadecimal prefix '0x' in display
