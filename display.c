@@ -1,5 +1,6 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <curses.h>
@@ -8,6 +9,7 @@
 #include "display.h"
 #include "flow.h"
 #include "main.h"
+#include "resize.h"
 
 #define BPS(r)	(Bflag ? (r) : (r) * NBBY)
 #define BPSS	(Bflag ? "Bps" : "bps")
@@ -17,6 +19,7 @@ static double total_time = 0;
 static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
+static volatile int resize_needed = 0;
 
 static
 const char *
@@ -52,6 +55,7 @@ display_open(device, filter)
 	cbreak();
 	noecho();
 	nodelay(stdscr, TRUE);
+	resize_init(&resize_needed);
 }
 
 void
@@ -68,14 +72,16 @@ display_update(period)
 	unsigned long sum;
 	double bps = 0;
 	int maxx, maxy, y, x;
+	int redraw_needed = 0;
 
-	move(0,0);
+	if (resize_needed) {
+		resize();
+		redraw_needed = 1;
+	}
 
 	switch (getch()) {
 	case ('L'&0x3f):	/* control-L */
-		erase();
-		redrawwin(stdscr); 
-		refresh();
+		redraw_needed = 1;
 		break;
 	case 'q':
 		exit(0);
@@ -93,6 +99,14 @@ display_update(period)
 	default:
 		break;	
 	}
+
+	if (redraw_needed) {
+		erase();
+		redrawwin(stdscr); 
+		refresh();
+	}
+
+	move(0,0);
 
 	getmaxyx(stdscr, maxy, maxx);
 	printw("device: %s\n", display_device);
