@@ -19,8 +19,9 @@ int tflag = 0;
 int nflag = 0;
 int Bflag = 0;
 int Fflag = 0;
+int Tflag = 0;
 
-const char *version = "1.4.1";
+const char *version = "1.4.2";
 
 /* Receive a packet and determine its category tag */
 static void
@@ -37,6 +38,7 @@ handler(context, hdr, data)
 	tag = (*fn)(data, data + hdr->caplen);
 	flow = findflow(tag);
 	flow->octets += hdr->len;
+	flow->total_octets += hdr->len;
 }
 
 /* main */
@@ -85,6 +87,9 @@ main(argc, argv)
 		case 't':
 			tflag = 1;		/* 'top' mode */
 			break;
+		case 'T':
+			Tflag = 1;		/* total column */
+			break;
 		case 'w':
 			wflag = atoi(optarg);	/* wait time */
 			break;
@@ -96,7 +101,7 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", version);
 		fprintf(stderr, "usage: %s"
-		    " [-BcFnt] [-i interface]"
+		    " [-BcFntT] [-i interface]"
 		    " [-k keepcount] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);

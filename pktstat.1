@@ -8,7 +8,7 @@
 .Sh SYNOPSIS
 .\" For a program:  program [-abc] file ...
 .Nm pktstat
-.Op Fl BcFnt
+.Op Fl BcFntT
 .Op Fl i Ar interface
 .Op Fl k Ar keepcount
 .Op Fl w Ar waittime
@@ -22,28 +22,30 @@ Normally, the class is determined by the packet header.
 .Pp
 .Bl -tag -width 12ex -offset indent
 .It Fl B
-Dispay data rates in bytes per second (Bps) instead of
+Display data rates in bytes per second (Bps) instead of
 in bits per second (bps).
 .It Fl c
-Do not combine packet classes into one class. For example, TCP flows
-are shown as separate streams.
+Do not combine some packet classes into one class.
+For example, TCP flows are shown as separate streams.
 .It Fl F
 Show full hostnames.
 Normally, hostnames are truncated to the first component of their domain name
 before display.
 .It Fl i Ar interface
-Listen on the given interface instead of using a default one.
+Listen on the given interface.
+If not specified, a suitable interface is chosen.
 .It Fl k Ar keepcount
-When no data has been seen for a particular class, retain an entry
-on the display for this many screen refreshes.
-Default 10.
+When no packets have been seen for a particular class,
+retain an entry on the display for this many screen refreshes.
+Defaults to 10.
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
-(DNS lookups can stall display updates.)
 .It Fl t
 "Top" mode.
 Sorts the display by octet count, rather than by
 the packet class.
+.It Fl T
+Show bit (byte) totals for flows.
 .It Fl w Ar waittime
 Refresh the display every
 .Ar waittime
@@ -51,12 +53,15 @@ seconds.
 The default is 5 seconds.
 .It Ar filter-expr
 Ignore all data not matching the given filter-expression.
-If no filter is provided, every packet is considered.
+If no filter is provided, all packets are considered.
 .El
 .Pp
 If the terminal supports it, the display briefly highlights in bold
 new connections or old connections carrying data after a period
 of inactivity.
+.Pp
+Simple statistics about the interface are also displayed such as 
+the current and average bit rates (measured just above the data link layer).
 .Pp
 During display, the following keystrokes are recognised:
 .Bl -tag -width Ic -offset indent
@@ -68,6 +73,10 @@ redraw screen
 toggle the
 .Fl t
 flag (top mode)
+.It Ic T
+toggle the
+.Fl T
+flag (totals mode)
 .It Ic n
 toggle the
 .Fl n
@@ -80,7 +89,20 @@ flag (bps or Bps)
 toggle the
 .Fl F
 flag (full hostnames)
+.It Ic r
+reset collected statistics (min, max, etc.)
 .El
+.Ss Packet classes
+.Pp
+All packet classes, or flows, are
+.Qq tagged
+with a descriptive string, such as
+.Ql "tcp ftpserver:20524 <-> cathexis:17771" .
+.Pp
+In addition to being tagged, some protocol-state information can
+be associated with a flow. This is displayed immediately below a flow line.
+Descriptive information for FTP, HTTP, and X11 connections is determined
+from simple decoding of some packets.
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.

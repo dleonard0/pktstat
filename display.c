@@ -12,8 +12,9 @@
 #include "main.h"
 #include "resize.h"
 
-#define BPS(r)	(Bflag ? (r) : (r) * NBBY)
+#define BITS(r)	(Bflag ? (r) : (r) * NBBY)
 #define BPSS	(Bflag ? "Bps" : "bps")
+#define BS	(Bflag ? "B" : "b")
 
 static unsigned long total_octets = 0;
 static double total_time = 0;
@@ -43,6 +44,45 @@ mega(x, fmt)
 	if (suffix[i] != ' ')
 		buf[len++] = suffix[i];
 	buf[len] = '\0';
+	return buf;
+}
+
+static const char *
+days(td)
+	double td;
+{
+	static char buf[80];
+	unsigned long t = td;
+
+#define Mn	60
+#define Hr	(60*60)
+#define Dy	(24*60*60)
+
+	if (t < Mn) {
+		snprintf(buf, sizeof buf, "%lds", t);
+		return buf;
+	}
+	if (t < Hr) {
+		snprintf(buf, sizeof buf, "%ldm%02lds",
+			t / Mn,
+			(t % Mn) / 1
+		);
+		return buf;
+	}
+	if (t < Dy) {
+		snprintf(buf, sizeof buf, "%ldh%02ldm%02lds",
+			t / Hr,
+			(t % Hr) / Mn,
+			((t % Hr) % Mn) / 1
+		);
+		return buf;
+	}
+	snprintf(buf, sizeof buf, "%ldd%02ldh%02ldm%02lds",
+		t / Dy,
+		(t % Dy) / Hr,
+		((t % Dy) % Hr) / Mn,
+		(((t % Dy) % Hr) % Mn) / 1
+	);
 	return buf;
 }
 
@@ -82,28 +122,35 @@ display_update(period)
 	}
 
 	switch (getch()) {
-	case ('L'&0x3f):	/* control-L */
+	case ('L'&0x3f):		/* control-L to redraw */
 		redraw_needed = 1;
 		break;
-	case 'q':
+	case 'q':			/* q for quit */
 		exit(0);
-	case 't':
+	case 't':			/* toggle -t */
 		tflag = !tflag;
 		break;
-	case 'n':
+	case 'T':			/* toggle -T */
+		Tflag = !Tflag;
+		break;
+	case 'n':			/* toggle -n */
 		nflag = !nflag;
 		clearflows = 1;
 		break;
-	case 'b':
-	case 'B':
+	case 'b': case 'B':		/* toggle -B */
 		Bflag = !Bflag;
 		break;
-	case 'f':
-	case 'F':
+	case 'f': case 'F':		/* toggle -F */
 		Fflag = !Fflag;
 		clearflows = 1;
 		break;
-	case ERR:		/* no key */
+	case 'r':			/* reset stats */
+		total_octets = 0;
+		total_time = 0;
+		maxbps = -1;
+		minbps = -1;
+		break;
+	case ERR:
 	default:
 		break;	
 	}
@@ -117,9 +164,6 @@ display_update(period)
 	move(0,0);
 
 	getmaxyx(stdscr, maxy, maxx);
-	printw("interface: %s\n", display_device);
-	if (display_filter)
-		printw("filter: %s\n", display_filter);
 
 	/* sort the flows by their packet octet count */
 	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
@@ -131,31 +175,42 @@ display_update(period)
 	total_octets += sum;
 	total_time += period;
 
+	printw("interface: %s     seen: %s%s over %s\n", display_device,
+		mega(BITS((double)total_octets), "%.1f"), BS, days(total_time));
+	if (display_filter)
+		printw("filter: %s\n", display_filter);
+
 	if (period > 0.5) {
 		bps = sum / period;
 		if (minbps < 0 || bps < minbps)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
-		printw("cur: %-6s ", mega(BPS(bps), "%.1f"));
+		printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
 	}
 	if (total_time > 0)
 		printw("avg: %-6s ", 
-			mega(BPS(total_octets / total_time), "%.1f"));
+			mega(BITS(total_octets / total_time), "%.1f"));
 	if (minbps >= 0)
 		printw("min: %-6s ",
-			mega(BPS(minbps), "%.1f"));
+			mega(BITS(minbps), "%.1f"));
 	if (maxbps >= 0)
 		printw("max: %-6s ", 
-			mega(BPS(maxbps), "%.1f"));
+			mega(BITS(maxbps), "%.1f"));
 	printw("%s\n", BPSS);
+
+#define LLEN	(13 + (Tflag ? 7 : 0))
 
 	printw("\n");
 	attron(A_UNDERLINE); printw("%6s", BPSS);
 	attrset(A_NORMAL); printw(" ");
 	attron(A_UNDERLINE); printw("%4s", "%");
 	attrset(A_NORMAL); printw(" ");
-	attron(A_UNDERLINE); printw("%-*s", maxx - 15, "desc");
+	if (Tflag) {
+		attron(A_UNDERLINE); printw("%6s", BS);
+		attrset(A_NORMAL); printw(" ");
+	}
+	attron(A_UNDERLINE); printw("%-*s", maxx - LLEN, "desc");
 	attrset(A_NORMAL); printw("\n");
 
 	clrtobot();
@@ -171,15 +226,19 @@ display_update(period)
 			attron(A_BOLD);
 		if (flows[i].octets)
 			printw("%6s %3d%% ",
-				mega(BPS(flows[i].octets / period), "%5.1f"),
+				mega(BITS(flows[i].octets / period), "%5.1f"),
 				(int)(100 * flows[i].octets / period / maxbps));
 		else
 			printw("%6s %4s ", "", "");
-		printw("%.*s\n", maxx - 13, flows[i].tag);
+		if (Tflag)
+			printw("%6s ", 
+				mega((double)BITS(flows[i].total_octets),
+				     "%5.1f"));
+		printw("%.*s\n", maxx - LLEN, flows[i].tag);
 		if (flows[i].desc[0] != '\0') {
 			printw("%6s %4s ", "", "");
 			addch(ACS_LLCORNER);
-			printw(" %.*s\n", maxx - 13 - 2, flows[i].desc);
+			printw(" %.*s\n", maxx - LLEN - 2, flows[i].desc);
 		}
 		attrset(A_NORMAL);
 	}

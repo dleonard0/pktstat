@@ -47,6 +47,7 @@ findflow(tag)
 	strncpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
 	flows[nflows].desc[0] = '\0';
 	flows[nflows].octets = 0;
+	flows[nflows].total_octets = 0;
 	flows[nflows].keepalive = -1;
 	flows[nflows].dontdel = 0;
 	flows[nflows].udata = NULL;
