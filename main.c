@@ -67,7 +67,7 @@ main(argc, argv)
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "BcFi:k:ntTw:")) != -1)
+	while ((ch = getopt(argc, argv, "BcEFi:k:ntTw:")) != -1)
 		switch (ch) {
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
