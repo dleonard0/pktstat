@@ -170,8 +170,10 @@ tcp_tag(p, end, ip, ip6)
 	case 8080:
 	case 3127:
 	case 3128:
-		/* HTTP-like protocols */
-		tcp_http(f, data, end);
+		tcp_http(f, data, end, 1);
+		break;
+	case 871:
+		tcp_sup(f, data, end, 1);
 		break;
 	case 6000:
 	case 6001:
@@ -183,9 +185,16 @@ tcp_tag(p, end, ip, ip6)
 		break;
 	}
 
-	/* SUP file server protocol */
-	if (dport == 871 || sport == 871) {
-		tcp_sup(f, data, end, dport == 871);
+	switch (sport) {
+	case 80:
+	case 8080:
+	case 3127:
+	case 3128:
+		tcp_http(f, data, end, 0);
+		break;
+	case 871:
+		tcp_sup(f, data, end, 0);
+		break;
 	}
 
 	/* 
