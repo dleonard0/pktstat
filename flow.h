@@ -1,6 +1,8 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+#include <sys/time.h>
+
 #define TAGLEN	1024
 #define DESCLEN (TAGLEN - 2)
 
