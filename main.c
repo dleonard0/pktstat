@@ -114,7 +114,7 @@ main(argc, argv)
 		errx(1, "pcap_lookupdev: %s", errbuf);
 	p = pcap_open_live(interface, snaplen, 1, wflag * 1000, errbuf);
 	if (!p) 
-		errx(1, "%s: %s", interface, errbuf);
+		errx(1, "%s", errbuf);
 
 	/* Determine the datalink type */
 	datalink_type = pcap_datalink(p);
