@@ -115,7 +115,7 @@ ip6_tag(p, end)
 
 	ip6 = (struct ip6_hdr *)p;
 	if ((ip6->ip6_vfc & IPV6_VERSION_MASK) != IPV6_VERSION) {
-		snprintf(tag, sizeof tag, "ip6 version %02x",
+		snprintf(tag, sizeof tag, "ip6 version %u",
 		    ip6->ip6_vfc & IPV6_VERSION_MASK);
 		return tag;
 	}

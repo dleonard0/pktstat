@@ -152,7 +152,7 @@ ipx_tag(p, end)
 			break;
 		}
 	if (!ptname) {
-		snprintf(pt, sizeof pt, "%02x", h.ipx_pt);
+		snprintf(pt, sizeof pt, "0x%02x", h.ipx_pt);
 		ptname = pt;
 	}
 	snprintf(tag, sizeof tag, "ipx %s %s -> %s", ptname, src, dst);

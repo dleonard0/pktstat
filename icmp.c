@@ -66,7 +66,7 @@ icmp_tag(p, end, ip)
 	bad:
 		if (icmp->icmp_type >= lengthof(typetab) ||
 		    typetab[icmp->icmp_type] == NULL)
-			snprintf(tag, sizeof tag, "icmp %02x/%02x %s -> %s",
+			snprintf(tag, sizeof tag, "icmp %u/%u %s -> %s",
 				icmp->icmp_type, icmp->icmp_code, src, dst);
 		else {
 			snprintf(tag, sizeof tag, "icmp %s %s",
