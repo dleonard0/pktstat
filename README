@@ -1,0 +1,13 @@
+
+Thankyou for downloading pktstat. Pktstat will provide you with many
+years of fun and enjoyment, provided that you take care to read the
+documentation.
+
+Installation and operation of pktstat may need elevated privileges.
+Be sure to ask the advice of an adult when using the superuser account.
+
+To aid construction in a Linux environment, ensure that the libpcap-dev
+package is at hand. Otherwise, you will see messages like this:
+	main.c:8:18: pcap.h: No such file or directory
+
+$Id$
