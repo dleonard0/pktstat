@@ -7,7 +7,7 @@
 #include <sys/param.h>
 
 /* In order to avoid too many unneeded include files, we forge some types */
-#ifdef BSD
+#if defined(BSD)
 struct arphdr { int ignore; };
 #endif
 struct ifnet { int ignore; };
@@ -16,15 +16,14 @@ struct ifnet { int ignore; };
 #include <netinet/in.h>
 #include <netinet/if_ether.h>
 
-#ifdef __linux__
+#if defined(__linux__)
 #include <netinet/ether.h>
 #endif
 
 #include "tag.h"
 #include "flow.h"
 
-static const char *llc_tag(const char *, const char *,
-    const char *, const char *);
+static const char *llc_tag(const char *, const char *);
 static const char *snap_tag(const char *, const char *);
 static const char *ethertype(u_int16_t);
 
@@ -43,28 +42,41 @@ ether_tag(p, end)
 	const char *end;
 {
 	struct ether_header eh;
-	struct pppoe_header ph;
 	u_int16_t type;
-	char src[] = "xx:xx:xx:xx:xx:xx";
-	char dst[] = "xx:xx:xx:xx:xx:xx";
+	const char *tag;
+	static char buf[TAGLEN];
 
 	memcpy(&eh, p, sizeof eh);	/* avoid bus alignment probs */
 
-	/* In case someone wants the addrs: */
-	snprintf(src, sizeof src, 
-	    ether_ntoa((struct ether_addr *)&eh.ether_shost));
-	snprintf(dst, sizeof dst, 
-	    ether_ntoa((struct ether_addr *)&eh.ether_dhost));
+	type = ntohs(eh.ether_type);
 
 	/* Skip any 802.1Q tag */
-	type = ntohs(eh.ether_type);
 	if (type == 0x8100) {
 		memcpy(&eh.ether_type, p + 6 + 6 + 2 + 2, sizeof eh.ether_type);
 		type = ntohs(eh.ether_type);
-		p += 4;
-	}
-	p += ETHER_HDR_LEN;
-	
+		p += 4 + ETHER_HDR_LEN;
+	} else
+		p += ETHER_HDR_LEN;
+
+	tag = ether_tagx(type, p, end);
+	if (tag)
+		return tag;
+
+	snprintf(buf, sizeof buf, "ether 0x%04x", type);
+	return buf;
+}
+
+
+/* Return the tag for an ethernet-like frame, or NULL if unknown */
+
+const char *
+ether_tagx(type, p, end)
+	u_int16_t type;
+	const char *p;
+	const char *end;
+{
+	struct pppoe_header ph;
+
 	/*
 	 * From IEEE Std 802.3 2000 edition:
 	 *
@@ -96,16 +108,16 @@ ether_tag(p, end)
 	 * Note: maxValidFrame = 1518-(2*48+16+32)/8 = 1500 = 0x05DC
 	 */
 	if (type <= 0x5DC)
-		return llc_tag(p, end, src, dst);
+		return llc_tag(p, end);
 
 	switch (type) {
 	case ETHERTYPE_IP:
 		return ip_tag(p, end);
-#ifdef ETHERTYPE_IPV6
+#if defined(ETHERTYPE_IPV6)
 	case ETHERTYPE_IPV6:
 		return ip6_tag(p, end);
 #endif
-#ifdef ETHERTYPE_PPPOE
+#if defined(ETHERTYPE_PPPOE)
 	case ETHERTYPE_PPPOE:
 		memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
 		if (ph.code != 0)
@@ -115,6 +127,14 @@ ether_tag(p, end)
 	case 0x8137 /* ETHERTYPE_IPX */:
 		return ipx_tag(p, end);
 	default:
+		/*
+		 * A choice is made here that nobody wants to know what 
+		 * the link-level source and destination fields are for
+		 * 'known' ethernet frames. It is easy enough for an
+		 * interested user to run tcpdump themselves and look 
+		 * at what's happening. We just return the text form of
+		 * the unhandled ethernet frame type.
+		 */
 		return ethertype(type);
 	}
 }
@@ -138,8 +158,8 @@ static struct {
 
 /* 802.2 LLC header */
 static const char *
-llc_tag(p, end, src, dst)
-	const char *p, *end, *src, *dst;
+llc_tag(p, end)
+	const char *p, *end;
 {
 	/* ANSI/IEEE Std 802.2 section 3.2 LLC PDU format */
 	struct llc {
@@ -240,18 +260,17 @@ static struct {
 	{ 0x9000,	"loopback" },
 };
 
+/* Return ethernet type if known, or NULL */
 static const char *
 ethertype(type)
 	u_int16_t type;
 {
 	int i;
-	static char buf[40];
 
 	for (i = 0; i < sizeof ethertypetab / sizeof ethertypetab[0]; i++)
 		if (ethertypetab[i].type == type)
 			return ethertypetab[i].name;
-	snprintf(buf, sizeof buf, "ethertype 0x%04x", type);
-	return buf;
+	return NULL;
 }
 
 /* 802.2 SNAP */

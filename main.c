@@ -30,7 +30,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7.2q"
+#define VERSION "1.7.2r.t20030817"
 char version[] = VERSION;
 
 /* When the packet capture interval started */
@@ -185,7 +185,12 @@ main(argc, argv)
 	case DLT_EN10MB:
 		fn = (u_char *)ether_tag;
 		break;
-#ifdef DLT_LOOP
+#if defined(DLT_LINUX_SLL)
+	case DLT_LINUX_SLL:
+		fn = (u_char *)sll_tag;
+		break;
+#endif
+#if defined(DLT_LOOP)
 	case DLT_LOOP:
 		fn = (u_char *)loop_tag;
 		break;
