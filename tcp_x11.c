@@ -6,28 +6,10 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/param.h>
-#if defined(BSD)
-# include <sys/endian.h>
-#endif
+
+#include "machendian.h"
 #include "flow.h"
 #include "tcp.h"
-
-#if defined(__linux__)
-# include <endian.h>
-# include <byteswap.h>
-# ifdef WORDS_BIGENDIAN
-#  define letoh16(x)	bswap_16(x)
-#  define letoh32(x)	bswap_32(x)
-#  define betoh16(x)	(x)
-#  define betoh32(x)	(x)
-# else
-#  define letoh16(x)	(x)
-#  define letoh32(x)	(x)
-#  define betoh16(x)	bswap_16(x)
-#  define betoh32(x)	bswap_32(x)
-# endif
-#endif
 
 /* From Xproto.h: */
 
