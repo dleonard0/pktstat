@@ -80,13 +80,13 @@ main(argc, argv)
 	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lnpPtTw:")) != -1)
 		switch (ch) {
 		case 'A':
-			abbrev_add_file(optarg, 0);
-			break;
-		case 'a':
-			if (!*optarg)
+			if (strcmp(optarg, "none") == 0)
 				blankAflag = 1;
 			else
-				abbrev_add(optarg);
+				abbrev_add_file(optarg, 0);
+			break;
+		case 'a':
+			abbrev_add(optarg);
 			break;
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
