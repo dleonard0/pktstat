@@ -291,10 +291,6 @@ display_update(period)
 	clrtoeol();
 	printw("\n");
 
-	/* Print information about the filter (if any) */
-	if (display_filter)
-		printw("filter: %s\n", display_filter);
-
 	/* Compute minimum and maximum octet rates */
 	if (period > 0) {
 		bps = sum / period;
@@ -361,7 +357,14 @@ display_update(period)
 	}
 	printw("%s", pflag ? "pps" : BPSS);
 	clrtoeol();
-	printw("\n\n");
+
+	/* Print information about the filter (if any) */
+	move(2, 0);
+	if (display_filter) {
+		printw("filter: %s", display_filter);
+		clrtoeol();
+	}
+	move(3, 0);
 
 /* Computing the indent for tag descripions now */
 #define LLEN	(13 + (Tflag ? 7 : 0) - (pflag ? 5 : 0))
@@ -381,7 +384,9 @@ display_update(period)
 		MIN(maxx - LLEN, 
 		    MAX(sizeof flows->desc + 2, sizeof flows->tag) - 1),
 		"desc");
-	attrset(A_NORMAL); printw("\n");
+	attrset(A_NORMAL); 
+	clrtoeol();
+	printw("\n");
 
 	clrtobot();
 
