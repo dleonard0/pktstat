@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/param.h>
 #if defined(BSD)
 # include <sys/endian.h>

@@ -9,6 +9,7 @@
 #include <err.h>
 #include <sys/types.h>
 #include <sys/param.h>
+#include <sys/time.h>
 
 #include <sys/socket.h>
 #include <net/if.h>
@@ -146,6 +147,7 @@ display_update(period)
 	unsigned long sum;
 	double bps = 0;
 	int maxx, maxy, y, x;
+	int maxi;
 	int redraw_needed = 0;
 	int clearflows = 0;
 
@@ -165,6 +167,13 @@ display_update(period)
 		exit(0);
 	case 't':			/* toggle -t */
 		tflag = !tflag;
+		if (tflag)
+			lflag = 0;
+		break;
+	case 'l':			/* toggle -l */
+		lflag = !lflag;
+		if (lflag)
+			tflag = 0;
 		break;
 	case 'T':			/* toggle -T */
 		Tflag = !Tflag;
@@ -204,7 +213,7 @@ display_update(period)
 	move(0,0);
 
 	/* sort the flows by their packet octet count */
-	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
+	qsort(flows, nflows, sizeof (struct flow), lflag ? lastcmp : tflag ? octetcmp : tagcmp);
 
 	/* Compute total number of octets we have just seen go by */
 	sum = 0;
@@ -301,15 +310,18 @@ display_update(period)
 
 	clrtobot();
 
+	maxi = nflows;
 	for (i = 0; i < nflows; i++) {
 
 		/* Handle going off the bottom of the screen */
 		getyx(stdscr, y, x);
-		if (y >= maxy - 2)
+		if (y >= maxy - 2) {
+			maxi = i + 10;
 			break;
+		}
 
 		/* Ignore flows that have stopped for a while */
-		if (flows[i].octets == 0 && flows[i].keepalive <= 0)
+		if (!lflag && flows[i].octets == 0 && flows[i].keepalive <= 0)
 			continue;
 
 		/* Dim flows that have paused */
@@ -357,16 +369,18 @@ display_update(period)
 	refresh();
 
 	/* Decrement keepalive counter for flows that have paused. */
-	for (i = 0; i < nflows; i++)
-		if (flows[i].octets > 0)
+	for (i = 0; i < nflows; i++) {
+		if (flows[i].octets > 0) {
 			flows[i].keepalive = kflag;
-		else if (flows[i].keepalive > 0) {
-			flows[i].keepalive -= period;
-			if (flows[i].keepalive <= 0 && !flows[i].dontdel) {
-				flow_del(&flows[i]);
-				i--;	/* because a new flow slips in */
-			}
+			continue;
 		}
+		if (flows[i].keepalive > 0)
+			flows[i].keepalive -= period;
+		if ((!lflag || i >= maxi) && flows[i].keepalive <= 0 && !flows[i].dontdel) {
+			flow_del(&flows[i]);
+			i--;	/* because a new flow slips in */
+		}
+	}
 
 
 	/* If tag names are about to change, we need to reset everything */
@@ -409,6 +423,9 @@ printhelp()
 {
 	attrset(A_UNDERLINE); if (tflag) attron(A_REVERSE); printw("t");
 	attroff(A_UNDERLINE); printw("op");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (lflag) attron(A_REVERSE); printw("l");
+	attroff(A_UNDERLINE); printw("ast");
 	attrset(0); printw(" ");
 	attrset(A_UNDERLINE); if (nflag) attron(A_REVERSE); printw("n");
 	attroff(A_UNDERLINE); printw("umeric");

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #if defined(__linux__)
 # define __FAVOR_BSD
 #endif

@@ -4,6 +4,7 @@ extern int cflag;
 extern int Eflag;
 extern int Fflag;
 extern int kflag;
+extern int lflag;
 extern int nflag;
 extern int tflag;
 extern int Tflag;

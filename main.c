@@ -20,13 +20,17 @@ int cflag = 0;
 int Eflag = 0;
 int Fflag = 0;
 int kflag = 10;
+int lflag = 0;
 int nflag = 0;
 int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.6.5"
+#define VERSION "1.6.6"
 char version[] = VERSION;
+
+/* When the packet capture interval started */
+static struct timeval starttime;
 
 /* Receive a packet from libpcap and determine its category tag */
 static void
@@ -44,6 +48,7 @@ handler(context, hdr, data)
 	flow = findflow(tag);
 	flow->octets += hdr->len;
 	flow->total_octets += hdr->len;
+	flow->lastseen = starttime;
 }
 
 /* main */
@@ -61,14 +66,13 @@ main(argc, argv)
 	int error = 0;
 	int datalink_type;
 	u_char *fn;
-	struct timeval start;
 	int i;
 	int snaplen = 1500;
 	char *expr = NULL;
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "BcEFi:k:ntTw:")) != -1)
+	while ((ch = getopt(argc, argv, "BcEFi:k:lntTw:")) != -1)
 		switch (ch) {
 		case 'B':
 			Bflag = 1;		/* bps/Bps flag */
@@ -88,10 +92,21 @@ main(argc, argv)
 		case 'k':
 			kflag = atoi(optarg);	/* keep-on-screen time */
 			break;
+		case 'l':
+			if (tflag) {
+				warnx("-l incompatible with -t");
+				error = 1;
+			}
+			lflag = 1;		/* 'last' mode */
+			break;
 		case 'n':
 			nflag = 1;		/* no-lookup */
 			break;
 		case 't':
+			if (lflag) {
+				warnx("-t incompatible with -l");
+				error = 1;
+			}
 			tflag = 1;		/* 'top' mode */
 			break;
 		case 'T':
@@ -108,7 +123,7 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
-		    " [-BcFntT] [-i interface]"
+		    " [-BcFlntT] [-i interface]"
 		    " [-k keeptime] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);
@@ -177,7 +192,7 @@ main(argc, argv)
 	}
 
 	/* Initialise the counters and display */
-	if (gettimeofday(&start, NULL) == -1)
+	if (gettimeofday(&starttime, NULL) == -1)
 		err(1, "gettimeofday");
 	display_open(interface, expr);
 	atexit(display_close);
@@ -186,7 +201,7 @@ main(argc, argv)
 
 	/* Dump and display the packets */
 	for (;;) {
-		struct timeval now, diff;
+		struct timeval diff, now;
 		double period;
 		char errmsg[80];
 		int error = 0;
@@ -216,13 +231,13 @@ main(argc, argv)
 		/* Figure out how long how much time it really took */
 		if (gettimeofday(&now, NULL) == -1)
 			err(1, "gettimeofday");
-		timersub(&now, &start, &diff);
+		timersub(&now, &starttime, &diff);
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
 
 		/* Update the display if the -w period has passed */
 		if (period >= wflag || pfd[1].revents) {
 			display_update(period);
-			start = now;
+			starttime = now;
 			flow_zero();
 		}
 

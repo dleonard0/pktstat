@@ -7,7 +7,7 @@
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
 .Nm pktstat
-.Op Fl BcFntT
+.Op Fl BcFlntT
 .Op Fl i Ar interface
 .Op Fl k Ar keeptime
 .Op Fl w Ar waittime
@@ -43,6 +43,10 @@ If not specified, a suitable interface is chosen.
 When no packets have been seen for a particular class,
 retain an entry on the display for this many screen seconds.
 Defaults to 10.
+.It Fl l
+Display and sort flows by when they were last seen.
+(Incompatible with
+.Fl t )
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
 .It Fl t
@@ -98,6 +102,8 @@ toggle the
 flag (full hostnames)
 .It Ic r
 reset collected statistics (min, max, etc.)
+.It Ic l
+show and sort flows by when they were last active
 .It Ic ?
 display a short help message at the bottom of the display
 .El

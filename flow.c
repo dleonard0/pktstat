@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include "flow.h"
 
 int nflows = 0;
@@ -76,6 +77,20 @@ tagcmp(a, b)
 	const struct flow *fa = (const struct flow *)a;
 	const struct flow *fb = (const struct flow *)b;
 	return strcmp(fa->tag, fb->tag);
+}
+
+/* Compare flows by the time they were last seen (reverse order) */
+int
+lastcmp(a, b)
+	const void *a;
+	const void *b;
+{
+	const struct flow *fa = (const struct flow *)a;
+	const struct flow *fb = (const struct flow *)b;
+	if (fb->lastseen.tv_sec - fa->lastseen.tv_sec == 0)
+		return fb->lastseen.tv_usec - fa->lastseen.tv_usec;
+	else
+		return fb->lastseen.tv_sec - fa->lastseen.tv_sec;
 }
 
 /* Zero the octet count on all flows */

@@ -12,6 +12,7 @@ struct flow {
 	u_int32_t	seq[2];		/* seq no for TCP */
 	void		*udata;
 	void		(*freeudata)(void *);
+	struct timeval	lastseen;
 };
 
 extern int nflows;
@@ -23,3 +24,4 @@ void	     flow_del(struct flow *);
 
 int	     octetcmp(const void *, const void *);
 int	     tagcmp(const void *, const void *);
+int	     lastcmp(const void *, const void *);
