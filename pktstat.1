@@ -169,7 +169,7 @@ As packets are decoded, their flow name is constructed at the various
 protocol layers. At address combining stage (where arrows such as
 .Ql "->"
 are inserted)
-and at the final display stage, names are checked against
+and at the final display stage, flow names are checked against
 a list of abbreviation patterns,
 and the abbreviation's name substituted if a match is found.
 For example, the pattern
@@ -177,7 +177,7 @@ For example, the pattern
 will match DNS packets in both the UDP and TCP layers.
 .Pp
 Abbreviations take the form
-.Op Ar name Ns Li @ Ns
+.Op Ar abbrev Ns Li @ Ns
 .Ar pattern .
 The
 .Ar pattern
@@ -189,8 +189,8 @@ matches one or more whitespace characters.
 Leading and trailing spaces are ignored.
 .Pp
 If the optional
-.Ar name
-is not specified, the the pattern text itself is used as the name.
+.Ar abbrev
+is not specified, the the pattern text itself is used as the abbreviation.
 .Pp
 Patterns are checked in the order given on the command line or in the files,
 i.e. as soon as one of the patterns matches a tag, no further patterns
