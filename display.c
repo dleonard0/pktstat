@@ -264,13 +264,19 @@ display_update(period)
 
 	flags = ifc_flags();
 	if ((flags & IFF_UP) == 0) {
+		static char since[27];
 		int oattr = attron(A_REVERSE);
 		printw("down");
 		attrset(oattr);
-		printw(" ");
-		if (!wasdown)
+		if (!wasdown) {
+			time_t now = time(0);
+			char *c = ctime(&now);
+			memcpy(since, c, 24);
+			since[24] = '\0';
 			beep();
-		wasdown = 1;
+			wasdown = 1;
+		}
+		printw(" (since %s) ", since);
 	} else
 		wasdown = 0;
 
