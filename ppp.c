@@ -12,7 +12,7 @@ ppp_tag(p, end)
 	const char *p;
 	const char *end;
 {
-	static char tag[] = "ppp 0x----";
+	static char tag[TAGLEN];
 
 	switch (PPP_PROTOCOL(p)) {
 

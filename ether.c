@@ -283,7 +283,7 @@ snap_tag(p, end)
 		u_int8_t	type[2];
 	} *snap;
 	u_int16_t type;
-	static char tag[80];
+	static char tag[TAGLEN];
 
 	snap = (struct snap *)p;
 	p += sizeof snap;

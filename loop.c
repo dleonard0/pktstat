@@ -16,7 +16,7 @@ loop_tag(p, end)
 	const char *end;
 {
 	u_int32_t af;
-	static char tag[] = "loop af 0x----";
+	static char tag[TAGLEN];
 
 	memcpy(&af, p, sizeof af);
 	p += sizeof af;
