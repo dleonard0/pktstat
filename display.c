@@ -4,13 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <curses.h>
-#include <sys/types.h>
 #include <stdarg.h>
+#include <sys/types.h>
+
+#include <sys/socket.h>
+#include <net/if.h>
 
 #include "display.h"
 #include "flow.h"
 #include "main.h"
 #include "resize.h"
+#include "ifc.h"
 
 #define BITS(r)	(Bflag ? (r) : (r) * NBBY)
 #define BPSS	(Bflag ? "Bps" : "bps")
@@ -97,6 +101,7 @@ display_open(device, filter)
 	noecho();
 	nodelay(stdscr, TRUE);
 	resize_init(&resize_needed);
+	ifc_init(device);
 }
 
 void
@@ -109,7 +114,7 @@ void
 display_update(period)
 	double period;
 {
-	int i;
+	int i, flags;
 	unsigned long sum;
 	double bps = 0;
 	int maxx, maxy, y, x;
@@ -175,7 +180,19 @@ display_update(period)
 	total_octets += sum;
 	total_time += period;
 
-	printw("interface: %s", display_device);
+	printw("interface: %s ", display_device);
+
+	flags = ifc_flags();
+	if ((flags & IFF_UP) == 0) {
+		int oattr = attron(A_REVERSE);
+		printw("down");
+		attrset(oattr);
+		printw(" ");
+	}
+
+	if ((flags & IFF_RUNNING) == 0)
+		printw("(not running) ");
+
 	if (Tflag)
 		printw("   total: %s%s (%s)", 
 		    mega(BITS((double)total_octets), "%.1f"),
