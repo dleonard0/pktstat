@@ -105,7 +105,7 @@ packetcmp(a, b)
 {
 	const struct flow *fa = (const struct flow *)a;
 	const struct flow *fb = (const struct flow *)b;
-	return strcmp(fa->packets, fb->packets);
+	return fa->packets - fb->packets;
 }
 
 /* Zero the octet count on all flows */
