@@ -15,6 +15,7 @@ static int cflag = 0;
 int keepalive = 10;
 int tflag = 0;
 int nflag = 0;
+int Bflag = 0;
 
 const char *version = "1.0";
 
@@ -58,8 +59,11 @@ main(argc, argv)
 	int exprlen;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "ci:k:ntw:")) != -1)
+	while ((ch = getopt(argc, argv, "Bci:k:ntw:")) != -1)
 		switch (ch) {
+		case 'B':
+			Bflag = 1;
+			break;
 		case 'c':
 			cflag = 1;
 			break;
@@ -86,8 +90,8 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", version);
 		fprintf(stderr, 
-		    "usage: %s [-c] [-k keepalive]"
-		    " [-w wait] [-i interface] [filter-expr]\n",
+		    "usage: %s [-Bcnt] [-i interface]"
+		    " [-k keepcount] [-w wait] [filter-expr]\n",
 		    argv[0]);
 		exit(1);
 	}

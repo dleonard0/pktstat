@@ -3,9 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <curses.h>
+#include <sys/types.h>
 
 #include "display.h"
 #include "flow.h"
+
+extern int Bflag;
+#define BPS(r)	(Bflag ? (r) : (r) * NBBY)
+#define BPSS	(Bflag ? "Bps" : "bps")
 
 static unsigned long total_octets = 0;
 static double total_time = 0;
@@ -40,11 +45,11 @@ display_update(period)
 	double bps = 0;
 	int maxx, maxy, y, x;
 
-	erase();
+	move(0,0);
 
 	switch (getch()) {
 	case ('L'&0x3f):	/* control-L */
-		clear(); 
+		redrawwin(stdscr); 
 		break;
 	case 'q':
 		exit(0);
@@ -77,13 +82,22 @@ display_update(period)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
-		printw("cur %-8.1f ", bps);
+		printw("cur %-8.1f ", BPS(bps));
 	}
 	if (total_octets)
-		printw("avg %-8.1f", total_octets / total_time);
-	printw("min %-8.1f max %-8.1f\n", minbps, maxbps);
-	printw("\n");
+		printw("avg %-8.1f", 
+			BPS(total_octets / total_time));
+	printw("min %-8.1f max %-8.1f (%s)\n", BPS(minbps), BPS(maxbps), BPSS);
 
+	printw("\n");
+	attron(A_UNDERLINE); printw("%8s", BPSS);
+	attrset(A_NORMAL); printw(" ");
+	attron(A_UNDERLINE); printw("%4s", "%");
+	attrset(A_NORMAL); printw(" ");
+	attron(A_UNDERLINE); printw("%-*s", maxx - 15, "desc");
+	attrset(A_NORMAL); printw("\n");
+
+	clrtobot();
 	for (i = 0; i < nflows; i++) {
 		getyx(stdscr, y, x);
 		if (y >= maxy - 2)
@@ -94,13 +108,17 @@ display_update(period)
 			attron(A_DIM);
 		else if (flows[i].keepalive < keepalive)
 			attron(A_BOLD);
-		printw("%8.1f bps %3d%% %s\n",
-			flows[i].octets / period,
-			(int)(100 * flows[i].octets / period / maxbps),
-			/* (int)(flows[i].octets * 100 / sum), */
-			flows[i].tag);
-		if (flows[i].desc[0] != '\0')
-		printw("%8s            %s\n", "", flows[i].desc);
+		if (flows[i].octets)
+			printw("%8.1f %3d%% ",
+				flows[i].octets / period,
+				(int)(100 * flows[i].octets / period / maxbps));
+		else
+			printw("%8s %4s ", "", "");
+		printw("%.*s\n", maxx - 15, flows[i].tag);
+		if (flows[i].desc[0] != '\0') {
+			printw("%8s %4s ", "", "");
+			printw("%.*s\n", maxx - 15, flows[i].desc);
+		}
 		attrset(A_NORMAL);
 	}
 	for (i = 0; i < nflows; i++)

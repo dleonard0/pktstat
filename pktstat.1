@@ -23,6 +23,9 @@ Each line displays the data associated with a particular class of packets.
 Normally, the class is determined by the packet header.
 .Pp
 .Bl -tag -width 12ex -indent
+.It Fl B
+Dispay data rates in bytes per second (Bps) instead of
+in bits per second (bps).
 .It Fl c
 Do not combine packet classes into one class. For example, TCP flows
 are shown as separate streams.
@@ -47,6 +50,11 @@ The default is 5 seconds.
 .It Ar filter-expr
 Ignore all data not matching the given filter-expression.
 If no filter is provided, every packet is considered.
+.El
+.Pp
+If the terminal supports it, the display briefly highlights in bold
+new connections or old connections carrying data after a period
+of inactivity.
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.
@@ -67,5 +75,8 @@ If no filter is provided, every packet is considered.
 David Leonard,
 .Pa d+pktstat@itee.uq.edu.au
 .\" .Sh HISTORY
-.\" .Sh BUGS
+.Sh BUGS
+DNS lookups can take too much time, leading to missed packets.
+The data rates do not take into account datalink framing or compression.
+Keystrokes are only recognised at the time the screen is refreshed.
 .\" .Sh CAVEATS
