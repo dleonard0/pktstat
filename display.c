@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <err.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
