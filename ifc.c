@@ -26,28 +26,26 @@ void
 ifc_init(interface)
 	const char *interface;
 {
-#ifdef BSD
-	if ((s = socket(AF_ROUTE, SOCK_RAW, 0)) == -1)
-		err(1, "socket");
-	strncpy(ifname, interface, sizeof ifname);
+#if defined(AF_PACKET)
+	s = socket(AF_PACKET, SOCK_RAW, 0);
+#else
+	s = socket(AF_ROUTE, SOCK_RAW, 0);
 #endif
+	if (s == -1)
+		warn("socket");
+	strncpy(ifname, interface, sizeof ifname);
 }
 
 /* Fetch the flags from the interface */
 int
 ifc_flags()
 {
-#ifdef BSD
 	struct ifreq ifreq;
 
 	if (s == -1)
-		return 0;
+		return IFF_UP|IFF_RUNNING;
 	strncpy(ifreq.ifr_name, ifname, sizeof ifreq.ifr_name);
 	if (ioctl(s, SIOCGIFFLAGS, &ifreq) == -1)
 		err(1, "SIOCGIFFLAGS");
 	return ifreq.ifr_flags;
-#else
-	/* Bogus, for when we don't know how to get the interface flags */
-	return IFF_UP|IFF_RUNNING;
-#endif
 }
