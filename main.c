@@ -7,17 +7,18 @@
 #include <pcap.h>
 #include <sys/time.h>
 
+#include "main.h"
 #include "tag.h"
 #include "flow.h"
 #include "display.h"
 
-static int cflag = 0;
-int keepalive = 10;
+int cflag = 0;
+int kflag = 10;
 int tflag = 0;
 int nflag = 0;
 int Bflag = 0;
 
-const char *version = "1.1a";
+const char *version = "1.2";
 
 /* Receive a packet and determine its category tag */
 static void
@@ -48,8 +49,8 @@ main(argc, argv)
 	pcap_t *p;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	char *interface = NULL;
+	int wflag = 5;
 	int error = 0;
-	int waitsec = 5;
 	int datalink_type;
 	u_char *fn;
 	struct timeval start;
@@ -62,25 +63,25 @@ main(argc, argv)
 	while ((ch = getopt(argc, argv, "Bci:k:ntw:")) != -1)
 		switch (ch) {
 		case 'B':
-			Bflag = 1;
+			Bflag = 1;		/* bps/Bps flag */
 			break;
 		case 'c':
-			cflag = 1;
+			cflag = 1;		/* no-combine */
 			break;
 		case 'i':
-			interface = optarg;
+			interface = optarg;	/* interface */
 			break;
 		case 'k':
-			keepalive = atoi(optarg);
+			kflag = atoi(optarg);
 			break;
 		case 'n':
-			nflag = 1;
+			nflag = 1;		/* no-lookup */
 			break;
 		case 't':
-			tflag = 1;
+			tflag = 1;		/* 'top' mode */
 			break;
 		case 'w':
-			waitsec = atoi(optarg);
+			wflag = atoi(optarg);	/* wait time */
 			break;
 		default:
 			error = 1;
@@ -101,7 +102,7 @@ main(argc, argv)
 		interface = pcap_lookupdev(errbuf);
 	if (!interface) 
 		errx(1, "pcap_lookupdev: %s", errbuf);
-	p = pcap_open_live(interface, snaplen, 1, waitsec * 1000, errbuf);
+	p = pcap_open_live(interface, snaplen, 1, wflag * 1000, errbuf);
 	if (!p) 
 		errx(1, "%s: %s", interface, errbuf);
 
@@ -163,7 +164,7 @@ main(argc, argv)
 			err(1, "gettimeofday");
 		timersub(&now, &start, &diff);
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
-		if (period >= waitsec) {
+		if (period >= wflag) {
 			display_update(period);
 			start = now;
 			flow_zero();
