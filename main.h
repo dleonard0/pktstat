@@ -1,9 +1,10 @@
 
-extern int cflag;
-extern int kflag;
-extern int tflag;
-extern int nflag;
 extern int Bflag;
+extern int cflag;
 extern int Fflag;
+extern int kflag;
+extern int nflag;
+extern int tflag;
 extern int Tflag;
+extern int wflag;
 

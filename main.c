@@ -13,15 +13,16 @@
 #include "flow.h"
 #include "display.h"
 
-int cflag = 0;
-int kflag = 10;
-int tflag = 0;
-int nflag = 0;
 int Bflag = 0;
+int cflag = 0;
 int Fflag = 0;
+int kflag = 10;
+int nflag = 0;
+int tflag = 0;
 int Tflag = 0;
+int wflag = 5;
 
-#define VERSION "1.5"
+#define VERSION "1.5.1"
 
 /* Receive a packet and determine its category tag */
 static void
@@ -53,7 +54,6 @@ main(argc, argv)
 	pcap_t *p;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	char *interface = NULL;
-	int wflag = 5;
 	int error = 0;
 	int datalink_type;
 	u_char *fn;
