@@ -22,6 +22,7 @@ int Eflag = 0;
 int Fflag = 0;
 int kflag = 10;
 int lflag = 0;
+double mflag = 0;
 int nflag = 0;
 int pflag = 0;
 int Pflag = 0;
@@ -29,7 +30,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7.2n"
+#define VERSION "1.7.2o"
 char version[] = VERSION;
 
 /* When the packet capture interval started */
@@ -78,7 +79,7 @@ main(argc, argv)
 	int blankAflag = 0;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lnpPtTw:")) != -1)
+	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lm:npPtTw:")) != -1)
 		switch (ch) {
 		case 'A':
 			if (strcmp(optarg, "none") == 0)
@@ -114,6 +115,13 @@ main(argc, argv)
 			}
 			lflag = 1;		/* 'last' mode */
 			break;
+		case 'm':
+			mflag = atof(optarg) / 8.0;	/* maxbps */
+			if (mflag <= 0) {
+				warnx("invalid argument to -m");
+				error = 1;
+			}
+			break;
 		case 'n':
 			nflag = 1;		/* no-lookup */
 			break;
@@ -145,7 +153,7 @@ main(argc, argv)
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
 		    " [-BcFlnpPtT] [-i interface]"
-		    " [-k keeptime] [-w wait]"
+		    " [-k keeptime] [-m maxbps] [-w wait]"
 		    " [-a abbrev] [-A file]"
 		    " [filter-expr]\n",
 		    argv[0]);

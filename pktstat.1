@@ -13,6 +13,7 @@
 .Op Fl A Ar file
 .Op Fl i Ar interface
 .Op Fl k Ar keeptime
+.Op Fl m Ar maxbps
 .Op Fl w Ar waittime
 .Op Ar filter-expr
 .Sh DESCRIPTION
@@ -63,6 +64,10 @@ Defaults to 10.
 Display and sort flows by when they were last seen.
 (Incompatible with
 .Fl t )
+.It Fl m Ar maxbps
+Fix the maximum bit rate for the interface at
+.Ar maxbps
+instead of auto detecting it.
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
 .It Fl p

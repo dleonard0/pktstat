@@ -325,9 +325,14 @@ display_update(period)
 		printw("%6s ", mega(pflag ? avg_pkt[2] : BITS(avg[2]), "%.1f"));
 	} else {
 		/* Display sophisticated load averages for the -T flag */
-		if (period > 0)
+		if (period > 0) {
 			printw("cur: %-6s ", mega(pflag ? pps : BITS(bps),
 			    "%.1f"));
+			if (mflag > 0)
+				printw("(%u%%) ", (int)(100.0 * bps / mflag));
+			else if (maxbps > 0)
+				printw("(%u%%) ", (int)(100.0 * bps / maxbps));
+		}
 		printw("[%s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]),
 		    "%.1f"));
 		printw("%s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]),
@@ -337,7 +342,15 @@ display_update(period)
 		if (minbps >= 0)
 			printw("min: %-6s ",
 				mega(pflag ? minpps : BITS(minbps), "%.1f"));
-		if (maxbps >= 0)
+		if (!pflag && mflag > 0) {
+			printw("max: ");
+			attron(A_UNDERLINE);
+			printw("%-6s", mega(BITS(mflag), "%.1f"));
+			attrset(A_NORMAL);
+			printw(" ");
+			if (maxbps > mflag)
+				printw("(%-6s)", mega(BITS(maxbps), "%.1f"));
+		} else if (maxbps >= 0)
 			printw("max: %-6s ", 
 				mega(pflag ? maxpps : BITS(maxbps), "%.1f"));
 		if (total_time > 0) {
@@ -399,9 +412,8 @@ display_update(period)
 			    (pflag ? flows[i].packets : BITS(flows[i].octets)) /
 			    period, "%5.1f"));
 			if (!pflag) printw("%3d%% ", 
-			    (int)(100 * (pflag ? flows[i].octets / maxbps 
-				               : flows[i].packets / maxpps) /
-				  period));
+			    (int)(100.0 * (flows[i].octets / period / 
+					   (mflag>0 ? mflag : maxbps))));
 		} else {
 			printw("%6s ", "");
 			if (!pflag) printw("%4s ", "");
