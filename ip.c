@@ -157,6 +157,7 @@ ip_fragment(p, end, offset)
 			tag = "ip fragments";	/* out of order! */
 	}
 		
+if (!ip_fragtab) abort();
 	if (fragtab_check(ip_fragtab, &ipfkey, 0, 0)) {
 		fragtab_del(ip_fragtab, &ipfkey);
 	}
