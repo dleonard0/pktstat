@@ -63,14 +63,13 @@ static struct hash tcp_hashtab = {
 	(free_t)free 		/* freedata */
 };
 
-/* Look up an IP address */
+/* Look up a TCP port's symbolic name */
 const char *
-tcp_lookup(port_n)
-	u_int16_t port_n;
+tcp_lookup(port)
+	u_int16_t port;
 {
 	const char *result;
 	static int oldnflag = -1;
-	u_int16_t port = ntohs(port_n);
 
 	if (oldnflag != nflag) {
 		hash_clear(&tcp_hashtab);
@@ -116,11 +115,12 @@ tcp_tag(p, end, ip, ip6)
 	static char tag[256];
 	struct tcphdr *tcp = (struct tcphdr *)p;
 	struct flow *f = NULL;
-	u_int16_t sport = ntohs(tcp->th_sport);
-	u_int16_t dport = ntohs(tcp->th_dport);
+	u_int16_t sport, dport;
 	const char *data, *d;
 	int direction;
 
+	sport = ntohs(tcp->th_sport);	/* Same for both tcp and tcp6 */
+	dport = ntohs(tcp->th_dport);
 	if (ip) {
 		snprintf(src, sizeof src, "%s:%s", 
 			ip_lookup(&ip->ip_src), tcp_lookup(sport));
@@ -283,7 +283,7 @@ link_ftp_port(d, tag, end)
 	}
 }
 
-
+/* Same, but for EPRT */
 static void
 link_ftp_eport(d, tag, end, defaddr, defaddr6)
 	const char *d;
