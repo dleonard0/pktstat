@@ -100,7 +100,7 @@ display_update(period)
 		break;
 	case 'f':
 	case 'F':
-		Bflag = !Fflag;
+		Fflag = !Fflag;
 		clearflows = 1;
 		break;
 	case ERR:		/* no key */
