@@ -22,4 +22,4 @@ SRCS=		main.c flow.c display.c hash.c resize.c ifc.c abbrev.c tag.c \
 
 LDADD=		-lpcap -lcurses -lm
 CFLAGS=         -I/usr/include/pcap
-CFLAGS=         -Wall -ggdb
+#CFLAGS=         -Wall -ggdb
