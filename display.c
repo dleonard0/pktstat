@@ -84,6 +84,7 @@ display_update(period)
 		break;
 	case 'n':
 		nflag = !nflag;
+		break;
 	case 'b':
 	case 'B':
 		Bflag = !Bflag;
