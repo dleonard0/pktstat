@@ -2,6 +2,7 @@
 /* $Id$ */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <curses.h>
 #include <signal.h>
 #include <sys/ioctl.h>
