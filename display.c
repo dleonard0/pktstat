@@ -445,6 +445,9 @@ printhelp()
 	attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
 	attroff(A_UNDERLINE); printw("ullname");
 	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (Tflag) attron(A_REVERSE); printw("T");
+	attroff(A_UNDERLINE); printw("otal");
+	attrset(0); printw(" ");
 	attrset(A_UNDERLINE); printw("r");
 	attroff(A_UNDERLINE); printw("eset ");
 	attrset(A_UNDERLINE); printw("q");
