@@ -165,11 +165,8 @@ display_update(period)
 		break;	
 	}
 
-	if (redraw_needed) {
-		erase();
-		redrawwin(stdscr); 
-		refresh();
-	}
+	if (redraw_needed)
+		clearok(curscr, TRUE);
 
 	move(0,0);
 
