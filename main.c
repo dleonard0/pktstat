@@ -24,7 +24,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.6.2"
+#define VERSION "1.6.3"
 
 /* Receive a packet from libpcap and determine its category tag */
 static void
@@ -132,9 +132,11 @@ main(argc, argv)
 	case DLT_EN10MB:
 		fn = (u_char *)ether_tag;
 		break;
+#ifdef DLT_LOOP
 	case DLT_LOOP:
 		fn = (u_char *)loop_tag;
 		break;
+#endif
 	case DLT_RAW:
 		fn = (u_char *)ip_tag;
 		break;
