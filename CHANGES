@@ -1,0 +1,19 @@
+
+1.7.3
+* support 'type 113' on Linux (Menno Smits & Corey Wright)
+1.7.2*
+* -p flag to show packet counts (instead of bits/bytes)
+* -P flag to disable promiscuous mode
+* The option '-A none' disables loading of abbreviation files
+* SUP protocol decoder (buggy?)
+* The '?'-toggled help line no longer times out
+* added 'T'otal to the help line
+* right-angle character changes to a hyphen when TCP connection has closed
+* when interface goes down, the time it went down is displayed
+* better decoding of some unknown ethernet frames
+* longer tags and descriptions (for wider windows)
+
+thought I'd better add a 'CHANGELOG' summary
+better late than never.
+
+$Id$
