@@ -13,8 +13,7 @@
 
 #include "tag.h"
 #include "hash.h"
-
-extern int nflag;
+#include "main.h"
 
 static int
 inaddr_cmp(a, b)
@@ -92,6 +91,11 @@ ip_tag(p, end)
 		return udp_tag(p + hlen, p + ip->ip_len, ip);
 	case IPPROTO_ICMP:
 		return icmp_tag(p + hlen, p + ip->ip_len, ip);
+	case IPPROTO_IGMP:
+		snprintf(tag, sizeof tag, "igmp %s", 
+		    tag_combine(ip_lookup(&ip->ip_src), ip_lookup(&ip->ip_dst))
+		);
+		return tag;
 	default:
 		snprintf(tag, sizeof tag, "ip proto %x %s", ip->ip_p,
 		    tag_combine(ip_lookup(&ip->ip_src),
