@@ -7,8 +7,8 @@
 
 #include "display.h"
 #include "flow.h"
+#include "main.h"
 
-extern int Bflag;
 #define BPS(r)	(Bflag ? (r) : (r) * NBBY)
 #define BPSS	(Bflag ? "Bps" : "bps")
 
@@ -73,10 +73,21 @@ display_update(period)
 
 	switch (getch()) {
 	case ('L'&0x3f):	/* control-L */
+		erase();
 		redrawwin(stdscr); 
+		refresh();
 		break;
 	case 'q':
 		exit(0);
+	case 't':
+		tflag = !tflag;
+		break;
+	case 'n':
+		nflag = !nflag;
+	case 'b':
+	case 'B':
+		Bflag = !Bflag;
+		break;
 	case ERR:		/* no key */
 	default:
 		break;	
@@ -133,7 +144,7 @@ display_update(period)
 			continue;
 		if (flows[i].octets == 0)
 			attron(A_DIM);
-		else if (flows[i].keepalive < keepalive)
+		else if (flows[i].keepalive < kflag)
 			attron(A_BOLD);
 		if (flows[i].octets)
 			printw("%6s %3d%% ",
@@ -151,7 +162,7 @@ display_update(period)
 	}
 	for (i = 0; i < nflows; i++)
 		if (flows[i].octets > 0)
-			flows[i].keepalive = keepalive;
+			flows[i].keepalive = kflag;
 		else if (flows[i].keepalive > 0) {
 			flows[i].keepalive--;
 			if (flows[i].keepalive <= 0 && !flows[i].dontdel) {
