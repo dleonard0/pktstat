@@ -15,6 +15,8 @@
 #include <termios.h>
 #include <err.h>
 
+static void sigwinch(int sig);
+
 static volatile int *flagp = NULL;
 
 /* Set the flag when the window size changes */
