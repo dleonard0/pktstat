@@ -117,7 +117,7 @@ display_update(period)
 	move(0,0);
 
 	getmaxyx(stdscr, maxy, maxx);
-	printw("device: %s\n", display_device);
+	printw("interface: %s\n", display_device);
 	if (display_filter)
 		printw("filter: %s\n", display_filter);
 
