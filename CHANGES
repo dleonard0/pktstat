@@ -1,5 +1,8 @@
+1.7.3c
+check for out-of-memory condition, and handle gracefully
 1.7.3b
-check for exhausted memory
+fix stupid syntax error that shouldn't have excaped
+disable sup decoding (too unstable)
 1.7.3a
 consistent ipx address representation
 support for FreeBSD's mach endian macros
