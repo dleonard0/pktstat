@@ -58,9 +58,13 @@ mega(x, fmt)
 		x /= 1000.0;
 		i++;
 	}
+	if (!suffix[i]) {
+		x /= 0.0;	/* IEEE Inf */
+		i = 0;		/* no unit */
+	}
 	snprintf(buf, sizeof buf - 1, fmt, x);
 	len = strlen(buf);
-	if (suffix[i] != ' ')
+	if (i)
 		buf[len++] = suffix[i];
 	buf[len] = '\0';
 	return buf;
