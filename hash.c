@@ -109,7 +109,7 @@ hash_clear(h)
 /* A generic hashing function for binary data */
 unsigned int
 hash_generic(data, sz)
-	void *data;
+	const void *data;
 	size_t sz;
 {
 	unsigned int hash = 0;

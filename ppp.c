@@ -21,7 +21,7 @@ ppp_tag(p, end)
 	case PPP_IP:
 		return ip_tag(p + PPP_HDRLEN, end);
 	case PPP_IPV6:
-		return "ipv6";		/* XXX */
+		return ip6_tag(p + PPP_HDRLEN, end);
 	case PPP_IPX:
 		return "ipx";		/* XXX */
 	case PPP_AT:

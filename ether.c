@@ -26,7 +26,7 @@ ether_tag(p, end)
 	case ETHERTYPE_IP:
 		return ip_tag(p + ETHER_HDR_LEN, end);
 	case ETHERTYPE_IPV6:
-		return "ipv6";		/* XXX */
+		return ip6_tag(p + ETHER_HDR_LEN, end);
 
 	case ETHERTYPE_ARP:
 	case ETHERTYPE_REVARP:
