@@ -139,4 +139,11 @@ so it may take two screen refreshes before a change to the
 or
 .Fl n
 flag takes effect.
+.Pp
+Descriptive information for X11, FTP and HTTP flows is derived from the
+very first packets sent on those protocols.
+If you start
+.Nm
+after any of these flows have commenced, there will be no description
+available for them.
 .\" .Sh CAVEATS
