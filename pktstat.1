@@ -6,11 +6,10 @@
 .Nm pktstat
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
-.\" For a program:  program [-abc] file ...
 .Nm pktstat
-.Op Fl BcFntT
+.Op Fl BcEFntT
 .Op Fl i Ar interface
-.Op Fl k Ar keepcount
+.Op Fl k Ar keeptime
 .Op Fl w Ar waittime
 .Op Ar filter-expr
 .Sh DESCRIPTION
@@ -29,6 +28,12 @@ in bits per second (bps).
 .It Fl c
 Do not combine some packet classes into one class.
 For example, TCP connections are kept as two separate flows.
+.\" .It Fl E
+.\" Exit on errors from the
+.\" .Xr pcap 3
+.\" library.
+.\" Otherwise, the error message is displayed on the screen and retried at
+.\" the end of the display period.
 .It Fl F
 Show full hostnames.
 Normally, hostnames are truncated to the first component of their domain name
@@ -36,9 +41,9 @@ before display.
 .It Fl i Ar interface
 Listen on the given interface.
 If not specified, a suitable interface is chosen.
-.It Fl k Ar keepcount
+.It Fl k Ar keeptime
 When no packets have been seen for a particular class,
-retain an entry on the display for this many screen refreshes.
+retain an entry on the display for this many screen seconds.
 Defaults to 10.
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
@@ -132,13 +137,6 @@ David Leonard,
 DNS lookups can take too much time, leading to missed packets.
 .Pp
 The data rates do not take into account datalink framing or compression.
-.Pp
-Keystrokes are only recognised at the time the screen is refreshed,
-so it may take two screen refreshes before a change to the
-.Fl F
-or
-.Fl n
-flag takes effect.
 .Pp
 Descriptive information for X11, FTP and HTTP flows is derived from the
 very first packets sent on those protocols.
