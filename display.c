@@ -62,7 +62,7 @@ mega(x, fmt)
 	double x;
 	const char *fmt;
 {
-	static char buf[80];
+	static char buf[1024];	/* XXX - arbitrary size */
 	static char suffix[] = " kMGTPE";
 	int i;
 	int len;
@@ -89,7 +89,7 @@ static const char *
 days(td)
 	double td;
 {
-	static char buf[80];
+	static char buf[1024];	/* XXX - arbitrary size */
 	unsigned long t = td;
 
 	static const int Mn = 60;

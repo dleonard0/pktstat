@@ -30,8 +30,8 @@ static void link_ftp_port(const char *, const char *, const char *);
 
 /* a hack to remember recent FTP port commands */
 static struct {
-    char ctltag[80];
-    char datatag[80];
+    char ctltag[TAGLEN];
+    char datatag[DESCLEN];
     struct in_addr addr;
     struct in6_addr addr6;
     u_int16_t port;

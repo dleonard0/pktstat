@@ -53,6 +53,7 @@ handler(context, hdr, data)
 	flow->total_octets += hdr->len;
 	flow->lastseen = starttime;
 	flow->packets++;
+	flow->total_packets++;
 }
 
 /* main */
@@ -232,7 +233,7 @@ main(argc, argv)
 	for (;;) {
 		struct timeval diff, now;
 		double period;
-		char errmsg[80];
+		char errmsg[1024];	/* XXX - arbitrary size */
 		int error = 0;
 		int cnt;
 		struct pollfd pfd[2];
@@ -300,8 +301,8 @@ tag_combine(src, dst)
 	const char *src;
 	const char *dst;
 {
-	static char buf[80];
-	static char buf2[80];
+	static char buf[TAGLEN];
+	static char buf2[TAGLEN];
 	const char *res;
 
 	if (cflag) {

@@ -50,11 +50,12 @@ findflow(tag)
 	flows[nflows].desc[0] = '\0';
 	flows[nflows].octets = 0;
 	flows[nflows].total_octets = 0;
+	flows[nflows].packets = 0;
+	flows[nflows].total_packets = 0;
 	flows[nflows].keepalive = -1;
 	flows[nflows].dontdel = 0;
 	flows[nflows].udata = NULL;
 	flows[nflows].freeudata = NULL;
-	flows[nflows].packets = 0;
 	return &flows[nflows++];
 }
 

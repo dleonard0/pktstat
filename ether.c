@@ -147,7 +147,7 @@ llc_tag(p, end, src, dst)
 	} *h;
 	char dsap_buf[5], ssap_buf[5];
 	const char *dsap_name = NULL, *ssap_name = NULL;
-	static char tag[80];
+	static char tag[TAGLEN];
 
 	int i;
 

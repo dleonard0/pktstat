@@ -1,19 +1,23 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+#define TAGLEN	1024
+#define DESCLEN (TAGLEN - 2)
+
 struct flow {
-	char		tag[128];
-	char		desc[128 - 2];
+	char		tag[TAGLEN];
+	char		desc[DESCLEN];
 	unsigned int	taghash;
 	unsigned long	octets;
 	unsigned long	total_octets;
+	unsigned long	packets;
+	unsigned long	total_packets;
 	double		keepalive;
 	int		dontdel;
 	u_int32_t	seq[2];		/* seq no for TCP */
 	void		*udata;
 	void		(*freeudata)(void *);
 	struct timeval	lastseen;
-	int		packets;
 };
 
 extern int nflows;
