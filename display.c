@@ -175,8 +175,13 @@ display_update(period)
 	total_octets += sum;
 	total_time += period;
 
-	printw("interface: %s     seen: %s%s over %s\n", display_device,
-		mega(BITS((double)total_octets), "%.1f"), BS, days(total_time));
+	printw("interface: %s", display_device);
+	if (Tflag)
+		printw("   total: %s%s (%s)", 
+		    mega(BITS((double)total_octets), "%.1f"),
+		    BS, days(total_time));
+	clrtoeol();
+	printw("\n");
 	if (display_filter)
 		printw("filter: %s\n", display_filter);
 
@@ -197,6 +202,7 @@ display_update(period)
 	if (maxbps >= 0)
 		printw("max: %-6s ", 
 			mega(BITS(maxbps), "%.1f"));
+	clrtoeol();
 	printw("%s\n", BPSS);
 
 #define LLEN	(13 + (Tflag ? 7 : 0))
