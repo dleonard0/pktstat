@@ -1,10 +1,17 @@
+# David Leonard, 2002. Public domain.
 # $Id$
-# Glue for non-BSD systems
+
+# Glue for non-BSD systems, that have GNU's make (gmake)
 
 include Makefile
 
+#-- simulate the essential parts of BSD's bsd.prog.mk
+
 OBJS=	${SRCS:.c=.o}
 MAN=	${PROG}.cat1
+PREFIX?=/usr/local
+BINDIR=	${PREFIX}/bin
+MANDIR=	${PREFIX}/man
 
 all: ${PROG} ${MAN}
 
@@ -12,10 +19,11 @@ ${PROG}: ${OBJS}
 	${LINK.c} -o $@ ${OBJS} ${LDADD}
 
 ${MAN}: ${MAN:.cat1=.1}
-	nroff -man -Tascii $^ > $@
+	nroff -mandoc $^ > $@
 
 install:
-	@echo "GNUmakefile: install rule not written - please fix me"; exit 1
+	install -m 555 ${PROG} ${BINDIR}/
+	install -m 444 ${MAN} ${MANDIR}/cat1/${MAN:.cat1=.0}
 
 clean:
 	rm -f ${PROG} ${MAN} ${OBJS}
