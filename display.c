@@ -423,7 +423,7 @@ display_update(period)
 		if (Tflag)
 			printw("%6s ", 
 				mega((double) (pflag 
-				    ? flows[i].packets
+				    ? flows[i].total_packets
 				    : BITS(flows[i].total_octets)),
 				    "%5.1f"));
 
