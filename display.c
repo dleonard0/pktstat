@@ -144,7 +144,8 @@ display_update(period)
 		printw("%.*s\n", maxx - 13, flows[i].tag);
 		if (flows[i].desc[0] != '\0') {
 			printw("%6s %4s ", "", "");
-			printw("%.*s\n", maxx - 13, flows[i].desc);
+			addch(ACS_LLCORNER);
+			printw(" %.*s\n", maxx - 13 - 2, flows[i].desc);
 		}
 		attrset(A_NORMAL);
 	}
