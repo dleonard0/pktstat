@@ -1,5 +1,6 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
+
 #include <stdlib.h>
 #include "hash.h"
 
