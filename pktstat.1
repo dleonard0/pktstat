@@ -8,7 +8,7 @@
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
 .Nm pktstat
-.Op Fl BcFlntT
+.Op Fl BcFlnptT
 .Op Fl a Ar abbrev
 .Op Fl A Ar file
 .Op Fl i Ar interface
@@ -29,7 +29,6 @@ understands the following command line options:
 Add
 .Ar abbrev
 to the list of abbreviation patterns.
-
 .It Fl A Ar file
 Read abbreviation patterns from the given file.
 Abbreviation patterns must be on separate lines.
@@ -64,10 +63,14 @@ Display and sort flows by when they were last seen.
 .Fl t )
 .It Fl n
 Do not try and resolve hostnames or service port numbers.
+.It Fl p
+Show packet counts instead of bit counts.
 .It Fl t
 "Top" mode.
-Sorts the display by octet count, rather than by
-the packet class.
+Sorts the display by bit count (or packet count if
+.Fl p
+was given) instead of by
+the name.
 .It Fl T
 Show bit (byte) totals for flows.
 .It Fl w Ar waittime
@@ -107,6 +110,10 @@ flag (totals mode)
 toggle the
 .Fl n
 flag (numeric display)
+.It Ic p
+toggle the
+.Fl p
+flag (packets instead of bits)
 .It Ic b | B
 toggle the
 .Fl B

@@ -21,6 +21,11 @@
 #include "ifc.h"
 #include "tag.h"
 
+#undef MIN
+#undef MAX
+#define MIN(a,b)	((a) < (b) ? (a) : (b))
+#define MAX(a,b)	((a) > (b) ? (a) : (b))
+
 #ifndef NBBY
 # define NBBY 8	/* Number of bits per byte */
 #endif
@@ -38,6 +43,12 @@ static int display_opened = 0;
 static volatile int resize_needed = 0;
 static double avg[3] = { 0.0, 0.0, 0.0 };
 static double showhelp = 0;
+static int wasdown = 0;
+
+static unsigned long total_packets = 0;
+static double maxpps = -1;
+static double minpps = -1;
+static double avg_pkt[3] = { 0.0, 0.0, 0.0 };
 
 static const char *mega(double, const char *);
 static const char *days(double);
@@ -151,6 +162,8 @@ display_update(period)
 	int maxi;
 	int redraw_needed = 0;
 	int clearflows = 0;
+	unsigned long sum_packets;
+	double pps = 0;
 
 	if (resize_needed) {
 		resize();
@@ -186,15 +199,21 @@ display_update(period)
 	case 'b': case 'B':		/* toggle -B */
 		Bflag = !Bflag;
 		break;
+	case 'p':			/* toggle -p */
+		pflag = !pflag;
+		break;
 	case 'f': case 'F':		/* toggle -F */
 		Fflag = !Fflag;
 		clearflows = 1;
 		break;
 	case 'r':			/* reset stats */
 		total_octets = 0;
+		total_packets = 0;
 		total_time = 0;
 		maxbps = -1;
 		minbps = -1;
+		maxpps = -1;
+		minpps = -1;
 		period = 0;
 		while (nflows)		/* clear flows now */
 			flow_del(flows);
@@ -222,15 +241,22 @@ display_update(period)
 	move(0,0);
 
 	/* sort the flows by their packet octet count */
-	qsort(flows, nflows, sizeof (struct flow), lflag ? lastcmp : tflag ? octetcmp : tagcmp);
+	qsort(flows, nflows, sizeof (struct flow), 
+		lflag ? lastcmp 
+		      : tflag ? (pflag ? packetcmp : octetcmp)
+			      : tagcmp);
 
 	/* Compute total number of octets we have just seen go by */
 	sum = 0;
-	for (i = 0; i < nflows; i++)
+	sum_packets = 0;
+	for (i = 0; i < nflows; i++) {
 		sum += flows[i].octets;
+		sum_packets += flows[i].packets;
+	}
 
 	/* Keep track of totals for the -T flag */
 	total_octets += sum;
+	total_packets += sum_packets;
 	total_time += period;
 
 	/* Print information about the interface */
@@ -242,15 +268,19 @@ display_update(period)
 		printw("down");
 		attrset(oattr);
 		printw(" ");
-	}
+		if (!wasdown)
+			beep();
+		wasdown = 1;
+	} else
+		wasdown = 0;
 
 	if ((flags & IFF_RUNNING) == 0)
 		printw("(not running) ");
 
 	if (Tflag)
-		printw("   total: %s%s (%s)", 
-		    mega(BITS((double)total_octets), "%.1f"),
-		    BS, days(total_time));
+		printw("   total: %s%s (%s)", mega(
+		    pflag ? total_packets : (double)BITS(total_octets), "%.1f"),
+		    pflag ? "p" : BS, days(total_time));
 	clrtoeol();
 	printw("\n");
 
@@ -259,12 +289,17 @@ display_update(period)
 		printw("filter: %s\n", display_filter);
 
 	/* Compute minimum and maximum octet rates */
-	if (period > 0.5) {
+	if (period > 0) {
 		bps = sum / period;
 		if (minbps < 0 || bps < minbps)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
+		pps = sum_packets / period;
+		if (minpps < 0 || pps < minpps)
+			minpps = pps;
+		if (maxpps < 0 || pps > maxpps)
+			maxpps = pps;
 	}
 
 	/* Compute the 1, 5 and 15 minute averages */
@@ -272,49 +307,60 @@ display_update(period)
 		static double T[3] = { 60, 5 * 60, 15 * 60 };
 		double eT = exp(-1.0/(T[i] / period));
 		avg[i] = avg[i] * eT + sum * (1.0 - eT);
+		avg_pkt[i] = avg_pkt[i] * eT + sum_packets * (1.0 - eT);
 	}
 
 	if (!Tflag) {
 		/* Display simple load average */
 		printw("load averages: ");
-		printw("%6s ", mega(BITS(avg[0]), "%.1f"));
-		printw("%6s ", mega(BITS(avg[1]), "%.1f"));
-		printw("%6s ", mega(BITS(avg[2]), "%.1f"));
+		printw("%6s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]), "%.1f"));
+		printw("%6s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]), "%.1f"));
+		printw("%6s ", mega(pflag ? avg_pkt[2] : BITS(avg[2]), "%.1f"));
 	} else {
 		/* Display sophisticated load averages for the -T flag */
-		if (period > 0.5)
-			printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
-		if (total_time > 0.5) {
-			printw("avg: %-6s ", 
-				mega(BITS(total_octets / total_time), "%.1f"));
-			printw("[%s ", mega(BITS(avg[0]), "%.1f"));
-			printw("%s ", mega(BITS(avg[1]), "%.1f"));
-			printw("%s] ", mega(BITS(avg[2]), "%.1f"));
-		}
+		if (period > 0)
+			printw("cur: %-6s ", mega(pflag ? pps : BITS(bps),
+			    "%.1f"));
+		printw("[%s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]),
+		    "%.1f"));
+		printw("%s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]),
+		    "%.1f"));
+		printw("%s] ", mega(pflag ? avg_pkt[1] : BITS(avg[2]),
+		    "%.1f"));
 		if (minbps >= 0)
 			printw("min: %-6s ",
-				mega(BITS(minbps), "%.1f"));
+				mega(pflag ? minpps : BITS(minbps), "%.1f"));
 		if (maxbps >= 0)
 			printw("max: %-6s ", 
-				mega(BITS(maxbps), "%.1f"));
+				mega(pflag ? maxpps : BITS(maxbps), "%.1f"));
+		if (total_time > 0) {
+			printw("avg: %-6s ", mega(
+			    (pflag ? total_packets : BITS(total_octets)) /
+			    total_time, "%.1f"));
+		}
 	}
-	printw("%s", BPSS);
+	printw("%s", pflag ? "pps" : BPSS);
 	clrtoeol();
 	printw("\n\n");
 
 /* Computing the indent for tag descripions now */
-#define LLEN	(13 + (Tflag ? 7 : 0))
+#define LLEN	(13 + (Tflag ? 7 : 0) - (pflag ? 5 : 0))
 
 	/* Print the heading row */
-	attron(A_UNDERLINE); printw("%6s", BPSS);
+	attron(A_UNDERLINE); printw("%6s", pflag ? "pps" : BPSS);
 	attrset(A_NORMAL); printw(" ");
-	attron(A_UNDERLINE); printw("%4s", "%");
-	attrset(A_NORMAL); printw(" ");
-	if (Tflag) {
-		attron(A_UNDERLINE); printw("%6s", BS);
+	if (!pflag) {
+		attron(A_UNDERLINE); printw("%4s", "%");
 		attrset(A_NORMAL); printw(" ");
 	}
-	attron(A_UNDERLINE); printw("%-*s", maxx - LLEN, "desc");
+	if (Tflag) {
+		attron(A_UNDERLINE); printw("%6s", pflag ? "p" : BS);
+		attrset(A_NORMAL); printw(" ");
+	}
+	attron(A_UNDERLINE); printw("%-*s", 
+		MIN(maxx - LLEN, 
+		    MAX(sizeof flows->desc + 2, sizeof flows->tag) - 1),
+		"desc");
 	attrset(A_NORMAL); printw("\n");
 
 	clrtobot();
@@ -341,21 +387,30 @@ display_update(period)
 			attron(A_BOLD);
 
 		/* Print the bitrate of active flows */
-		if (flows[i].octets)
-			printw("%6s %3d%% ",
-				mega(BITS(flows[i].octets / period), "%5.1f"),
-				(int)(100 * flows[i].octets / period / maxbps));
-		else
-			printw("%6s %4s ", "", "");
+		if (flows[i].octets && period > 0) {
+			printw("%6s ", mega(
+			    (pflag ? flows[i].packets : BITS(flows[i].octets)) /
+			    period, "%5.1f"));
+			if (!pflag) printw("%3d%% ", 
+			    (int)(100 * (pflag ? flows[i].octets / maxbps 
+				               : flows[i].packets / maxpps) /
+				  period));
+		} else {
+			printw("%6s ", "");
+			if (!pflag) printw("%4s ", "");
+		}
 
 		/* Show a flow's total bit history with the -T flag */
 		if (Tflag)
 			printw("%6s ", 
-				mega((double)BITS(flows[i].total_octets),
-				     "%5.1f"));
+				mega((double) (pflag 
+				    ? flows[i].packets
+				    : BITS(flows[i].total_octets)),
+				    "%5.1f"));
 
 		/* Finally, the flow's name */
-		printw("%.*s\n", maxx - LLEN, flows[i].tag);
+		printw("%.*s\n", MIN(maxx - LLEN, sizeof flows[i].tag - 1),
+		    flows[i].tag);
 
 		/* On a new line, show the flow's description, if it has one */
 		if (flows[i].desc[0] != '\0') {
@@ -363,7 +418,8 @@ display_update(period)
 			if (Tflag)
 				printw("%6s ", "");
 			addch(ACS_LLCORNER);
-			printw(" %.*s\n", maxx - LLEN - 2, flows[i].desc);
+			printw(" %.*s\n", MIN(maxx - LLEN - 2, 
+			    sizeof flows[i].desc - 1), flows[i].desc);
 		}
 		attrset(A_NORMAL);
 	}
@@ -441,6 +497,9 @@ printhelp()
 	attrset(0); printw(" ");
 	attrset(A_UNDERLINE); if (Bflag) attron(A_REVERSE); printw("b");
 	attroff(A_UNDERLINE); printw("its");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (pflag) attron(A_REVERSE); printw("p");
+	attroff(A_UNDERLINE); printw("ackets");
 	attrset(0); printw(" ");
 	attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
 	attroff(A_UNDERLINE); printw("ullname");

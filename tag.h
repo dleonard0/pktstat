@@ -27,6 +27,8 @@ const char *tcp_tag(const char *, const char *, const struct ip *, const struct 
 const char *udp_tag(const char *, const char *, const struct ip *, const struct ip6_hdr *);
 const char *icmp_tag(const char *, const char *, const struct ip *);
 
+const char *ipx_tag(const char *, const char *);
+
 const char *tag_combine(const char *, const char *);
 
 
