@@ -16,6 +16,11 @@
 #include "main.h"
 #include "display.h"
 
+#ifndef IPV6_VERSION
+# define IPV6_VERSION      0x60
+# define IPV6_VERSION_MASK 0xf0
+#endif
+
 /* Compare two IPv6 addresses */
 static int
 in6addr_cmp(a, b)

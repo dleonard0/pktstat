@@ -1,6 +1,10 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+#if defined(__linux__)
+# define __FAVOR_BSD
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

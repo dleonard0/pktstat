@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <sys/types.h>
+#include <sys/param.h>
 
 #include <sys/socket.h>
 #include <net/if.h>
@@ -16,6 +17,10 @@
 #include "main.h"
 #include "resize.h"
 #include "ifc.h"
+
+#ifndef NBBY
+# define NBBY 8	/* Number of bits per byte */
+#endif
 
 #define BITS(r)	(Bflag ? (r) : (r) * NBBY)
 #define BPSS	(Bflag ? "Bps" : "bps")

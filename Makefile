@@ -7,4 +7,3 @@ SRCS+=	ip6.c
 SRCS+=	tcp_http.c tcp_x11.c
 HDRS+=	tcp.h
 LDADD=	-lpcap -lcurses -lm
-.include <bsd.prog.mk>

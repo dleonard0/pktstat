@@ -1,11 +1,31 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <machine/endian.h>
+#include <sys/param.h>
+#if defined(BSD)
+# include <sys/endian.h>
+#endif
 #include "flow.h"
 #include "tcp.h"
+
+#if defined(__linux__)
+# include <endian.h>
+# include <byteswap.h>
+# ifdef WORDS_BIGENDIAN
+#  define letoh16(x)	bswap_16(x)
+#  define letoh32(x)	bswap_32(x)
+#  define betoh16(x)	(x)
+#  define betoh32(x)	(x)
+# else
+#  define letoh16(x)	(x)
+#  define letoh32(x)	(x)
+#  define betoh16(x)	bswap_16(x)
+#  define betoh32(x)	bswap_32(x)
+# endif
+#endif
 
 /* From Xproto.h: */
 
