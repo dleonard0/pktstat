@@ -3,7 +3,7 @@ HELLO
 
 Thankyou for downloading pktstat. Pktstat will provide you with many
 years of fun and enjoyment, provided that you take care to read the
-documentation in pktstat(1).
+documentation in pktstat(1) and the notices below.
 
 Installation and operation of pktstat may need elevated privileges.
 Be sure to ask the advice of an adult when using the superuser account.
@@ -13,7 +13,7 @@ LINUX
 To aid construction in a Linux environment, ensure that the libpcap-dev
 and ncurses-devel packages are at hand. Otherwise, you will see 
 messages like this:
-	main.c:8:18: pcap.h: No such file or directory
+	main.c:18: pcap.h: No such file or directory
 
 PUBLIC DOMAIN
 
@@ -24,13 +24,16 @@ exercise copyright control over it. No prohibition is made regarding
 its use or inclusion in any reasonable situation, subject to the
 notice below.
 
+Contributed patches and fixes are accepted on the understanding
+that they too will be made available to the public domain.
+
 NOTICE
 
 The authors and contributors make no claims as to the suitability of
 this work for any use or purpose. It is made available 'as is', and
 is not warranted to be free of defects. Use and/or operation of this 
-software is at the users' own risk, and the authors and contributors to
+software is at the users' own risk. The authors and contributors to
 this work do not endorse or recommend its execution in situations that
-may lead to loss or damage.
+may lead to any loss or damage.
 
 $Id$
