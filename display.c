@@ -37,6 +37,7 @@ static double avg[3] = { 0.0, 0.0, 0.0 };
 static const char *mega(double, const char *);
 static const char *days(double);
 
+/* Return SI unit representation for number x, e.g (3000,"%.1f") -> "3.0k" */
 static
 const char *
 mega(x, fmt)
@@ -61,6 +62,7 @@ mega(x, fmt)
 	return buf;
 }
 
+/* Return human-friendly time expression, eg in days, weeks, hours etc. */
 static const char *
 days(td)
 	double td;
@@ -68,9 +70,9 @@ days(td)
 	static char buf[80];
 	unsigned long t = td;
 
-#define Mn	60
-#define Hr	(60*60)
-#define Dy	(24*60*60)
+	static const int Mn = 60;
+	static const int Hr = 60 * Mn;
+	static const int Dy = 24 * Hr;
 
 	if (t < Mn) {
 		snprintf(buf, sizeof buf, "%lds", t);
@@ -100,6 +102,7 @@ days(td)
 	return buf;
 }
 
+/* Prepare the display using curses */
 void
 display_open(device, filter)
 	const char *device, *filter;
@@ -111,15 +114,17 @@ display_open(device, filter)
 	noecho();
 	nodelay(stdscr, TRUE);
 	resize_init(&resize_needed);
-	ifc_init(device);
+	ifc_init(device);		/* XXX shouldn't be here */
 }
 
+/* Close the display */
 void
 display_close()
 {
 	endwin();
 }
 
+/* Update the display, sorting and drawing all the computed tags */
 void
 display_update(period)
 	double period;
@@ -136,6 +141,7 @@ display_update(period)
 		redraw_needed = 1;
 	}
 
+	/* Handle keystroke since the last screen update */
 	switch (getch()) {
 	case ('L'&0x3f):		/* control-L to redraw */
 		redraw_needed = 1;
@@ -165,8 +171,9 @@ display_update(period)
 		maxbps = -1;
 		minbps = -1;
 		break;
-	case ERR:
-	default:
+	case ERR:			/* no key */
+		break;
+	default:			/* unknown key */
 		break;	
 	}
 
@@ -180,13 +187,16 @@ display_update(period)
 	/* sort the flows by their packet octet count */
 	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
 
+	/* Compute total number of octets we have just seen go by */
 	sum = 0;
 	for (i = 0; i < nflows; i++)
 		sum += flows[i].octets;
 
+	/* Keep track of totals for the -T flag */
 	total_octets += sum;
 	total_time += period;
 
+	/* Print information about the interface */
 	printw("interface: %s ", display_device);
 
 	flags = ifc_flags();
@@ -206,9 +216,12 @@ display_update(period)
 		    BS, days(total_time));
 	clrtoeol();
 	printw("\n");
+
+	/* Print information about the filter (if any) */
 	if (display_filter)
 		printw("filter: %s\n", display_filter);
 
+	/* Compute minimum and maximum octet rates */
 	if (period > 0.5) {
 		bps = sum / period;
 		if (minbps < 0 || bps < minbps)
@@ -217,7 +230,7 @@ display_update(period)
 			maxbps = bps;
 	}
 
-	/* Compute 1, 5 and 15 minute averages */
+	/* Compute the 1, 5 and 15 minute averages */
 	for (i = 0; i < 3; i++) {
 		static double T[3] = { 60, 5 * 60, 15 * 60 };
 		double eT = exp(-1.0/(T[i] / period));
@@ -225,11 +238,13 @@ display_update(period)
 	}
 
 	if (!Tflag) {
+		/* Display simple load average */
 		printw("load averages: ");
 		printw("%6s ", mega(BITS(avg[0]), "%.1f"));
 		printw("%6s ", mega(BITS(avg[1]), "%.1f"));
 		printw("%6s ", mega(BITS(avg[2]), "%.1f"));
 	} else {
+		/* Display sophisticated load averages for the -T flag */
 		if (period > 0.5)
 			printw("cur: %-6s ", mega(BITS(bps), "%.1f"));
 		if (total_time > 0) {
@@ -246,13 +261,14 @@ display_update(period)
 			printw("max: %-6s ", 
 				mega(BITS(maxbps), "%.1f"));
 	}
-
+	printw("%s", BPSS);
 	clrtoeol();
-	printw("%s\n", BPSS);
+	printw("\n\n");
 
+/* Computing the indent for tag descripions now */
 #define LLEN	(13 + (Tflag ? 7 : 0))
 
-	printw("\n");
+	/* Print the heading row */
 	attron(A_UNDERLINE); printw("%6s", BPSS);
 	attrset(A_NORMAL); printw(" ");
 	attron(A_UNDERLINE); printw("%4s", "%");
@@ -266,26 +282,41 @@ display_update(period)
 
 	clrtobot();
 	for (i = 0; i < nflows; i++) {
+
+		/* Handle going off the bottom of the screen */
 		getyx(stdscr, y, x);
 		if (y >= maxy - 2)
 			break;
+
+		/* Ignore flows that have stopped for a while */
 		if (flows[i].octets == 0 && flows[i].keepalive == 0)
 			continue;
+
+		/* Dim flows that have paused */
 		if (flows[i].octets == 0)
 			attron(A_DIM);
+		/* Embolden flows that have started up again */
 		else if (flows[i].keepalive < kflag)
 			attron(A_BOLD);
+
+		/* Print the bitrate of active flows */
 		if (flows[i].octets)
 			printw("%6s %3d%% ",
 				mega(BITS(flows[i].octets / period), "%5.1f"),
 				(int)(100 * flows[i].octets / period / maxbps));
 		else
 			printw("%6s %4s ", "", "");
+
+		/* Show a flow's total bit history with the -T flag */
 		if (Tflag)
 			printw("%6s ", 
 				mega((double)BITS(flows[i].total_octets),
 				     "%5.1f"));
+
+		/* Finally, the flow's name */
 		printw("%.*s\n", maxx - LLEN, flows[i].tag);
+
+		/* On a new line, show the flow's description, if it has one */
 		if (flows[i].desc[0] != '\0') {
 			printw("%6s %4s ", "", "");
 			if (Tflag)
@@ -295,6 +326,11 @@ display_update(period)
 		}
 		attrset(A_NORMAL);
 	}
+
+	/* Flush output to the screen */
+	refresh();
+
+	/* Decrement keepalive counter for flows that have paused. */
 	for (i = 0; i < nflows; i++)
 		if (flows[i].octets > 0)
 			flows[i].keepalive = kflag;
@@ -302,18 +338,18 @@ display_update(period)
 			flows[i].keepalive--;
 			if (flows[i].keepalive <= 0 && !flows[i].dontdel) {
 				flow_del(&flows[i]);
-				i--;	/* cause new flow slips in */
+				i--;	/* because a new flow slips in */
 			}
 		}
 
-	refresh();
 
-	/* If tag names will change, we need to reset everything */
+	/* If tag names are about to change, we need to reset everything */
 	if (clearflows)
 		while (nflows)
 			flow_del(flows);
 }
 
+/* Display an informational message at the bottom of the screen */
 void
 display_message(const char *fmt, ...)
 {
