@@ -130,7 +130,7 @@ flush flow history and reset DNS/service caches
 .It Ic l
 show and sort flows by when they were last active
 .It Ic ?
-display a short help message at the bottom of the display
+toggle display of help/status text at the bottom of the display
 .El
 .Ss Packet classes
 .Pp
@@ -141,8 +141,10 @@ with a descriptive string, such as
 .Pp
 In addition to being tagged, some protocol-state information can
 be associated with a flow. This is displayed immediately below a flow line.
-Descriptive information for FTP, HTTP, and X11 connections is determined
+Descriptive information for FTP, HTTP, X11 and SUP connections is determined
 from simple decoding of some packets.
+If the connection is 'open', it is introduced with a right angle shape or
+a plus sign, otherwise it is introduced with a hyphen character.
 .\"
 .Ss Abbreviations
 .Pp
@@ -224,7 +226,7 @@ The direction of traffic is not taken into account: both ingress and
 egress data rates are combined. If you want to separate them, you will need
 to use a filter expression.
 .Pp
-Descriptive information for X11, FTP and HTTP flows is derived from the
+Descriptive information for X11, FTP, HTTP and SUP flows is derived from the
 very first packets sent on those protocols.
 If you start
 .Nm
