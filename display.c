@@ -142,11 +142,14 @@ display_update(period)
 	int maxx, maxy, y, x;
 	int redraw_needed = 0;
 	int clearflows = 0;
+	static double showhelp = 0;
 
 	if (resize_needed) {
 		resize();
 		redraw_needed = 1;
 	}
+
+	getmaxyx(stdscr, maxy, maxx);
 
 	/* Handle keystroke since the last screen update */
 	switch (getch()) {
@@ -178,6 +181,12 @@ display_update(period)
 		maxbps = -1;
 		minbps = -1;
 		break;
+	case '?':			/* show help line */
+		if (showhelp > 0)
+			showhelp = 0;
+		else
+			showhelp = 5;
+		break;
 	case ERR:			/* no key */
 		break;
 	default:			/* unknown key */
@@ -188,8 +197,6 @@ display_update(period)
 		clearok(curscr, TRUE);
 
 	move(0,0);
-
-	getmaxyx(stdscr, maxy, maxx);
 
 	/* sort the flows by their packet octet count */
 	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
@@ -288,6 +295,7 @@ display_update(period)
 	attrset(A_NORMAL); printw("\n");
 
 	clrtobot();
+
 	for (i = 0; i < nflows; i++) {
 
 		/* Handle going off the bottom of the screen */
@@ -332,6 +340,29 @@ display_update(period)
 			printw(" %.*s\n", maxx - LLEN - 2, flows[i].desc);
 		}
 		attrset(A_NORMAL);
+	}
+
+	if (showhelp > 0) {
+		showhelp -= period;
+		move(maxy - 1, 0);
+		attrset(A_UNDERLINE); if (tflag) attron(A_REVERSE); printw("t");
+		attroff(A_UNDERLINE); printw("op");
+		attrset(0); printw(" ");
+		attrset(A_UNDERLINE); if (nflag) attron(A_REVERSE); printw("n");
+		attroff(A_UNDERLINE); printw("umeric");
+		attrset(0); printw(" ");
+		attrset(A_UNDERLINE); if (Bflag) attron(A_REVERSE); printw("b");
+		attroff(A_UNDERLINE); printw("its");
+		attrset(0); printw(" ");
+		attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
+		attroff(A_UNDERLINE); printw("ullname");
+		attrset(0); printw(" ");
+		attrset(A_UNDERLINE); printw("r");
+		attroff(A_UNDERLINE); printw("eset ");
+		attrset(A_UNDERLINE); printw("q");
+		attroff(A_UNDERLINE); printw("uit ");
+		attrset(A_UNDERLINE); printw("?");
+		attroff(A_UNDERLINE); printw("help");
 	}
 
 	/* Flush output to the screen */
