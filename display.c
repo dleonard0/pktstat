@@ -307,26 +307,26 @@ display_update(period)
 			minpps = pps;
 		if (maxpps < 0 || pps > maxpps)
 			maxpps = pps;
-	}
 
-	/* Compute the 1, 5 and 15 minute averages */
-	for (i = 0; i < 3; i++) {
-		static double T[3] = { 60, 5 * 60, 15 * 60 };
-		double eT = exp(-1.0/(T[i] / period));
-		avg[i] = avg[i] * eT + sum * (1.0 - eT);
-		avg_pkt[i] = avg_pkt[i] * eT + sum_packets * (1.0 - eT);
+		/* Compute the 1, 5 and 15 minute average packet/bit rates */
+		for (i = 0; i < 3; i++) {
+			static double T[3] = { 60, 5 * 60, 15 * 60 };
+			double eT = exp(-period / T[i]);
+			avg[i] = avg[i] * eT + bps * (1.0 - eT);
+			avg_pkt[i] = avg_pkt[i] * eT + pps * (1.0 - eT);
+		}
 	}
 
 	if (!Tflag) {
 		/* Display simple load average */
 		printw("load averages: ");
-		printw("%6s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]), "%.1f"));
-		printw("%6s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]), "%.1f"));
-		printw("%6s ", mega(pflag ? avg_pkt[2] : BITS(avg[2]), "%.1f"));
+		printw("%s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]), "%.1f"));
+		printw("%s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]), "%.1f"));
+		printw("%s ", mega(pflag ? avg_pkt[2] : BITS(avg[2]), "%.1f"));
 	} else {
 		/* Display sophisticated load averages for the -T flag */
 		if (period > 0) {
-			printw("cur: %-6s ", mega(pflag ? pps : BITS(bps),
+			printw("cur: %s ", mega(pflag ? pps : BITS(bps),
 			    "%.1f"));
 			if (mflag > 0)
 				printw("(%u%%) ", (int)(100.0 * bps / mflag));
@@ -340,21 +340,21 @@ display_update(period)
 		printw("%s] ", mega(pflag ? avg_pkt[1] : BITS(avg[2]),
 		    "%.1f"));
 		if (minbps >= 0)
-			printw("min: %-6s ",
+			printw("min: %s ",
 				mega(pflag ? minpps : BITS(minbps), "%.1f"));
 		if (!pflag && mflag > 0) {
 			printw("max: ");
 			attron(A_UNDERLINE);
-			printw("%-6s", mega(BITS(mflag), "%.1f"));
+			printw("%s", mega(BITS(mflag), "%.1f"));
 			attrset(A_NORMAL);
-			printw(" ");
 			if (maxbps > mflag)
-				printw("(%-6s)", mega(BITS(maxbps), "%.1f"));
+				printw(" (%s)", mega(BITS(maxbps), "%.1f"));
+			printw(" ");
 		} else if (maxbps >= 0)
-			printw("max: %-6s ", 
+			printw("max: %s ", 
 				mega(pflag ? maxpps : BITS(maxbps), "%.1f"));
 		if (total_time > 0) {
-			printw("avg: %-6s ", mega(
+			printw("avg: %s ", mega(
 			    (pflag ? total_packets : BITS(total_octets)) /
 			    total_time, "%.1f"));
 		}
