@@ -9,8 +9,9 @@
 #include <termios.h>
 #include <err.h>
 
-static volatile int * flagp = NULL;
+static volatile int *flagp = NULL;
 
+/* Set the flag when the window size changes */
 static void
 sigwinch(sig)
 	int sig;
@@ -19,6 +20,7 @@ sigwinch(sig)
 		*flagp = 1;
 }
 
+/* Install a signal handler that sets a given flag when the window resizes */
 void
 resize_init(fp)
 	volatile int *fp;
@@ -29,6 +31,7 @@ resize_init(fp)
 		err(1, "signal");
 }
 
+/* This should be called when the flag has been set by the sigwinch handler */
 void
 resize()
 {
