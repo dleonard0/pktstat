@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <err.h>
 #include <sys/types.h>
 #include <sys/time.h>
 
@@ -76,6 +77,8 @@ tcp_x11(f, data, end)
 	if (state == NULL) {
 		const struct xConnClientPrefix *p;
 		state = (struct x11state *)malloc(sizeof (struct x11state));
+		if (state == NULL)
+			errx(1, "malloc");
 		f->udata = state;
 		f->freeudata = free;
 		p = (const struct xConnClientPrefix *)data;

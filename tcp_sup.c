@@ -236,6 +236,8 @@ tcp_sup(f, data, end, isclient)
 	states = (struct supstate *)f->udata;
 	if (state == NULL) {
 		states = (struct supstate *)malloc(2*sizeof (struct supstate));
+		if (states == NULL)
+			errx(1, "malloc");
 		f->udata = state;
 		f->freeudata = free;
 		states[0].state = STATE_INIT;

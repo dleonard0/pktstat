@@ -212,6 +212,8 @@ main(argc, argv)
 		for (i = optind; i < argc; i++)
 			exprlen += strlen(argv[i]) + 1;
 		expr = malloc(exprlen);
+		if (expr == NULL)
+			errx(1, "malloc");
 
 		/* Concatenate the remaining command line args into a string */
 		*expr = '\0';

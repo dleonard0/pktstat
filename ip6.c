@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <string.h>
 #include <stdlib.h>
+#include <err.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip6.h>
@@ -96,6 +97,8 @@ ip6_lookup(addr)
 		}
 		result = strdup(s);
 		a2 = (struct in6_addr *)malloc(sizeof *addr);
+		if (a2 == NULL)
+			errx(1, "malloc");
 		memcpy(a2, addr, sizeof *a2);
 		hash_store(&ip6_hash, a2, result);
 	}

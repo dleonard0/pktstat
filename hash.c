@@ -8,6 +8,7 @@
  */
 
 #include <stdlib.h>
+#include <err.h>
 #include "hash.h"
 
 struct hashelt {
@@ -67,6 +68,8 @@ hash_store(h, key, data)
 		e = *he;
 	} else {
 		e = (struct hashelt *)malloc(sizeof (struct hashelt));
+		if (e == NULL)
+			errx(1, "malloc");
 		e->next = *he;
 		*he = e;
 	}

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
+#include <err.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #if defined(__linux__)
@@ -105,6 +106,8 @@ tcp_lookup(port)
 			result = se->s_name;
 		result = strdup(result);
 		a2 = (u_int16_t *)malloc(sizeof (u_int16_t));
+		if (a2 == NULL)
+			errx(1, "malloc");
 		*a2 = port;
 		hash_store(&tcp_hashtab, a2, result);
 	}

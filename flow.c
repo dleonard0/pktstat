@@ -53,6 +53,8 @@ findflow(tag)
 			flows = (struct flow *)realloc(flows,
 			    maxflows * sizeof *flows);
 		}
+		if (flows == NULL)
+			errx(1, "malloc");	
 	}
 	flows[nflows].taghash = taghash;
 	strncpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
