@@ -174,9 +174,11 @@ tcp_tag(p, end, ip, ip6)
 	case 3128:
 		tcp_http(f, data, end, 1);
 		break;
+#if 0 /* tcp_sup is too unstable! */
 	case 871:
 		tcp_sup(f, data, end, 1);
 		break;
+#endif
 	case 6000:
 	case 6001:
 	case 6002:
@@ -194,9 +196,11 @@ tcp_tag(p, end, ip, ip6)
 	case 3128:
 		tcp_http(f, data, end, 0);
 		break;
+#if 0 /* tcp_sup is too unstable! */
 	case 871:
 		tcp_sup(f, data, end, 0);
 		break;
+#endif
 	}
 
 	/* 
