@@ -13,8 +13,7 @@
 
 #include "tag.h"
 #include "hash.h"
-
-extern int nflag;
+#include "main.h"
 
 static int
 udp_cmp(a, b)
