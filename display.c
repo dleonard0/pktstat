@@ -414,7 +414,8 @@ display_update(period)
 
 		/* On a new line, show the flow's description, if it has one */
 		if (flows[i].desc[0] != '\0') {
-			printw("%6s %4s ", "", "");
+			printw("%6s ", "");
+			if (!pflag) printw("%4s ", "");
 			if (Tflag)
 				printw("%6s ", "");
 			addch(ACS_LLCORNER);

@@ -8,7 +8,7 @@
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
 .Nm pktstat
-.Op Fl BcFlnptT
+.Op Fl BcFlnpPtT
 .Op Fl a Ar abbrev
 .Op Fl A Ar file
 .Op Fl i Ar interface
@@ -65,6 +65,8 @@ Display and sort flows by when they were last seen.
 Do not try and resolve hostnames or service port numbers.
 .It Fl p
 Show packet counts instead of bit counts.
+.It Fl P
+Do not try to put the interface into promiscuous mode.
 .It Fl t
 "Top" mode.
 Sorts the display by bit count (or packet count if

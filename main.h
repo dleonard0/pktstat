@@ -9,6 +9,7 @@ extern int kflag;
 extern int lflag;
 extern int nflag;
 extern int pflag;
+extern int Pflag;
 extern int tflag;
 extern int Tflag;
 extern int wflag;

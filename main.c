@@ -24,6 +24,7 @@ int kflag = 10;
 int lflag = 0;
 int nflag = 0;
 int pflag = 0;
+int Pflag = 0;
 int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
@@ -76,7 +77,7 @@ main(argc, argv)
 	int blankAflag = 0;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lnptTw:")) != -1)
+	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lnpPtTw:")) != -1)
 		switch (ch) {
 		case 'A':
 			abbrev_add_file(optarg, 0);
@@ -118,6 +119,9 @@ main(argc, argv)
 		case 'p':
 			pflag = 1;		/* show packets, not bits */
 			break;
+		case 'P':
+			Pflag = 1;		/* no promiscuous mode */
+			break;
 		case 't':
 			if (lflag) {
 				warnx("-t incompatible with -l");
@@ -139,7 +143,7 @@ main(argc, argv)
 	if (error) {
 		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
-		    " [-BcFlnptT] [-i interface]"
+		    " [-BcFlnpPtT] [-i interface]"
 		    " [-k keeptime] [-w wait]"
 		    " [-a abbrev] [-A file]"
 		    " [filter-expr]\n",
@@ -147,6 +151,7 @@ main(argc, argv)
 		exit(1);
 	}
 
+	/* Use default abbreviations if nothing specified */
 	if (!blankAflag)
 		abbrev_add_default_files();
 
@@ -155,7 +160,7 @@ main(argc, argv)
 		interface = pcap_lookupdev(errbuf);
 	if (!interface) 
 		errx(1, "pcap_lookupdev: %s", errbuf);
-	p = pcap_open_live(interface, snaplen, 1, 0, errbuf);
+	p = pcap_open_live(interface, snaplen, Pflag ? 0 : 1, 0, errbuf);
 	if (!p) 
 		errx(1, "%s", errbuf);
 
@@ -249,7 +254,7 @@ main(argc, argv)
 			}
 		}
 
-		/* Figure out how long how much time it really took */
+		/* Figure out how much time we were blocked for */
 		if (gettimeofday(&now, NULL) == -1)
 			err(1, "gettimeofday");
 		timersub(&now, &starttime, &diff);
