@@ -1,4 +1,5 @@
-
+1.7.3b
+check for exhausted memory
 1.7.3a
 consistent ipx address representation
 support for FreeBSD's mach endian macros
