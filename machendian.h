@@ -20,6 +20,14 @@
 #include <sys/param.h>
 #if defined(BSD)
 # include <sys/endian.h>
+# if defined(be16toh) && !defined(betoh16)
+   /* Sigh. FreeBSD just has to be different. */
+#  define betoh16(x) be16toh(x)
+#  define betoh32(x) be32toh(x)
+#  define letoh16(x) le16toh(x)
+#  define letoh32(x) le32toh(x)
+#  define swap32(x)  bswap32(x)
+# endif
 #endif
 
 #if defined(__linux__)
