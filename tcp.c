@@ -168,6 +168,7 @@ tcp_tag(p, end, ip, ip6)
 	switch (dport) {
 	case 80:
 	case 8080:
+	case 3127:
 	case 3128:
 		/* HTTP-like protocols */
 		tcp_http(f, data, end);
@@ -177,9 +178,14 @@ tcp_tag(p, end, ip, ip6)
 	case 6002:
 	case 6003:
 	case 6010:
-		/* X11 protocols */
+		/* X11 protocol */
 		tcp_x11(f, data, end);
 		break;
+	}
+
+	/* SUP file server protocol */
+	if (dport == 871 || sport == 871) {
+		tcp_sup(f, data, end, dport == 871);
 	}
 
 	/* 
