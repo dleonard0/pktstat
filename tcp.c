@@ -1,15 +1,14 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
-#if defined(__linux__)
-# define __FAVOR_BSD
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
 #include <sys/types.h>
+#if defined(__linux__)
+# define __FAVOR_BSD
+#endif
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>

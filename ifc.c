@@ -12,8 +12,8 @@
 #include <sys/ioctl.h>
 #ifdef BSD
 # include <sys/socket.h>
+# include <sys/sockio.h>
 #endif
-#include <sys/sockio.h>
 #include <net/if.h>
 
 #include "ifc.h"
