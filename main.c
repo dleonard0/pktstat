@@ -125,6 +125,9 @@ main(argc, argv)
 	case DLT_EN10MB:
 		fn = (u_char *)ether_tag;
 		break;
+	case DLT_LOOP:
+		fn = (u_char *)loop_tag;
+		break;
 	default:
 		errx(1, "unknown datalink type %d", datalink_type);
 	}

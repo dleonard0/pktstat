@@ -15,6 +15,7 @@ struct ip6_hdr;
 
 const char *ppp_tag(const char *, const char *);
 const char *ether_tag(const char *, const char *);
+const char *loop_tag(const char *, const char *);
 
 const char *ip_tag(const char *, const char *);
 const char *ip6_tag(const char *, const char *);
