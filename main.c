@@ -29,7 +29,7 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.7.2"
+#define VERSION "1.7.2l"
 char version[] = VERSION;
 
 /* When the packet capture interval started */
@@ -151,10 +151,6 @@ main(argc, argv)
 		exit(1);
 	}
 
-	/* Use default abbreviations if nothing specified */
-	if (!blankAflag)
-		abbrev_add_default_files();
-
 	/* Open the interface */
 	if (interface == NULL)
 		interface = pcap_lookupdev(errbuf);
@@ -163,6 +159,13 @@ main(argc, argv)
 	p = pcap_open_live(interface, snaplen, Pflag ? 0 : 1, 0, errbuf);
 	if (!p) 
 		errx(1, "%s", errbuf);
+
+	/* XXX should drop privileges here before opening files */
+	/* if (issetugid()) seteuid(getuid()); */
+
+	/* Use default abbreviations if nothing specified */
+	if (!blankAflag)
+		abbrev_add_default_files();
 
 	/* Determine the datalink type */
 	datalink_type = pcap_datalink(p);
