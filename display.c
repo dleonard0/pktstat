@@ -6,6 +6,7 @@
 #include <curses.h>
 #include <stdarg.h>
 #include <math.h>
+#include <err.h>
 #include <sys/types.h>
 #include <sys/param.h>
 
@@ -31,6 +32,7 @@ static double total_time = 0;
 static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
+static int display_opened = 0;
 static volatile int resize_needed = 0;
 static double avg[3] = { 0.0, 0.0, 0.0 };
 
@@ -107,12 +109,15 @@ void
 display_open(device, filter)
 	const char *device, *filter;
 {
+
 	display_device = device;
 	display_filter = filter;
 	initscr();
 	cbreak();
 	noecho();
+	scrollok(stdscr, FALSE);
 	nodelay(stdscr, TRUE);
+	display_opened = 1;
 	resize_init(&resize_needed);
 	ifc_init(device);		/* XXX shouldn't be here */
 }
@@ -121,7 +126,9 @@ display_open(device, filter)
 void
 display_close()
 {
-	endwin();
+	if (display_opened)
+		endwin();
+	display_opened = 0;
 }
 
 /* Update the display, sorting and drawing all the computed tags */
@@ -289,7 +296,7 @@ display_update(period)
 			break;
 
 		/* Ignore flows that have stopped for a while */
-		if (flows[i].octets == 0 && flows[i].keepalive == 0)
+		if (flows[i].octets == 0 && flows[i].keepalive <= 0)
 			continue;
 
 		/* Dim flows that have paused */
@@ -335,7 +342,7 @@ display_update(period)
 		if (flows[i].octets > 0)
 			flows[i].keepalive = kflag;
 		else if (flows[i].keepalive > 0) {
-			flows[i].keepalive--;
+			flows[i].keepalive -= period;
 			if (flows[i].keepalive <= 0 && !flows[i].dontdel) {
 				flow_del(&flows[i]);
 				i--;	/* because a new flow slips in */
