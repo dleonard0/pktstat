@@ -9,3 +9,4 @@ extern int tflag;
 extern int Tflag;
 extern int wflag;
 
+extern char version[];

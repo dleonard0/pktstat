@@ -363,6 +363,7 @@ display_update(period)
 		attroff(A_UNDERLINE); printw("uit ");
 		attrset(A_UNDERLINE); printw("?");
 		attroff(A_UNDERLINE); printw("help");
+		printw(" - pktstat %s", version);
 	}
 
 	/* Flush output to the screen */

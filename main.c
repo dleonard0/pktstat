@@ -25,7 +25,8 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.6.4"
+#define VERSION "1.6.5"
+char version[] = VERSION;
 
 /* Receive a packet from libpcap and determine its category tag */
 static void
