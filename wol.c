@@ -20,7 +20,7 @@
  * Wake-on-LAN (aka AMD Magic Packet) is an unusual packet pattern
  * that we detect early, before higher protocols. They can be broadcast
  * raw, or even routed, but for ethernet we assume the sender's MAC
- * is at the beginning
+ * is at the beginning.
  */
 const char *
 ether_wol(p, end, src)
