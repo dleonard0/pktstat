@@ -77,6 +77,7 @@ tagcmp(a, b)
 	return strcmp(fa->tag, fb->tag);
 }
 
+/* Zero the octet count on all flows */
 void
 flow_zero()
 {
