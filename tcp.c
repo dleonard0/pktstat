@@ -162,9 +162,15 @@ tcp_tag(p, end, ip, ip6)
 	case 80:
 	case 8080:
 	case 3128:
+		/* HTTP-like protocols */
 		tcp_http(f, data, end);
 		break;
 	case 6000:
+	case 6001:
+	case 6002:
+	case 6003:
+	case 6010:
+		/* X11 protocols */
 		tcp_x11(f, data, end);
 		break;
 	}
@@ -180,7 +186,8 @@ tcp_tag(p, end, ip, ip6)
 		    memcmp(data, "STOR ", 5) == 0 ||
 		    memcmp(data, "NLST ", 5) == 0 ||
 		    memcmp(data, "ABOR ", 5) == 0 ||
-		    memcmp(data, "LIST ", 5) == 0) {
+		    memcmp(data, "LIST ", 5) == 0)
+		{
 			for (d = data; d < end && *d != '\r' && *d != '\n'; d++)
 				;
 			snprintf(f->desc, sizeof f->desc, "%.*s",
@@ -262,8 +269,7 @@ link_ftp_port(d, tag, end)
 		*b++ = *d++;
 	*b = '\0';
 
-	if (sscanf(buf, "%u,%u,%u,%u,%u,%u", v+0,v+1,v+2,v+3,v+4,v+5) == 6)
-	{
+	if (sscanf(buf, "%u,%u,%u,%u,%u,%u", v+0,v+1,v+2,v+3,v+4,v+5) == 6) {
 	    ua.a[0] = v[0];
 	    ua.a[1] = v[1];
 	    ua.a[2] = v[2];
