@@ -41,6 +41,7 @@ struct xChangePropertyReq {
 struct x11state {
 	char	byteorder;
 	int	skipbytes;
+	int	dontcare;
 };
 
 void
@@ -66,7 +67,11 @@ tcp_x11(f, data, end)
 		state->skipbytes = (sizeof *p) +  U16(p->nbytesAuthProto)
 		    + U16(p->nbytesAuthString);
 		state->skipbytes = (state->skipbytes + 3) & ~3; /* eek! */
+		state->dontcare = 0;
 	}
+
+	if (state->dontcare)
+		return;
 
 	while (1) {
 		if (state->skipbytes >= (end - data)) {
@@ -99,6 +104,8 @@ tcp_x11(f, data, end)
 				else
 					f->desc[i] = ' ';
 			f->desc[i] = '\0';
+			state->dontcare = 1;	/* stop processing the data stream */
+			return;
 		}
 		state->skipbytes = U16(req->length) * 4;
 	}
