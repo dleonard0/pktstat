@@ -243,6 +243,8 @@ display_update(period)
 		printw("%.*s\n", maxx - LLEN, flows[i].tag);
 		if (flows[i].desc[0] != '\0') {
 			printw("%6s %4s ", "", "");
+			if (Tflag)
+				printw("%6s ", "");
 			addch(ACS_LLCORNER);
 			printw(" %.*s\n", maxx - LLEN - 2, flows[i].desc);
 		}
