@@ -68,7 +68,7 @@ mega(x, fmt)
 	int len;
 
 	i = 0;
-	while (x >= 1000 && suffix[i]) {
+	while (x >= 999.95 && suffix[i]) {
 		x /= 1000.0;
 		i++;
 	}
