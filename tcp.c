@@ -203,22 +203,28 @@ link_ftp_port(d, tag, end)
 {
 	union {
 	    struct in_addr addr;
-	    char a[4];
+	    unsigned char a[4];
 	} ua;
 	union {
 	    u_int16_t port;
-	    char a[2];
+	    unsigned char a[2];
 	} up;
 	char buf[256], *b;
+	unsigned int v[6];
 
 	for (b = buf; d < end && b < buf+1+sizeof buf && 
 	    *d != ')' && *d != '\r';)
 		*b++ = *d++;
 	*b = '\0';
 
-	if (sscanf(buf, "%u,%u,%u,%u,%u,%u", ua.a+0, ua.a+1, ua.a+2,
-	    ua.a+3, up.a+0, up.a+1) == 6)
+	if (sscanf(buf, "%u,%u,%u,%u,%u,%u", v+0,v+1,v+2,v+3,v+4,v+5) == 6)
 	{
+	    ua.a[0] = v[0];
+	    ua.a[1] = v[1];
+	    ua.a[2] = v[2];
+	    ua.a[3] = v[3];
+	    up.a[0] = v[4];
+	    up.a[1] = v[5];
 	    ftp.port = ntohs(up.port);
 	    ftp.addr = ua.addr;
 	    strncpy(ftp.ctltag, tag, sizeof ftp.ctltag);
@@ -235,8 +241,7 @@ link_ftp_eport(d, tag, end, defaddr)
 	const struct in_addr *defaddr;
 {
         struct in_addr addr;
-	u_int16_t port;
-	int af;
+	unsigned int port;
 	char buf[256], *b;
 	char delim;
 
