@@ -128,7 +128,7 @@ ip_tag(p, end)
 		);
 		return tag;
 	default:
-		snprintf(tag, sizeof tag, "ip proto %x %s", ip->ip_p,
+		snprintf(tag, sizeof tag, "ip proto %u %s", ip->ip_p,
 		    tag_combine(ip_lookup(&ip->ip_src),
 		    ip_lookup(&ip->ip_dst)));
 		return tag;
