@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
+#include <netinet/ip6.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
@@ -20,7 +21,7 @@
 #include "display.h"
 
 static void link_ftp_eport(const char *, const char *, const char *, 
-	const struct in_addr *);
+	const struct in_addr *, const struct in6_addr *);
 static void link_ftp_port(const char *, const char *, const char *);
 
 /* a hack to remember recent FTP port commands */
@@ -28,6 +29,7 @@ static struct {
     char ctltag[80];
     char datatag[80];
     struct in_addr addr;
+    struct in6_addr addr6;
     u_int16_t port;
 } ftp;
 
@@ -101,10 +103,11 @@ tcp_lookup(port_n)
 }
 
 const char *
-tcp_tag(p, end, ip)
+tcp_tag(p, end, ip, ip6)
 	const char *p;
 	const char *end;
 	const struct ip *ip;
+	const struct ip6_hdr *ip6;
 {
 	static char src[32], dst[32];
 	static char tag[256];
@@ -115,11 +118,21 @@ tcp_tag(p, end, ip)
 	const char *data, *d;
 	int direction;
 
-	snprintf(src, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_src), tcp_lookup(sport));
-	snprintf(dst, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_dst), tcp_lookup(dport));
-	snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
+	if (ip) {
+		snprintf(src, sizeof src, "%s:%s", 
+			ip_lookup(&ip->ip_src), tcp_lookup(sport));
+		snprintf(dst, sizeof src, "%s:%s", 
+			ip_lookup(&ip->ip_dst), tcp_lookup(dport));
+		snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
+	}
+	if (ip6) {
+		snprintf(src, sizeof src, "%s:%s", 
+			ip6_lookup(&ip6->ip6_src), tcp_lookup(sport));
+		snprintf(dst, sizeof src, "%s:%s", 
+			ip6_lookup(&ip6->ip6_dst), tcp_lookup(dport));
+		snprintf(tag, sizeof tag, "tcp6 %s", tag_combine(src, dst));
+	}
+
 	direction = (strcmp(src, dst) > 0 ? 0 : 1);
 
 	f = findflow(tag);
@@ -183,7 +196,9 @@ tcp_tag(p, end, ip)
 		if (memcmp(data, "PORT ", 5) == 0) 
 			link_ftp_port(data + 5, tag, end);
 		if (memcmp(data, "EPRT ", 5) == 0) 
-			link_ftp_eport(data + 5, tag, end, &ip->ip_src);
+			link_ftp_eport(data + 5, tag, end,
+				 ip ? &ip->ip_src : NULL,
+				 ip6 ? &ip6->ip6_src : NULL);
 	}
 
 	if (sport == 21) {
@@ -198,13 +213,18 @@ tcp_tag(p, end, ip)
 		while (d < end && *d != '(')
 			d++;
 		if (++d < end)
-			link_ftp_eport(d, tag, end, &ip->ip_src);
+			link_ftp_eport(d, tag, end,
+				 ip ? &ip->ip_src : NULL,
+				 ip6 ? &ip6->ip6_src : NULL);
 	    }
 	}
 
 	/* Try to complete an FTP association */
-	if (ftp.datatag[0] == '\0' && ftp.ctltag[0] != '\0' && 
-	     ip->ip_dst.s_addr == ftp.addr.s_addr && dport == ftp.port)
+	if (ftp.datatag[0] == '\0'
+	    && ftp.ctltag[0] != '\0' 
+	    && (ip ? ip->ip_dst.s_addr == ftp.addr.s_addr
+		   : memcmp(&ip6->ip6_src, &ftp.addr6, sizeof ftp.addr6)  == 0)
+	    && dport == ftp.port)
 	{
 		/* Complete association so that future descs are copied */
 		strncpy(ftp.datatag, tag, sizeof ftp.datatag);
@@ -256,11 +276,12 @@ link_ftp_port(d, tag, end)
 
 
 static void
-link_ftp_eport(d, tag, end, defaddr)
+link_ftp_eport(d, tag, end, defaddr, defaddr6)
 	const char *d;
 	const char *tag;
 	const char *end;
 	const struct in_addr *defaddr;
+	const struct in6_addr *defaddr6;
 {
         struct in_addr addr;
 	unsigned int port;

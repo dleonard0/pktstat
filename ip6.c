@@ -108,8 +108,15 @@ ip6_tag(p, end)
 		    ip6->ip6_vfc & IPV6_VERSION_MASK);
 		return tag;
 	}
-	snprintf(tag, sizeof tag, "ip6 %s",
-	    tag_combine(ip6_lookup(&ip6->ip6_src),
-	    ip6_lookup(&ip6->ip6_dst)));
+	switch (ip6->ip6_nxt) {
+	case IPPROTO_TCP:
+		return tcp_tag(p + sizeof *ip6, end, NULL, ip6);
+	case IPPROTO_UDP:
+		return udp_tag(p + sizeof *ip6, end, NULL, ip6);
+	default:
+		snprintf(tag, sizeof tag, "ip6 %s proto %u",
+		    tag_combine(ip6_lookup(&ip6->ip6_src),
+		    ip6_lookup(&ip6->ip6_dst)), ip6->ip6_nxt);
+	}
 	return tag;
 }

@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
+#include <netinet/ip6.h>
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 
@@ -84,10 +85,11 @@ udp_lookup(port)
 }
 
 const char *
-udp_tag(p, end, ip)
+udp_tag(p, end, ip, ip6)
 	const char *p;
 	const char *end;
 	const struct ip *ip;
+	const struct ip6_hdr *ip6;
 {
 	static char src[32], dst[32];
 	static char tag[256];
@@ -95,11 +97,21 @@ udp_tag(p, end, ip)
 	u_int16_t sport = ntohs(udp->uh_sport);
 	u_int16_t dport = ntohs(udp->uh_dport);
 
-	snprintf(src, sizeof src, "%s:%s", 
-		ip_lookup(&ip->ip_src), udp_lookup(sport));
-	snprintf(dst, sizeof dst, "%s:%s", 
-		ip_lookup(&ip->ip_dst), udp_lookup(dport));
-	snprintf(tag, sizeof tag, "udp %s", tag_combine(src, dst));
+	if (ip) {
+		snprintf(src, sizeof src, "%s:%s", 
+			ip_lookup(&ip->ip_src), udp_lookup(sport));
+		snprintf(dst, sizeof dst, "%s:%s", 
+			ip_lookup(&ip->ip_dst), udp_lookup(dport));
+		snprintf(tag, sizeof tag, "udp %s", tag_combine(src, dst));
+	}
+	if (ip6) {
+		snprintf(src, sizeof src, "%s:%s", 
+			ip6_lookup(&ip6->ip6_src), udp_lookup(sport));
+		snprintf(dst, sizeof dst, "%s:%s", 
+			ip6_lookup(&ip6->ip6_dst), udp_lookup(dport));
+		snprintf(tag, sizeof tag, "udp6 %s", tag_combine(src, dst));
+	}
+
 	return tag;
 }
 

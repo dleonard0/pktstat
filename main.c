@@ -20,7 +20,7 @@ int nflag = 0;
 int Bflag = 0;
 int Fflag = 0;
 
-const char *version = "1.4";
+const char *version = "1.4.1";
 
 /* Receive a packet and determine its category tag */
 static void

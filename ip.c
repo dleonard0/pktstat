@@ -94,6 +94,7 @@ ip_tag(p, end)
 	const char *end;
 {
 	const struct ip *ip;
+	const char *tcpend;
 	static char tag[256];
 	int hlen;
 
@@ -103,13 +104,16 @@ ip_tag(p, end)
 		return tag;
 	}
 	hlen = ip->ip_hl << 2;
+	tcpend = p + ntohs(ip->ip_len);
+	if (end < tcpend)
+		tcpend = end;
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:
-		return tcp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
+		return tcp_tag(p + hlen, tcpend, ip, NULL);
 	case IPPROTO_UDP:
-		return udp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
+		return udp_tag(p + hlen, tcpend, ip, NULL);
 	case IPPROTO_ICMP:
-		return icmp_tag(p + hlen, p + ntohs(ip->ip_len), ip);
+		return icmp_tag(p + hlen, tcpend, ip);
 	case IPPROTO_IGMP:
 		snprintf(tag, sizeof tag, "igmp %s", 
 		    tag_combine(ip_lookup(&ip->ip_src), ip_lookup(&ip->ip_dst))
