@@ -88,7 +88,10 @@ lastcmp(a, b)
 	const struct flow *fa = (const struct flow *)a;
 	const struct flow *fb = (const struct flow *)b;
 	if (fb->lastseen.tv_sec - fa->lastseen.tv_sec == 0)
-		return fb->lastseen.tv_usec - fa->lastseen.tv_usec;
+		if (fb->lastseen.tv_usec - fa->lastseen.tv_usec == 0)
+			return tagcmp(a, b);
+		else
+			return fb->lastseen.tv_usec - fa->lastseen.tv_usec;
 	else
 		return fb->lastseen.tv_sec - fa->lastseen.tv_sec;
 }
