@@ -30,12 +30,16 @@ Add
 .Ar abbrev
 to the list of abbreviation patterns.
 .It Fl A Ar file
-Read abbreviation patterns from the given file.
+Read abbreviation patterns from the given
+.Ar file .
 Abbreviation patterns must be on separate lines.
 Leading and trailing whitespace is ignored;
 blank lines and lines starting with
 .Ql #
 are ignored.
+If the option
+.Fl A Ic none
+is given, then default abbreviation files are not loaded.
 .It Fl B
 Display data rates in bytes per second (Bps) instead of
 in bits per second (bps).
@@ -143,8 +147,13 @@ In addition to being tagged, some protocol-state information can
 be associated with a flow. This is displayed immediately below a flow line.
 Descriptive information for FTP, HTTP, X11 and SUP connections is determined
 from simple decoding of some packets.
-If the connection is 'open', it is introduced with a right angle shape or
-a plus sign, otherwise it is introduced with a hyphen character.
+If the connection is 'open', it is introduced with a right angle shape (+),
+otherwise it is introduced with a hyphen character.
+.Pp
+.Bd -literal -offset indent
+tcp www:80 <-> hamartia:19179
++ GET /index.html
+.Ed
 .\"
 .Ss Abbreviations
 .Pp
@@ -192,20 +201,20 @@ then looks for and loads
 .Pa $HOME/.pktstatrc
 and
 .Pa /etc/pktstatrc .
-(This behaviour is suppressed if an empty argument is given to the
-.Fl A
-option.)
-.\" The following requests should be uncommented and used where appropriate.
-.\" .Sh EXAMPLES
-.\" This next request is for sections 2 and 3 function return values only.
-.\" .Sh RETURN VALUES
-.\" The next request is for sections 2 and 3 error and signal handling only.
-.\" .Sh ERRORS
-.\" This next request is for section 4 only.
-.\" .Sh DIAGNOSTICS
-.\" This next request is for sections 1, 6, 7 & 8 only.
-.\" .Sh ENVIRONMENT
-.\" .Sh FILES
+(This behaviour is suppressed if the
+.Fl A Ic none
+option is given.)
+.Sh EXAMPLES
+.Pp
+Here are the contents of my
+.Pa .pktstatrc
+file:
+.Pp
+.Bd -literal -offset indent
+dns @ udp *:domain <-> *
+dns @ udp * <-> *:domain
+irc @ udp 192.168.0.81:6666 <-> *
+.Ed
 .Sh SEE ALSO
 .Xr bpf 4 ,
 .Xr tcpdump 8
