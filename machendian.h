@@ -27,7 +27,7 @@
 # include <byteswap.h>
 # define swap16(x) bswap_16(x)
 # define swap32(x) bswap_32(x)
-# ifdef WORDS_BIGENDIAN
+# if defined(WORDS_BIGENDIAN)
 #  define letoh16(x)	swap16(x)
 #  define letoh32(x)	swap32(x)
 #  define betoh16(x)	(x)

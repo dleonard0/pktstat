@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#ifdef BSD
+#if defined(BSD)
 # include <sys/socket.h>
 # include <sys/sockio.h>
 #endif
