@@ -8,6 +8,8 @@ documentation in pktstat(1) and the notices below.
 Installation and operation of pktstat may need elevated privileges.
 Be sure to ask the advice of an adult when using the superuser account.
 
+The latest version of pktstat can be found through freshmeat.net.
+
 LINUX
 
 To aid construction in a Linux environment, ensure that the libpcap-dev
