@@ -1,6 +1,14 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * This compilation unit uses curses to display the current
+ * list of active tags on the screen. It also handles keystroke
+ * input to make changes to flag settings.
+ * And, although this is not the right place for it, all
+ * the averages are computed here.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <curses.h>

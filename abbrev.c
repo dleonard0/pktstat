@@ -1,6 +1,13 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * Abbreviations are a way of collapsing similar packet
+ * activity into single lines. A file of 'abbreviation patterns'
+ * is read into the linked list of patterns, and every
+ * generated tag is matched and translated accordingly.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

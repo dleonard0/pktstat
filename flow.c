@@ -1,6 +1,15 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * A flow is a grouped history of packets with some similarity.
+ * Each flow is uniquely identified by a 'tag', which is
+ * descriptive string. Some flows have extra descriptive
+ * information, like FTP transferred file names. Flow data
+ * structures are supposed to hang around for a while, even
+ * if no packet activity in that flow has been seen.
+ */
+
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>

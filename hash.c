@@ -1,6 +1,12 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * Simple hash tables of linked lists. Each hash table
+ * has to provide a hashing function, and a more precise
+ * comparison function. These routines do the rest.
+ */
+
 #include <stdlib.h>
 #include "hash.h"
 

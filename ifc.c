@@ -2,7 +2,9 @@
 /* $Id$ */
 
 /*
- * Read the state flags for an interface.
+ * This compilation unit provides mechanisms for determining
+ * the operational state of a network interface.
+ * (ie if it is up, down, running or stopped.)
  */
 
 #include <err.h>

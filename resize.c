@@ -1,6 +1,12 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+/*
+ * This compilation unit provides a callback mechanism for display.c
+ * to tell it if the display needs resizing. It is separated
+ * here in case system-independent window resizing becomes complicated.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
