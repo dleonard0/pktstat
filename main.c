@@ -21,7 +21,7 @@ int Bflag = 0;
 int Fflag = 0;
 int Tflag = 0;
 
-const char *version = "1.4.2";
+#define VERSION "1.5"
 
 /* Receive a packet and determine its category tag */
 static void
@@ -99,7 +99,7 @@ main(argc, argv)
 
 	/* Handle usage errors */
 	if (error) {
-		fprintf(stderr, "pktstat version %s\n", version);
+		fprintf(stderr, "pktstat version %s\n", VERSION);
 		fprintf(stderr, "usage: %s"
 		    " [-BcFntT] [-i interface]"
 		    " [-k keepcount] [-w wait] [filter-expr]\n",
