@@ -115,7 +115,8 @@ toggle the
 .Fl F
 flag (full hostnames)
 .It Ic r
-reset collected statistics (min, max, etc.)
+reset collected statistics (min, max, etc.),
+flush flow history and reset DNS/service caches
 .It Ic l
 show and sort flows by when they were last active
 .It Ic ?
@@ -165,7 +166,23 @@ is not specified, the the pattern text itself is used as the name.
 Patterns are checked in the order given on the command line or in the file.
 So, as soon as one of the patterns matches, the rest are ignored at that
 stage.
-Recall though that patterns can be applied multiple times.
+Recall that patterns can be applied multiple times on a tag.
+.Pp
+A file of patterns can contain blank lines. Comment lines that
+commence with a
+.Ql #
+character are also ignored.
+.Pp
+After processing command line arguments,
+.Nm pktstat
+then looks for and loads
+.Pa ".pktstatrc" ,
+.Pa $HOME/.pktstatrc
+and
+.Pa /etc/pktstatrc .
+(This behaviour is suppressed if an empty argument is given to the
+.Fl A
+option.)
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.
