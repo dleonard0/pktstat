@@ -87,9 +87,6 @@ display_update(period)
 	if (display_filter)
 		printw("filter: %s\n", display_filter);
 
-	if (period == 0) 
-		return;
-
 	/* sort the flows by their packet octet count */
 	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
 
@@ -106,15 +103,18 @@ display_update(period)
 			minbps = bps;
 		if (maxbps < 0 || bps > maxbps)
 			maxbps = bps;
-		printw("cur: %-6s ", mega(BPS(bps), "%5.1f"));
+		printw("cur: %-6s ", mega(BPS(bps), "%.1f"));
 	}
-	if (total_octets)
+	if (total_time > 0)
 		printw("avg: %-6s ", 
-			mega(BPS(total_octets / total_time), "%5.1f"));
-	printw("min: %-6s ",
-		mega(BPS(minbps), "%5.1f"));
-	printw("max: %-6s %s\n", 
-		mega(BPS(maxbps), "%5.1f"), BPSS);
+			mega(BPS(total_octets / total_time), "%.1f"));
+	if (minbps >= 0)
+		printw("min: %-6s ",
+			mega(BPS(minbps), "%.1f"));
+	if (maxbps >= 0)
+		printw("max: %-6s ", 
+			mega(BPS(maxbps), "%.1f"));
+	printw("%s\n", BPSS);
 
 	printw("\n");
 	attron(A_UNDERLINE); printw("%6s", BPSS);
