@@ -33,7 +33,7 @@ ppp_tag(p, end)
 	case PPP_IPV6CP:
 		return "ppp-ipv6cp (IPv6 negotiation)";
 	case PPP_CCP:
-		return "ppp-ccp (compression)";
+		return "ppp-ccp (compression control)";
 	case PPP_LCP:
 		return "ppp-lcp (link control)";
 	case PPP_PAP:
@@ -42,6 +42,8 @@ ppp_tag(p, end)
 		return "ppp-lqr (link quality)";
 	case PPP_CHAP:
 		return "ppp-chap (authentication)";
+	case PPP_COMP:
+		return "ppp-comp (comp/decompression fault)";
 	default:
 		snprintf(tag, sizeof tag, "ppp 0x%04x", PPP_PROTOCOL(p));
 		return tag;
