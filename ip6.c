@@ -113,10 +113,16 @@ ip6_tag(p, end)
 		return tcp_tag(p + sizeof *ip6, end, NULL, ip6);
 	case IPPROTO_UDP:
 		return udp_tag(p + sizeof *ip6, end, NULL, ip6);
+	case IPPROTO_ICMPV6:
+		/* XXX */
+		snprintf(tag, sizeof tag, "icmp6 %s",
+		    tag_combine(ip6_lookup(&ip6->ip6_src),
+		    ip6_lookup(&ip6->ip6_dst)), ip6->ip6_nxt);
+		return tag;
 	default:
 		snprintf(tag, sizeof tag, "ip6 %s proto %u",
 		    tag_combine(ip6_lookup(&ip6->ip6_src),
 		    ip6_lookup(&ip6->ip6_dst)), ip6->ip6_nxt);
+		return tag;
 	}
-	return tag;
 }
