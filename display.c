@@ -48,7 +48,7 @@ display_update(period)
 		return;
 
 	/* sort the flows by their packet octet count */
-	qsort(flows, nflows, sizeof (struct flow), tflag ? tagcmp : octetcmp);
+	qsort(flows, nflows, sizeof (struct flow), tflag ? octetcmp : tagcmp);
 
 	sum = 0;
 	for (i = 0; i < nflows; i++)

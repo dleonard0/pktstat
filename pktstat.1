@@ -24,8 +24,8 @@ Normally, the class is determined by the packet header.
 .Pp
 .Bl -tag -width 12ex -indent
 .It Fl c
-combine some packet classes into one class. For example, TCP packets
-are combined into one flow class.
+Do not combine packet classes into one class. For example, TCP flows
+are shown as separate streams.
 .It Fl i Ar interface
 Listen on the interface instead of using a default one.
 .It Fl k Ar keepcount
@@ -34,7 +34,8 @@ on the display for this many screen refreshes.
 .It Fl n
 Do not try and resolve hostnames or port numbers.
 .It Fl t
-Sort the display by the packet class, rather than the number of octets.
+Sort the display by the number of octets rather than by
+the packet class string.
 .It Fl w Ar waittime
 Refresh the display every
 .Ar waittime

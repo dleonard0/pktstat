@@ -11,8 +11,8 @@
 #include "flow.h"
 #include "display.h"
 
-int combine = 0;
-int keepalive = 6;
+static int cflag = 0;
+int keepalive = 10;
 int tflag = 0;
 int nflag = 0;
 
@@ -58,7 +58,7 @@ main(argc, argv)
 	while ((ch = getopt(argc, argv, "ci:k:ntw:")) != -1)
 		switch (ch) {
 		case 'c':
-			combine = 1;
+			cflag = 1;
 			break;
 		case 'i':
 			interface = optarg;
@@ -173,7 +173,7 @@ tag_combine(src, dst)
 	const char *dst;
 {
 	static char buf[80];
-	if (!combine) 
+	if (cflag) 
 		snprintf(buf, sizeof buf, "%s -> %s", src, dst);
 	else if (strcmp(src, dst) < 0)
 		snprintf(buf, sizeof buf, "%s <-> %s", src, dst);
