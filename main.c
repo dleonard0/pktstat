@@ -22,9 +22,9 @@ int tflag = 0;
 int Tflag = 0;
 int wflag = 5;
 
-#define VERSION "1.5.2"
+#define VERSION "1.6"
 
-/* Receive a packet and determine its category tag */
+/* Receive a packet from libpcap and determine its category tag */
 static void
 handler(context, hdr, data)
 	u_char *context;
@@ -79,7 +79,7 @@ main(argc, argv)
 			interface = optarg;	/* interface */
 			break;
 		case 'k':
-			kflag = atoi(optarg);
+			kflag = atoi(optarg);	/* keep-on-screen time */
 			break;
 		case 'n':
 			nflag = 1;		/* no-lookup */
@@ -140,10 +140,13 @@ main(argc, argv)
 		struct bpf_program bpfprog = { 0, 0 };
 		bpf_u_int32 net, mask;
 
+		/* Allocate storage for the expression */
 		exprlen = 0;
 		for (i = optind; i < argc; i++)
 			exprlen += strlen(argv[i]) + 1;
 		expr = malloc(exprlen);
+
+		/* Concatenate the remaining command line args into a string */
 		*expr = '\0';
 		exprlen = 0;
 		for (i = optind; i < argc; i++) {
@@ -154,6 +157,8 @@ main(argc, argv)
 				expr[exprlen++] = ' ';
 		}
 		expr[exprlen++] = '\0';
+
+		/* Compile and install the filter expression */
 		if (pcap_lookupnet(interface, &net, &mask, errbuf) == -1)
 			errx(1, "%s: %s", interface, errbuf);
 		if (pcap_compile(p, &bpfprog, expr, 1, mask) == -1)
@@ -162,24 +167,29 @@ main(argc, argv)
 			errx(1, "pcap_setfilter: %s", pcap_geterr(p));
 	}
 
-	/* Dump and display the packets */
+	/* Initialise the counters and display */
 	if (gettimeofday(&start, NULL) == -1)
 		err(1, "gettimeofday");
 	display_open(interface, expr);
 	atexit(display_close);
 	flow_zero();
 	display_update(0);
+
+	/* Dump and display the packets */
 	for (;;) {
 		struct timeval now, diff;
 		double period;
 
-		if (pcap_dispatch(p, 0, handler, fn) == -1) {
+		if (pcap_dispatch(p, 0, handler, fn) == -1)
 			errx(1, "%s", pcap_geterr(p));
-		}
+
+		/* Figure out how long how much time it really took */
 		if (gettimeofday(&now, NULL) == -1)
 			err(1, "gettimeofday");
 		timersub(&now, &start, &diff);
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
+
+		/* Update the display if the -w period has passed */
 		if (period >= wflag) {
 			display_update(period);
 			start = now;
@@ -191,7 +201,7 @@ main(argc, argv)
 	exit(0);
 }
 
-/* Combine source and dest to make a combined tag if required */
+/* Combine source and dest to make a combined tag unless -c flag given */
 const char *
 tag_combine(src, dst)
 	const char *src;
