@@ -19,8 +19,8 @@
 The
 .Nm
 program displays a real-time summary of packet activity on an interface.
-Each line displays the data associated with a particular class of packets.
-Normally, the class is determined by the packet header.
+Each line displays the data rate associated with a particular class of packets.
+The class is determined by the packet header.
 .Pp
 .Nm
 understands the following command line options:
@@ -32,11 +32,9 @@ to the list of abbreviation patterns.
 .It Fl A Ar file
 Read abbreviation patterns from the given
 .Ar file .
-Abbreviation patterns must be on separate lines.
-Leading and trailing whitespace is ignored;
-blank lines and lines starting with
-.Ql #
-are ignored.
+(See
+.Sx Abbreviations ,
+below.)
 If the option
 .Fl A Ic none
 is given, then default abbreviation files are not loaded.
@@ -163,13 +161,13 @@ protocol layers. At address combining stage (where arrows such as
 .Ql "->"
 are inserted)
 and at the final display stage, names are checked against
-a list of abbreviation patterns, and
+a list of abbreviation patterns,
 and the abbreviation's name substituted if a match is found.
 For example, the pattern
 .Ql "* <-> *:domain"
 will match DNS packets in both the UDP and TCP layers.
 .Pp
-Abbreviations Take the form
+Abbreviations take the form
 .Op Ar name Ns Li @ Ns
 .Ar pattern .
 The
@@ -179,6 +177,7 @@ part can contain the wildcard character, asterisk
 which matches zero or more non-space characters.
 The space character
 matches one or more whitespace characters.
+Leading and trailing spaces are ignored.
 .Pp
 If the optional
 .Ar name
@@ -239,6 +238,6 @@ Descriptive information for X11, FTP, HTTP and SUP flows is derived from the
 very first packets sent on those protocols.
 If you start
 .Nm
-after any of these flows have commenced, there will be no description
+after any of these flows have commenced, there may be no description
 available for them.
 .\" .Sh CAVEATS
