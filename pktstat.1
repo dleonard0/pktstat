@@ -135,23 +135,37 @@ from simple decoding of some packets.
 .\"
 .Ss Abbreviations
 .Pp
-Abbreviation patterns are a way of further aggregating flows.
-Flow names are constructed in stages from the protocol and host addresses of
-the packets. At various stages, abbreviations patterns are applied to the
-the partially constructed flow name, and replaced by the pattern's name if
-matched.
+Abbreviation patterns are a way of further combining flows.
+As packets are decoded, their flow name is constructed at the various
+protocol layers. At address combining stage (where arrows such as
+.Ql "->"
+are inserted)
+and at the final display stage, names are checked against
+a list of abbreviation patterns, and
+and the abbreviation's name substituted if a match is found.
+For example, the pattern
+.Ql "* <-> *:domain"
+will match DNS packets in both the UDP and TCP layers.
 .Pp
 Abbreviations Take the form
 .Op Ar name Ns Li @ Ns
 .Ar pattern .
 The
 .Ar pattern
-part can contain the wildcard character
+part can contain the wildcard character, asterisk
 .Ql *
-which matches zero or more characters.
+which matches zero or more non-space characters.
+The space character
+matches one or more whitespace characters.
+.Pp
 If the optional
 .Ar name
-part is not specified, the name of the pattern is the pattern text itself.
+is not specified, the the pattern text itself is used as the name.
+.Pp
+Patterns are checked in the order given on the command line or in the file.
+So, as soon as one of the patterns matches, the rest are ignored at that
+stage.
+Recall though that patterns can be applied multiple times.
 .\" The following requests should be uncommented and used where appropriate.
 .\" .Sh EXAMPLES
 .\" This next request is for sections 2 and 3 function return values only.

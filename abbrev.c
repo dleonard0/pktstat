@@ -4,6 +4,8 @@
 #include <err.h>
 #include "abbrev.h"
 
+#define iswhite(c)	((c) == ' ' || (c) == '\t')
+
 struct pattern {
 	const char *name;
 	const char *pattern;
@@ -15,24 +17,46 @@ static struct pattern *patterns;
 
 static int abbrev_match(const char *, const char *);
 
+/*
+ * Match an abbreviation pattern with a tag string.
+ * Return 1 if they match.
+ */
 static int
 abbrev_match(tag, pattern)
 	const char *tag, *pattern;
 {
-	while (*pattern == '*') {
-		while (*tag) {
-			if (abbrev_match(tag+1, pattern+1))
-				return 1;
-			tag++;
+	while (*pattern) {
+		/* '*' matches zero or more non-space characters */
+		if (*pattern == '*') {
+			if (*tag && !iswhite(*tag))
+				/* Try a greedy match first */
+				if (abbrev_match(tag + 1, pattern))
+					return 1;
+			/* matched zero tag characters; carry on */
+			pattern++;
 		}
-		pattern++;
+
+		/* one or more spaces matches one or more spaces */
+		else if (iswhite(*pattern)) {
+			if (!iswhite(*tag))
+				return 0;
+			while (iswhite(*tag))
+				tag++;
+			while (iswhite(*pattern))
+				pattern++;
+		}
+
+		/* other characters match themselves */
+		else if (*pattern == *tag) {
+			pattern++;
+			tag++;
+		} 
+
+		/* anything else is a fail*/
+		else
+			return 0;
 	}
-	if (*pattern != *tag)
-		return 0;
-	else if (*tag == '\0')	/* and *pattern==0 */
-		return 1;
-	else
-		return abbrev_match(tag+1, pattern+1);
+	return *tag == '\0';
 }
 
 /*
