@@ -37,7 +37,12 @@ udp_hash(a)
 	return *ia;
 }
 
-static struct hash udp_hashtab = { udp_cmp, udp_hash, free, free };
+static struct hash udp_hashtab = {
+	udp_cmp,		/* cmp */
+	udp_hash,		/* hashfn */
+	(free_t)free,		/* freekey */
+	(free_t)free		/* freedata */
+};
 
 /* Look up an IP address */
 const char *

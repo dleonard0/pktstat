@@ -51,7 +51,12 @@ tcp_hash(a)
 	return *ia;
 }
 
-static struct hash tcp_hashtab = { tcp_cmp, tcp_hash, free, free };
+static struct hash tcp_hashtab = { 
+	tcp_cmp,		/* cmp */
+	tcp_hash,		/* hashfn */
+	(free_t)free,		/* freekey */
+	(free_t)free 		/* freedata */
+};
 
 /* Look up an IP address */
 const char *
