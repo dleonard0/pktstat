@@ -235,6 +235,7 @@ static struct {
 	{ 0x805c,	"svk" },
 	{ 0x807c,	"merit" },
 	{ 0x809b,	"appletalk" },
+	{ 0x888e,	"802.1x" },
 	{ 0x9000,	"loopback" },
 };
 
