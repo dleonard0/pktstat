@@ -35,9 +35,11 @@ static const char *display_device, *display_filter;
 static int display_opened = 0;
 static volatile int resize_needed = 0;
 static double avg[3] = { 0.0, 0.0, 0.0 };
+static double showhelp = 0;
 
 static const char *mega(double, const char *);
 static const char *days(double);
+static void printhelp(void);
 
 /* Return SI unit representation for number x, e.g (3000,"%.1f") -> "3.0k" */
 static
@@ -142,7 +144,6 @@ display_update(period)
 	int maxx, maxy, y, x;
 	int redraw_needed = 0;
 	int clearflows = 0;
-	static double showhelp = 0;
 
 	if (resize_needed) {
 		resize();
@@ -345,25 +346,7 @@ display_update(period)
 	if (showhelp > 0) {
 		showhelp -= period;
 		move(maxy - 1, 0);
-		attrset(A_UNDERLINE); if (tflag) attron(A_REVERSE); printw("t");
-		attroff(A_UNDERLINE); printw("op");
-		attrset(0); printw(" ");
-		attrset(A_UNDERLINE); if (nflag) attron(A_REVERSE); printw("n");
-		attroff(A_UNDERLINE); printw("umeric");
-		attrset(0); printw(" ");
-		attrset(A_UNDERLINE); if (Bflag) attron(A_REVERSE); printw("b");
-		attroff(A_UNDERLINE); printw("its");
-		attrset(0); printw(" ");
-		attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
-		attroff(A_UNDERLINE); printw("ullname");
-		attrset(0); printw(" ");
-		attrset(A_UNDERLINE); printw("r");
-		attroff(A_UNDERLINE); printw("eset ");
-		attrset(A_UNDERLINE); printw("q");
-		attroff(A_UNDERLINE); printw("uit ");
-		attrset(A_UNDERLINE); printw("?");
-		attroff(A_UNDERLINE); printw("help");
-		printw(" - pktstat %s", version);
+		printhelp();
 	}
 
 	/* Flush output to the screen */
@@ -408,7 +391,35 @@ display_message(const char *fmt, ...)
 
 	move(maxy - 1, 0);
 	clrtoeol();
-	addstr(buf);
+	if (buf[0])
+		addstr(buf);
+	else if (showhelp > 0)
+		printhelp();
 
 	refresh();
+}
+
+/* Print the help text */
+static void
+printhelp()
+{
+	attrset(A_UNDERLINE); if (tflag) attron(A_REVERSE); printw("t");
+	attroff(A_UNDERLINE); printw("op");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (nflag) attron(A_REVERSE); printw("n");
+	attroff(A_UNDERLINE); printw("umeric");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (Bflag) attron(A_REVERSE); printw("b");
+	attroff(A_UNDERLINE); printw("its");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); if (Fflag) attron(A_REVERSE); printw("f");
+	attroff(A_UNDERLINE); printw("ullname");
+	attrset(0); printw(" ");
+	attrset(A_UNDERLINE); printw("r");
+	attroff(A_UNDERLINE); printw("eset ");
+	attrset(A_UNDERLINE); printw("q");
+	attroff(A_UNDERLINE); printw("uit ");
+	attrset(A_UNDERLINE); printw("?");
+	attroff(A_UNDERLINE); printw("help");
+	printw(" - pktstat %s", version);
 }
