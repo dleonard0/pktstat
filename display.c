@@ -71,8 +71,8 @@ days(td)
 	unsigned long t = td;
 
 	static const int Mn = 60;
-	static const int Hr = 60 * Mn;
-	static const int Dy = 24 * Hr;
+	static const int Hr = 60 * 60;
+	static const int Dy = 24 * 60 * 60;
 
 	if (t < Mn) {
 		snprintf(buf, sizeof buf, "%lds", t);
