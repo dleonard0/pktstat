@@ -1,4 +1,8 @@
 
+1.7.3a
+consistent ipx address representation
+support for FreeBSD's mach endian macros
+fix to compile under older linux et al.
 1.7.3
 * support 'type 113' on Linux (Menno Smits & Corey Wright)
 1.7.2*
