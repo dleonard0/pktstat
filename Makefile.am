@@ -19,8 +19,12 @@ pktstat_SOURCES=        abbrev.c display.c ether.c flow.c frag.c hash.c    \
 pktstat_LDADD=		@LIBOBJS@
 
 EXTRA_DIST=	ChangeLog NEWS README AUTHORS COPYING pktstat.spec \
-		$(man_MANS) memcmp.c
+		pktstat.1.in memcmp.c
+CLEANFILES=	pktstat.1
 
+pktstat.1: pktstat.1.in
+	sed -e 's,@sysconfdir\@,$(sysconfdir),g' < $(srcdir)/pktstat.1.in >$@
+	
 ChangeLog:
 	cd $(srcdir) && svn2cl -o ChangeLog
 

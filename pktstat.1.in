@@ -209,7 +209,7 @@ looks for and loads the files
 .Pa ".pktstatrc" ,
 .Pa $HOME/.pktstatrc
 and
-.Pa /etc/pktstatrc .
+.Pa @sysconfdir@/pktstatrc .
 This behaviour is suppressed by supplying an
 .Fl A Ic none
 option.
