@@ -1,0 +1,40 @@
+?.?.?
+  added configure script
+  packet 'load average' now reset with 'r'
+1.7.5
+  fixed DLT_LOOP endian bug
+  fixed PPPoE decoding
+  catch for fragment decoding bug
+  wake-on-lan
+1.7.4
+  Add support for fragments
+  consistent use of hexadecimal prefix '0x' in display
+  use commas to separate port numbers from IPv6 addresses
+  minor fixes
+1.7.3c
+  check for out-of-memory condition, and handle gracefully
+1.7.3b
+  fix stupid syntax error that shouldn't have excaped
+  disable sup decoding (too unstable)
+1.7.3a
+  consistent ipx address representation
+  support for FreeBSD's mach endian macros
+  fix to compile under older linux et al.
+1.7.3
+  support 'type 113' on Linux (Menno Smits & Corey Wright)
+1.7.2*
+  -p flag to show packet counts (instead of bits/bytes)
+  -P flag to disable promiscuous mode
+  The option '-A none' disables loading of abbreviation files
+  SUP protocol decoder (buggy?)
+  The '?'-toggled help line no longer times out
+  added 'T'otal to the help line
+  right-angle character changes to a hyphen when TCP connection has closed
+  when interface goes down, the time it went down is displayed
+  better decoding of some unknown ethernet frames
+  longer tags and descriptions (for wider windows)
+
+thought I'd better add a 'CHANGELOG' summary
+better late than never.
+
+$Id$
