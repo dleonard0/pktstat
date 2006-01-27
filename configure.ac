@@ -6,6 +6,10 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(main.c)
 AM_CONFIG_HEADER(config.h)
 
+## -- fix brokenness with automake-1.4
+AC_SUBST(PACKAGE,[$PACKAGE_NAME])
+AC_SUBST(VERSION,[$PACKAGE_VERSION])
+
 # checks for programs
 AC_PROG_CC
 AC_PROG_INSTALL
