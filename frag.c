@@ -12,8 +12,11 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <err.h>
+#if STDC_HEADERS
+# include <stdlib.h>
+#endif
+
+#include "compat.h"
 
 #define LIST_REMOVE(o, pfx) do {				\
 	if ((*(o)->pfx##_prevp = (o)->pfx##_next) != NULL)	\

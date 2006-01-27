@@ -14,11 +14,25 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-#include <stdlib.h>
-#include <err.h>
-#include <sys/types.h>
-#include <sys/time.h>
+#if STDC_HEADERS
+# include  <string.h>
+# include  <stdlib.h>
+#endif
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include "compat.h"
 #include "flow.h"
 
 int nflows = 0;
@@ -62,7 +76,7 @@ findflow(tag)
 			errx(1, "malloc/realloc");	
 	}
 	flows[nflows].taghash = taghash;
-	strncpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
+	strlcpy(flows[nflows].tag, tag, sizeof flows[nflows].tag);
 	flows[nflows].desc[0] = '\0';
 	flows[nflows].octets = 0;
 	flows[nflows].total_octets = 0;

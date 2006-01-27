@@ -10,15 +10,37 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <err.h>
-#include <errno.h>
-#include <pcap.h>
-#include <poll.h>
-#include <sys/time.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <stdlib.h>
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
+#if HAVE_ERRNO_H
+# include <errno.h>
+#endif
+
+#if HAVE_PCAP_H
+# include <pcap.h>
+#endif
+#if HAVE_POLL_H
+# include <poll.h>
+#endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include "compat.h"
 #include "main.h"
 #include "tag.h"
 #include "flow.h"

@@ -5,10 +5,19 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/param.h>
+#if STDC_HEADERS
+# include <stdio.h>
+#endif
+
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#if HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
 
 /* In order to avoid too many unneeded include files, we forge some types */
 #if defined(BSD)
@@ -16,14 +25,20 @@ struct arphdr { int ignore; };
 #endif
 struct ifnet { int ignore; };
 
-#include <sys/queue.h>
-#include <netinet/in.h>
-#include <netinet/if_ether.h>
-
-#if defined(__linux__)
-#include <netinet/ether.h>
+#if HAVE_SYS_QUEUE_H
+# include <sys/queue.h>
+#endif
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_NETINET_IF_ETHER_H
+# include <netinet/if_ether.h>
+#endif
+#if HAVE_NETINET_ETHER_H
+# include <netinet/ether.h>
 #endif
 
+#include "compat.h"
 #include "tag.h"
 #include "flow.h"
 

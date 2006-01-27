@@ -13,20 +13,52 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <curses.h>
-#include <stdarg.h>
-#include <math.h>
-#include <err.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/time.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <stdlib.h>
+# include <stdarg.h>
+#endif
 
-#include <sys/socket.h>
-#include <net/if.h>
+#if HAVE_CURSES_H
+# include <curses.h>
+#else
+# if HAVE_NCURSES_H
+#  include <ncurses.h>
+# endif
+#endif
 
+#if HAVE_EXP
+# if HAVE_MATH_H
+#  include <math.h>
+# endif
+#endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+
+#if HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#if HAVE_NET_IF_H
+# include <net/if.h>
+#endif
+
+#include "compat.h"
 #include "display.h"
 #include "flow.h"
 #include "main.h"

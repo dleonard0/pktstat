@@ -5,21 +5,40 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+#endif
+#if HAVE_NETDB_H
+# include <netdb.h>
+#endif
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 #if defined(__linux__)
 # define __FAVOR_BSD
 #endif
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <netinet/ip6.h>
-#include <netinet/udp.h>
-#include <arpa/inet.h>
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>
+#endif
+#if HAVE_NETINET_IP_H
+# include <netinet/ip.h>
+#endif
+#if HAVE_NETINET_IP6_H
+# include <netinet/ip6.h>
+#endif
+#if HAVE_NETINET_UDP_H
+# include <netinet/udp.h>
+#endif
+#if HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
 
+#include "compat.h"
 #include "tag.h"
 #include "flow.h"
 #include "hash.h"
@@ -82,8 +101,12 @@ udp_lookup(port)
 			se = NULL;
 		else {
 			display_message("resolving udp port %u", port);
+#if HAVE_GETSERVBYPORT
 			se = getservbyport(htons(port), "udp");
 			display_message("");
+#else
+			se = NULL;
+#endif
 		}
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);

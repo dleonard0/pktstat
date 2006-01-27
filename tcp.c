@@ -5,23 +5,43 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <err.h>
-#include <sys/types.h>
-#include <sys/time.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+#endif
+#if HAVE_NETDB_H
+# include <netdb.h>
+#endif
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
 #if defined(__linux__)
 # define __FAVOR_BSD
 #endif
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <netinet/ip6.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>
+#endif
+#if HAVE_NETINET_IP_H
+# include <netinet/ip.h>
+#endif
+#if HAVE_NETINET_IP6_H
+# include <netinet/ip6.h>
+#endif
+#if HAVE_NETINET_TCP_H
+# include <netinet/tcp.h>
+#endif
+#if HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
 
+#include "compat.h"
 #include "tag.h"
 #include "hash.h"
 #include "flow.h"
@@ -99,9 +119,13 @@ tcp_lookup(port)
 		else if (port > IPPORT_USERRESERVED)
 			se = NULL;
 		else {
+#if HAVE_GETSERVBYPORT
 			display_message("resolving tcp port %u", port);
 			se = getservbyport(htons(port), "tcp");
 			display_message("");
+#else
+			se = NULL;
+#endif
 		}
 		if (se == NULL) {
 			snprintf(buf, sizeof buf, "%u", port);
@@ -272,7 +296,7 @@ tcp_tag(p, end, ip, ip6)
 	    && dport == ftp.port)
 	{
 		/* Complete association so that future descs are copied */
-		strncpy(ftp.datatag, tag, sizeof ftp.datatag);
+		strlcpy(ftp.datatag, tag, sizeof ftp.datatag);
 	}
 
 	return tag;
@@ -313,7 +337,7 @@ link_ftp_port(d, tag, end)
 	    up.a[1] = v[5];
 	    ftp.port = ntohs(up.port);
 	    ftp.addr = ua.addr;
-	    strncpy(ftp.ctltag, tag, sizeof ftp.ctltag);
+	    strlcpy(ftp.ctltag, tag, sizeof ftp.ctltag);
 	    ftp.datatag[0] = '\0';
 	}
 }
@@ -359,6 +383,6 @@ link_ftp_eport(d, tag, end, defaddr, defaddr6)
 gotit:
 	ftp.port = port;
 	ftp.addr = addr;
-	strncpy(ftp.ctltag, tag, sizeof ftp.ctltag);
+	strlcpy(ftp.ctltag, tag, sizeof ftp.ctltag);
 	ftp.datatag[0] = '\0';
 }

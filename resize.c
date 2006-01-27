@@ -11,20 +11,36 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <unistd.h>
-#include <curses.h>
-#include <signal.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <err.h>
+#if STDC_HEADERS
+# include <stdio.h>
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#if HAVE_CURSES_H
+# include <curses.h>
+#endif
+#if HAVE_SIGNAL_H
+# include <signal.h>
+#endif
+#if HAVE_SYS_SIGNAL_H
+# include <sys/signal.h>
+#endif
+#if HAVE_TERMIOS_H
+# include <termios.h>
+#endif
+#if HAVE_SYS_IOCTL_H
+# include <sys/ioctl.h>
+#endif
 
-static void sigwinch(int sig);
+#include "compat.h"
+
+static RETSIGTYPE sigwinch();
 
 static volatile int *flagp = NULL;
 
 /* Set the flag when the window size changes */
-static void
+static RETSIGTYPE
 sigwinch(sig)
 	int sig;
 {
@@ -39,8 +55,10 @@ resize_init(fp)
 {
 	flagp = fp;
 	*flagp = 0;
+#ifndef SIGWINCH
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
 		err(1, "signal");
+#endif
 }
 
 /* This should be called when the flag has been set by the sigwinch handler */

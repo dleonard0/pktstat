@@ -5,9 +5,14 @@
 # include "config.h"
 #endif
 
-#include <pcap.h>
-#include <net/ppp_defs.h>
+#if HAVE_PCAP_H
+# include <pcap.h>
+#endif
+#if HAVE_NET_PPP_DEFS_H
+# include <net/ppp_defs.h>
+#endif
 
+#include "compat.h"
 #include "tag.h"
 #include "flow.h"
 

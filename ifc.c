@@ -11,17 +11,30 @@
 # include "config.h"
 #endif
 
-#include <err.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/ioctl.h>
-#if defined(BSD)
+#if STDC_HEADERS
+# include <string.h>
+#endif
+
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+#if HAVE_SYS_IOCTL_H
+# include <sys/ioctl.h>
+#endif
+#if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
+#endif
+#if HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
 #endif
-#include <net/if.h>
+#if HAVE_NET_IF_H
+# include <net/if.h>
+#endif
 
+#include "compat.h"
 #include "ifc.h"
 
 static int s = -1;
@@ -42,7 +55,7 @@ ifc_init(interface)
 		warn("socket");
 
 	/* Record the current interface name */
-	strncpy(ifname, interface, sizeof ifname);
+	strlcpy(ifname, interface, sizeof ifname);
 }
 
 /* Fetch the flags from the interface */
@@ -56,7 +69,7 @@ ifc_flags()
 		return IFF_UP|IFF_RUNNING;
 
 	/* Get our interface's operational flags */
-	strncpy(ifreq.ifr_name, ifname, sizeof ifreq.ifr_name);
+	strlcpy(ifreq.ifr_name, ifname, sizeof ifreq.ifr_name);
 	if (ioctl(s, SIOCGIFFLAGS, &ifreq) == -1)
 		err(1, "SIOCGIFFLAGS");
 	return ifreq.ifr_flags;

@@ -12,11 +12,14 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <err.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+#endif
+
 #include "abbrev.h"
+#include "compat.h"
 
 #define iswhite(c)	((c) == ' ' || (c) == '\t')
 
@@ -179,10 +182,14 @@ abbrev_add_default_files()
 	char *home;
 
 	abbrev_add_file(".pktstatrc", 1);
+#if HAVE_GETENV
 	home = getenv("HOME");
+#else
+	home = "";
+#endif
 	if (home) {
 		snprintf(path, sizeof path, "%s/.pktstatrc", home);
 		abbrev_add_file(path, 1);
 	}
-	abbrev_add_file("/etc/pktstatrc", 1);
+	abbrev_add_file(PATH_PKTSTATRC, 1);
 }

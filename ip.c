@@ -7,17 +7,36 @@
 # include "config.h"
 #endif
 
-#include <pcap.h>
-#include <netdb.h>
-#include <string.h>
-#include <stdlib.h>
-#include <err.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+#if HAVE_PCAP_H
+# include <pcap.h>
+#endif
 
+#if HAVE_NETDB_H
+# include <netdb.h>
+#endif
+
+#if STDC_HEADERS
+# include <string.h>
+# include <stdlib.h>
+#endif
+
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>
+#endif
+#if HAVE_NETINET_IP_H
+# include <netinet/ip.h>
+#endif
+#if HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
+#if HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+
+#include "compat.h"
 #include "tag.h"
 #include "flow.h"
 #include "hash.h"
@@ -94,9 +113,13 @@ ip_lookup(addr)
 		if (nflag)
 			he = NULL;
 		else {
+#if HAVE_GETHOSTBYADDR
 			display_message("resolving %s", inet_ntoa(*addr));
 			he = gethostbyaddr((char *)addr, sizeof *addr, AF_INET);
 			display_message("");
+#else
+			he = NULL;
+#endif
 		}
 		if (he == NULL)
 			s = inet_ntoa(*addr);

@@ -5,29 +5,36 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/param.h>
-#include <netipx/ipx.h>
+#if STDC_HEADERS
+# include <stdio.h>
+#endif
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#if HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+#if HAVE_NETIPX_IPX_H
+# include <netipx/ipx.h>
+#endif
 
+#include "compat.h"
 #include "tag.h"
 #include "flow.h"
 
-#if defined(__linux__)
-# if 1 /* linux is a dog's breakfast */
-/*
- * Because of the insanity of linux distros, we have to declare the
- * ipx header structure here. EVEN THOUGH THE KERNEL KNOWS IT.
- */
+#ifndef IPXPROTO_UNKWN
+# ifndef IPX_TYPE_UNKNOWN
 /* (these defines from OpenBSD <netipx/ipx.h>) */
-#define IPXPROTO_UNKWN          0       /* Unknown */
-#define IPXPROTO_RI             1       /* RIP Routing Information */
-#define IPXPROTO_PXP            4       /* IPX Packet Exchange Protocol */
-#define IPXPROTO_SPX            5       /* SPX Sequenced Packet */
-#define IPXPROTO_NCP            17      /* NCP NetWare Core */
-#define IPXPROTO_NETBIOS        20      /* Propagated Packet */
-#define XXX     __attribute__((__packed__))
+#  define IPXPROTO_UNKWN          0       /* Unknown */
+#  define IPXPROTO_RI             1       /* RIP Routing Information */
+#  define IPXPROTO_PXP            4       /* IPX Packet Exchange Protocol */
+#  define IPXPROTO_SPX            5       /* SPX Sequenced Packet */
+#  define IPXPROTO_NCP            17      /* NCP NetWare Core */
+#  define IPXPROTO_NETBIOS        20      /* Propagated Packet */
+#  define XXX     __attribute__((__packed__))
 typedef struct {
 	u_int32_t 	net		XXX;
 	u_int8_t 	host[6] 	XXX;
@@ -41,27 +48,23 @@ struct ipxhdr {
         ipx_addr_t      ipx_dna XXX;    /* Destination Network Address */
         ipx_addr_t      ipx_sna XXX;    /* Source Network Address */
 };
-#undef XXX
-# else /* linux is cool */
-/*
- * kernel.org tarballs contain include/linux/ipx.h which only needs
- * these defines to make IPX header structures compatible with my reference.
- */
-#define IPXPROTO_UNKWN          IPX_TYPE_UNKNOWN
-#define IPXPROTO_RI             IPX_TYPE_RIP
-#define IPXPROTO_PXP            IPX_TYPE_SAP
-#define IPXPROTO_SPX            IPX_TYPE_SPX
-#define IPXPROTO_NCP            IPX_TYPE_NCP
-#define IPXPROTO_NETBIOS        IPX_TYPE_PPROP
+#  undef XXX
+# else 
+#  define IPXPROTO_UNKWN          IPX_TYPE_UNKNOWN
+#  define IPXPROTO_RI             IPX_TYPE_RIP
+#  define IPXPROTO_PXP            IPX_TYPE_SAP
+#  define IPXPROTO_SPX            IPX_TYPE_SPX
+#  define IPXPROTO_NCP            IPX_TYPE_NCP
+#  define IPXPROTO_NETBIOS        IPX_TYPE_PPROP
 /* field name translations for 'struct ipxhdr' */
-#define ipx_sum ipx_checksum
-#define ipx_len	ipx_pktsize
-#define ipx_tc	ipx_tctrl
-#define ipx_pt	ipx_type
-#define ipx_dna	ipx_dest
-#define ipx_sna	ipx_source
-# endif /* the nightmare */
-#endif /* linux */
+#  define ipx_sum ipx_checksum
+#  define ipx_len ipx_pktsize
+#  define ipx_tc  ipx_tctrl
+#  define ipx_pt  ipx_type
+#  define ipx_dna ipx_dest
+#  define ipx_sna ipx_source
+# endif
+#endif
 
 static const char *my_ipx_ntoa(void *);
 

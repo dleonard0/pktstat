@@ -5,9 +5,13 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
+#if STDC_HEADERS
+# include <stdio.h>
+# include <string.h>
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #include "main.h"
 #include "tag.h"
