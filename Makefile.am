@@ -14,7 +14,7 @@ pktstat_SOURCES=        abbrev.c display.c ether.c flow.c frag.c hash.c    \
                         machendian.h main.h resize.h tag.h tcp.h type.h
 
 
-EXTRA_DIST=	ChangeLog NEWS README AUTHORS COPYING pktstat.spec
+EXTRA_DIST=	ChangeLog NEWS README AUTHORS COPYING pktstat.spec $(man_MANS)
 
 ChangeLog:
 	cd $(srcdir) && svn2cl -o ChangeLog
