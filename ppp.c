@@ -1,6 +1,10 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <pcap.h>
 #include <net/ppp_defs.h>
 

@@ -3,6 +3,10 @@
 
 /* Internet protocol version 6 */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <pcap.h>
 #include <netdb.h>
 #include <string.h>

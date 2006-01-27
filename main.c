@@ -6,6 +6,10 @@
  * interface pcap to our tag and flow display modules.
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -37,8 +41,7 @@ int Tflag = 0;
 int wflag = 5;
 
 /* Current release version */
-#define VERSION "1.7.5"
-char version[] = VERSION;
+char version[] = PACKAGE_VERSION;
 
 /* The system time when the current packet capture cycle started */
 static struct timeval starttime;

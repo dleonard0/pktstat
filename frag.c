@@ -8,6 +8,10 @@
  * no longer needed. Very old buckets are deleted automatically.
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <err.h>
 

@@ -7,6 +7,10 @@
  * (ie if it is up, down, running or stopped.)
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <err.h>
 #include <string.h>
 #include <sys/types.h>

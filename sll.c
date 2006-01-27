@@ -1,6 +1,10 @@
 /* David Leonard, 2003. Public domain. */
 /* $Id$ */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include <pcap.h>
 #include <sys/types.h>

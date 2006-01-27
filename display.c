@@ -9,6 +9,10 @@
  * the averages are computed here.
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <curses.h>
@@ -50,14 +54,16 @@ static double minbps = -1;
 static const char *display_device, *display_filter;
 static int display_opened = 0;
 static volatile int resize_needed = 0;
+#if HAVE_EXP
 static double avg[3] = { 0.0, 0.0, 0.0 };
+static double avg_pkt[3] = { 0.0, 0.0, 0.0 };
+#endif
 static int showhelp = 0;
 static int wasdown = 0;
 
 static unsigned long total_packets = 0;
 static double maxpps = -1;
 static double minpps = -1;
-static double avg_pkt[3] = { 0.0, 0.0, 0.0 };
 
 static const char *mega(double, const char *);
 static const char *days(double);
@@ -226,8 +232,10 @@ display_update(period)
 		period = 0;
 		while (nflows)		/* clear flows now */
 			flow_del(flows);
+#if HAVE_EXP
 		for (i = 0; i < 3; i++)	/* clear averages */
-			avg[i] = 0;
+			avg[i] = avg_pkt[i] = 0;
+#endif
 		ip_reset();
 		udp_reset();
 		tcp_reset();
@@ -312,6 +320,7 @@ display_update(period)
 		if (maxpps < 0 || pps > maxpps)
 			maxpps = pps;
 
+#if HAVE_EXP
 		/* Compute the 1, 5 and 15 minute average packet/bit rates */
 		for (i = 0; i < 3; i++) {
 			static double T[3] = { 60, 5 * 60, 15 * 60 };
@@ -319,14 +328,17 @@ display_update(period)
 			avg[i] = avg[i] * eT + bps * (1.0 - eT);
 			avg_pkt[i] = avg_pkt[i] * eT + pps * (1.0 - eT);
 		}
+#endif
 	}
 
 	if (!Tflag) {
+#if HAVE_EXP
 		/* Display simple load average */
 		printw("load averages: ");
 		printw("%s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]), "%.1f"));
 		printw("%s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]), "%.1f"));
 		printw("%s ", mega(pflag ? avg_pkt[2] : BITS(avg[2]), "%.1f"));
+#endif
 	} else {
 		/* Display sophisticated load averages for the -T flag */
 		if (period > 0) {
@@ -337,12 +349,14 @@ display_update(period)
 			else if (maxbps > 0)
 				printw("(%u%%) ", (int)(100.0 * bps / maxbps));
 		}
+#if HAVE_EXP
 		printw("[%s ", mega(pflag ? avg_pkt[0] : BITS(avg[0]),
 		    "%.1f"));
 		printw("%s ", mega(pflag ? avg_pkt[1] : BITS(avg[1]),
 		    "%.1f"));
 		printw("%s] ", mega(pflag ? avg_pkt[1] : BITS(avg[2]),
 		    "%.1f"));
+#endif
 		if (minbps >= 0)
 			printw("min: %s ",
 				mega(pflag ? minpps : BITS(minbps), "%.1f"));

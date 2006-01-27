@@ -7,6 +7,10 @@
  * comparison function. These routines do the rest.
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <err.h>
 #include "hash.h"

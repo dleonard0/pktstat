@@ -7,6 +7,10 @@
  * here in case system-independent window resizing becomes complicated.
  */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>

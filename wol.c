@@ -1,6 +1,10 @@
 /* David Leonard, 2004. Public domain. */
 /* $Id$ */
 
+#if HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <stdio.h>
 #include "tag.h"
 #include "flow.h"
