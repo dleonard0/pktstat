@@ -1,6 +1,7 @@
 ?.?.?
   added configure script
-  packet 'load average' now reset with 'r'
+  (bug) packet 'load average' now reset with 'r'
+  (enh) can now change wait time dynamically with 'w'
 1.7.5
   fixed DLT_LOOP endian bug
   fixed PPPoE decoding
