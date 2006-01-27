@@ -97,6 +97,11 @@ static unsigned long total_packets = 0;
 static double maxpps = -1;
 static double minpps = -1;
 
+static int prompting = 0;
+static const char *prompt;
+static int promptbuflen = 0;
+static char promptbuf[40];
+
 static const char *mega(double, const char *);
 static const char *days(double);
 static void printhelp(void);
@@ -202,7 +207,7 @@ void
 display_update(period)
 	double period;
 {
-	int i, flags;
+	int i, flags, ch;
 	unsigned long sum;
 	double bps = 0;
 	int maxx, maxy, y, x;
@@ -219,8 +224,40 @@ display_update(period)
 
 	getmaxyx(stdscr, maxy, maxx);
 
+        ch = getch();
+	if (prompting)
+	    switch (ch) {
+	    case '[' & 0x3f:	/* Escape */
+	    	prompting = 0;
+		break;
+	    case ERR:		/* No key */
+		break;
+	    case 'U' & 0x3f:
+	    	promptbuflen = 0;
+		break;
+	    case 'H' & 0x3f: case 0x7f:
+	    	if (promptbuflen)
+			promptbuflen--;
+		break;
+	    case '\r': case '\n':
+	        promptbuf[promptbuflen] = 0;
+		switch (prompting) {
+		case 'w':
+		    sscanf(promptbuf, "%u", &wflag);
+		    break;
+		}
+	    	prompting = 0;
+		break;
+	    default:
+	    	if (promptbuflen < sizeof promptbuf - 1)
+		    promptbuf[promptbuflen++] = ch;
+		break;
+	    }
+		    
+	else
+
 	/* Handle keystroke since the last screen update */
-	switch (getch()) {
+	switch (ch) {
 	case ('L'&0x3f):		/* control-L to redraw */
 		redraw_needed = 1;
 		break;
@@ -271,6 +308,13 @@ display_update(period)
 		ip_reset();
 		udp_reset();
 		tcp_reset();
+		break;
+	case 'w':
+		prompt = "Wait interval";
+		showhelp = 0;
+		prompting = ch;
+		promptbuflen = snprintf(promptbuf, sizeof promptbuf, 
+			"%u", wflag);
 		break;
 	case '?':			/* show help line */
 		if (showhelp > 0)
@@ -506,7 +550,10 @@ display_update(period)
 		attrset(A_NORMAL);
 	}
 
-	if (showhelp) {
+	if (prompting) {
+		move(maxy - 1, 0);
+		printw("%s> %.*s", prompt, promptbuflen, promptbuf);
+	} if (showhelp) {
 		move(maxy - 1, 0);
 		printhelp();
 	}

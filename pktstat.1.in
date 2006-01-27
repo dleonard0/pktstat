@@ -119,6 +119,10 @@ flag (top mode)
 toggle the
 .Fl T
 flag (totals mode)
+.It Ic w
+allows changing of the
+.Fl w
+flag value (wait time)
 .It Ic n
 toggle the
 .Fl n
