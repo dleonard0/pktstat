@@ -23,7 +23,8 @@ EXTRA_DIST=	ChangeLog NEWS README AUTHORS COPYING pktstat.spec \
 CLEANFILES=	pktstat.1
 
 pktstat.1: pktstat.1.in
-	sed -e 's,@sysconfdir\@,$(sysconfdir),g' < $(srcdir)/pktstat.1.in >$@
+	sed -e 's,@PATH_PKTSTATRC\@,$(PATH_PKTSTATRC),g' \
+		< $(srcdir)/pktstat.1.in >$@
 	
 ChangeLog:
 	cd $(srcdir) && svn2cl -o ChangeLog
