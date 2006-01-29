@@ -1,5 +1,4 @@
 AC_INIT([pktstat],[1.8.0],[leonard@users.sourceforge.net])
-AC_PREREQ(2.52)
 AC_REVISION([$Id$])
 AM_INIT_AUTOMAKE
 
@@ -7,8 +6,8 @@ AC_CONFIG_SRCDIR(main.c)
 AM_CONFIG_HEADER(config.h)
 
 ## -- fix brokenness with automake-1.4
-AC_SUBST(PACKAGE,[$PACKAGE_NAME])
-AC_SUBST(VERSION,[$PACKAGE_VERSION])
+#AC_SUBST(PACKAGE,[$PACKAGE_NAME])
+#AC_SUBST(VERSION,[$PACKAGE_VERSION])
 
 # checks for programs
 AC_PROG_CC
@@ -86,7 +85,7 @@ AC_CHECK_FUNCS([initscr],,
 AC_CHECK_FUNCS([fopen fgets ferror fclose snprintf sscanf],,
 	[AC_MSG_ERROR([Cannot proceed without stdio functions])])
 AC_CHECK_FUNCS([err errx warnx warn],,[AC_LIBOBJ(err)])
-AC_CHECK_FUNCS([strncpy],,[AC_LIBOBJ(strncpy)])
+AC_CHECK_FUNCS([strlcpy],,[AC_LIBOBJ(strlcpy)])
 AC_CHECK_FUNCS([getenv qsort poll gettimeofday atexit nanosleep signal])
 AC_CHECK_FUNCS([getservbyport gethostbyaddr inet_addr])
 
