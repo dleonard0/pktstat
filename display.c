@@ -98,9 +98,9 @@ static double maxpps = -1;
 static double minpps = -1;
 
 static int prompting = 0;
-static const char *prompt;
-static int promptbuflen = 0;
-static char promptbuf[40];
+static int replybuflen = 0;
+static char prompt[40];
+static char replybuf[40];
 
 static const char *mega(double, const char *);
 static const char *days(double);
@@ -233,24 +233,24 @@ display_update(period)
 	    case ERR:		/* No key */
 		break;
 	    case 'U' & 0x3f:
-	    	promptbuflen = 0;
+	    	replybuflen = 0;
 		break;
 	    case 'H' & 0x3f: case 0x7f:
-	    	if (promptbuflen)
-			promptbuflen--;
+	    	if (replybuflen)
+			replybuflen--;
 		break;
 	    case '\r': case '\n':
-	        promptbuf[promptbuflen] = 0;
+	        replybuf[replybuflen] = 0;
 		switch (prompting) {
 		case 'w':
-		    sscanf(promptbuf, "%u", &wflag);
+		    sscanf(replybuf, "%u", &wflag);
 		    break;
 		}
 	    	prompting = 0;
 		break;
 	    default:
-	    	if (promptbuflen < sizeof promptbuf - 1)
-		    promptbuf[promptbuflen++] = ch;
+	    	if (replybuflen < sizeof replybuf - 1)
+		    replybuf[replybuflen++] = ch;
 		break;
 	    }
 		    
@@ -310,11 +310,10 @@ display_update(period)
 		tcp_reset();
 		break;
 	case 'w':
-		prompt = "Wait interval";
-		showhelp = 0;
+		snprintf(prompt, sizeof prompt, "Wait interval [%u]", wflag);
 		prompting = ch;
-		promptbuflen = snprintf(promptbuf, sizeof promptbuf, 
-			"%u", wflag);
+		showhelp = 0;
+		replybuflen = 0;
 		break;
 	case '?':			/* show help line */
 		if (showhelp > 0)
@@ -552,7 +551,7 @@ display_update(period)
 
 	if (prompting) {
 		move(maxy - 1, 0);
-		printw("%s> %.*s", prompt, promptbuflen, promptbuf);
+		printw("%s> %.*s", prompt, replybuflen, replybuf);
 	} if (showhelp) {
 		move(maxy - 1, 0);
 		printhelp();
@@ -600,7 +599,7 @@ display_message(const char *fmt, ...)
 	vsnprintf(buf, maxx - 2, fmt, ap);
 	va_end(ap);
 
-	move(maxy - 1, 0);
+	move(maxy - 2, 0);
 	clrtoeol();
 	if (buf[0])
 		addstr(buf);
