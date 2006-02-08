@@ -1,11 +1,14 @@
 # $Id$
 Name: pktstat
-Version: 1.7.4
+Version: 1.8.1
 Source0: http://www.adaptive-enterprises.com.au/~d/software/pktstat/%{name}-%{version}.tar.gz
 Release: 1
-Summary: Real-time packet viewer
-Group: Applications
+Summary: Displays a live list of active connections and what files are being transferred.
+Group: Applications/Internet
+Copyright: Public Domain
 License: BSD
+Vendor: David Leonard
+URL: http://www.adaptive-enterprises.com.au/~d/software/pktstat/
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -20,17 +23,14 @@ expressions á la tcpdump.
 %setup
 
 %build
-make PREFIX=%{_prefix}
+%configure
+make
 
 %install
-mkdir -p %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{_mandir}/man1
-make install BINDIR=%{buildroot}%{_bindir} \
-	     MANDIR=%{buildroot}%{_mandir}/man
-chmod u+w %{buildroot}%{_bindir}/*
-chmod u+w %{buildroot}%{_mandir}/man1/*
+make install DESTDIR="$RPM_BULID_ROOT"
 
 %files
+%defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/pktstat
-%attr(0644,root,root) %{_mandir}/man1/pktstat.0*
-
+%attr(0644,root,root) %{_mandir}/man1/pktstat.*
+%doc README
