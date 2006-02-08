@@ -5,6 +5,10 @@
 # include "config.h"
 #endif
 
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #include "compat.h"
 
 size_t
