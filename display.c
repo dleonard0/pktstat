@@ -235,10 +235,13 @@ display_update(period)
 	    case 'U' & 0x3f:
 	    	replybuflen = 0;
 		break;
+	    case KEY_BACKSPACE:
+	    case KEY_LEFT:
 	    case 'H' & 0x3f: case 0x7f:
 	    	if (replybuflen)
 			replybuflen--;
 		break;
+	    case KEY_ENTER:
 	    case '\r': case '\n':
 	        replybuf[replybuflen] = 0;
 		switch (prompting) {
@@ -247,6 +250,9 @@ display_update(period)
 		    break;
 		}
 	    	prompting = 0;
+		break;
+	    case ('L'&0x3f):		/* control-L to redraw */
+		redraw_needed = 1;
 		break;
 	    default:
 	    	if (replybuflen < sizeof replybuf - 1)
@@ -603,8 +609,6 @@ display_message(const char *fmt, ...)
 	clrtoeol();
 	if (buf[0])
 		addstr(buf);
-	else if (showhelp)
-		printhelp();
 
 	refresh();
 }
