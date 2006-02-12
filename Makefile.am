@@ -18,7 +18,7 @@ pktstat_SOURCES=        abbrev.c display.c ether.c flow.c frag.c hash.c    \
 			type.h
 pktstat_LDADD=		@LIBOBJS@
 
-EXTRA_DIST=	ChangeLog NEWS README AUTHORS COPYING pktstat.spec \
+EXTRA_DIST=	ChangeLog NEWS README COPYING pktstat.spec \
 		pktstat.1.in
 CLEANFILES=	pktstat.1
 
