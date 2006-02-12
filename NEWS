@@ -1,5 +1,7 @@
 1.8.1
-  (bug) size_t not found for strlcpy.c
+  bug 41: size_t not found for strlcpy.c
+  (enh) Control-L redraws during 'w' entry
+  (bug) mis-display of help line during 'w' entry
 1.8.0
   added configure script
   (bug) packet 'load average' now reset with 'r'
