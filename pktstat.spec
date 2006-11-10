@@ -5,7 +5,6 @@ Source0: http://www.adaptive-enterprises.com.au/~d/software/pktstat/%{name}-%{ve
 Release: 1
 Summary: Displays a live list of active connections and what files are being transferred.
 Group: Applications/Internet
-Copyright: Public Domain
 License: BSD
 Vendor: David Leonard
 URL: http://www.adaptive-enterprises.com.au/~d/software/pktstat/
