@@ -9,6 +9,7 @@ License: BSD
 Vendor: David Leonard
 URL: http://www.adaptive-enterprises.com.au/~d/software/pktstat/
 BuildRoot: %{_tmppath}/%{name}-%{version}-buildroot
+BuildPreReq: libpcap-devel, ncurses-devel
 
 %description
 Display a real-time list of active connections seen on a network
