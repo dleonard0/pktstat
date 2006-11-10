@@ -1,6 +1,6 @@
 # $Id$
 Name: pktstat
-Version: 1.8.1
+Version: 1.8.2
 Source0: http://www.adaptive-enterprises.com.au/~d/software/pktstat/%{name}-%{version}.tar.gz
 Release: 1
 Summary: Displays a live list of active connections and what files are being transferred.
@@ -33,4 +33,5 @@ make install DESTDIR="$RPM_BULID_ROOT"
 %defattr(-,root,root)
 %attr(0755,root,root) %{_bindir}/pktstat
 %attr(0644,root,root) %{_mandir}/man1/pktstat.*
-%doc README
+%doc COPYING ChangeLog NEWS README TODO
+
