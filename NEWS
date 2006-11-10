@@ -1,3 +1,5 @@
+1.8.2
+  bug 56: window resizing wasn't working
 1.8.1
   bug 41: size_t not found for strlcpy.c
   (enh) Control-L redraws during 'w' entry

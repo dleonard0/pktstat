@@ -1,4 +1,4 @@
-AC_INIT([pktstat],[1.8.1],[leonard@users.sourceforge.net])
+AC_INIT([pktstat],[1.8.2],[leonard@users.sourceforge.net])
 AC_REVISION([$Id$])
 AM_INIT_AUTOMAKE
 
