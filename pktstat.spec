@@ -26,7 +26,7 @@ expressions á la tcpdump.
 make
 
 %install
-make install DESTDIR="$RPM_BULID_ROOT"
+make install DESTDIR="$RPM_BUILD_ROOT"
 
 %files
 %defattr(-,root,root)
