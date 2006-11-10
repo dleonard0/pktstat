@@ -15,6 +15,9 @@
 #if HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
+#if HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
 
 #include "compat.h"
 #include "tag.h"

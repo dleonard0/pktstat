@@ -98,8 +98,6 @@ ether_tagx(type, p, end)
 	const char *p;
 	const char *end;
 {
-	struct pppoe_header ph;
-
 	/*
 	 * From IEEE Std 802.3 2000 edition:
 	 *
@@ -144,6 +142,8 @@ ether_tagx(type, p, end)
 	case ETHERTYPE_PPPOE:
 	case ETHERTYPE_PPPOEDISC:
 	   {
+		struct pppoe_header ph;
+
 		int len;
 		memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
 		if (ph.vertype != 0x11 || ph.code != 0) 

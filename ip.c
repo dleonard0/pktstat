@@ -175,7 +175,7 @@ ip_fragment(p, end, offset)
 	if ((offset & IP_OFFMASK) == 0)
 		tag = ip_pkt_tag(p, end);
 	else {
-		int len;
+		size_t len;
 		char *dp;
 		dp = (char *)fragtab_get(ip_fragtab, &ipfkey, 0, &len);
 		if (dp)
