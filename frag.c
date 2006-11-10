@@ -14,6 +14,7 @@
 
 #if STDC_HEADERS
 # include <stdlib.h>
+# include <string.h>
 #endif
 
 #include "compat.h"

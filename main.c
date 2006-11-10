@@ -13,6 +13,7 @@
 #if STDC_HEADERS
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 #endif
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -84,7 +85,8 @@ upcall_from_pcap(context, hdr, data)
 	struct flow *flow;
 
 	/* 'Tag' this packet. ie identify it in a human-readable way */
-	tag = abbrev_tag((*fn)(data, data + hdr->caplen));
+	tag = abbrev_tag((*fn)((const char *)data, 
+		(const char *)data + hdr->caplen));
 
 	/* Find which tracked flow the packet belongs to and account it */
 	flow = findflow(tag);

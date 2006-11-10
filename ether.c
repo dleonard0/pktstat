@@ -7,6 +7,7 @@
 
 #if STDC_HEADERS
 # include <stdio.h>
+# include <string.h>
 #endif
 
 #if HAVE_SYS_TYPES_H

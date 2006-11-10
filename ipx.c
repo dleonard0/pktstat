@@ -7,6 +7,7 @@
 
 #if STDC_HEADERS
 # include <stdio.h>
+# include <string.h>
 #endif
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -19,6 +20,9 @@
 #endif
 #if HAVE_NETIPX_IPX_H
 # include <netipx/ipx.h>
+#endif
+#if HAVE_ARPA_INET_H
+# include <arpa/inet.h>
 #endif
 
 #include "compat.h"
