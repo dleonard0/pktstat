@@ -35,10 +35,13 @@
 
 #include "compat.h"
 
+#ifdef SIGWINCH
 static RETSIGTYPE sigwinch();
+#endif
 
 static volatile int *flagp = NULL;
 
+#ifdef SIGWINCH
 /* Set the flag when the window size changes */
 static RETSIGTYPE
 sigwinch(sig)
@@ -47,6 +50,7 @@ sigwinch(sig)
 	if (flagp)
 		*flagp = 1;
 }
+#endif
 
 /* Install a signal handler that sets a given flag when the window resizes */
 void
@@ -55,7 +59,7 @@ resize_init(fp)
 {
 	flagp = fp;
 	*flagp = 0;
-#ifndef SIGWINCH
+#ifdef SIGWINCH
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
 		err(1, "signal");
 #endif
