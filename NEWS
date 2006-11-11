@@ -1,5 +1,5 @@
 1.8.3
-  portability: support compilation on Solaris, AIX, *BSD, Linux
+  bug 57: support compilation on Solaris, AIX, *BSD, Linux
   bug 58: segfault when unknown ether type is seen on network
 1.8.2
   bug 56: window resizing wasn't working
