@@ -12,6 +12,11 @@
 
 extern int combine;
 
+#if _AIX
+#define ip6_hdr ipv6    /* AIX uses RFC 1883 instead of RFC2460 */
+#define ip6_nxt ip6_nh
+#endif
+
 struct ip;
 struct in_addr;
 struct in6_addr;

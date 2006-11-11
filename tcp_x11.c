@@ -26,7 +26,6 @@
 #endif
 
 #include "compat.h"
-#include "machendian.h"
 #include "flow.h"
 #include "tcp.h"
 

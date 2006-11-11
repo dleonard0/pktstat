@@ -69,6 +69,18 @@ char version[] = PACKAGE_VERSION;
 /* The system time when the current packet capture cycle started */
 static struct timeval starttime;
 
+#if !defined(timersub)
+#define timersub(tvp, uvp, vvp)                                         \
+        do {                                                            \
+                (vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;          \
+                (vvp)->tv_usec = (tvp)->tv_usec - (uvp)->tv_usec;       \
+                if ((vvp)->tv_usec < 0) {                               \
+                        (vvp)->tv_sec--;                                \
+                        (vvp)->tv_usec += 1000000;                      \
+                }                                                       \
+        } while (0)
+#endif
+
 /*
  * Receive a packet from libpcap and determine its category tag.
  * This is called directly from libpcap.
@@ -205,7 +217,7 @@ main(argc, argv)
 		interface = pcap_lookupdev(errbuf);
 	if (!interface) 
 		errx(1, "pcap_lookupdev: %s", errbuf);
-	p = pcap_open_live(interface, snaplen, Pflag ? 0 : 1, 0, errbuf);
+	p = pcap_open_live(interface, snaplen, Pflag ? 0 : 1, 10, errbuf);
 	if (!p) 
 		errx(1, "%s", errbuf);
 
@@ -235,9 +247,17 @@ main(argc, argv)
 		fn = loop_tag;
 		break;
 #endif
+#if defined(DLT_RAW)
 	case DLT_RAW:
 		fn = ip_tag;
 		break;
+#else
+# if defined(DLT_NULL)
+	case DLT_NULL:
+		fn = ip_tag;
+		break;
+# endif
+#endif
 	default:
 		errx(1, "unknown datalink type %d", datalink_type);
 	}

@@ -1,4 +1,6 @@
 
+#include "type.h"
+
 #if !HAVE_MEMCMP
 int memcmp(const void *, const void *, size_t);
 #endif

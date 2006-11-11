@@ -5,6 +5,8 @@
 # include "config.h"
 #endif
 
+#if HAVE_NETIPX_IPX_H
+
 #if STDC_HEADERS
 # include <stdio.h>
 # include <string.h>
@@ -175,3 +177,5 @@ ipx_tag(p, end)
  * - http://www.protocols.com/pbook/novel.htm
  * - 802.2 over IPX: RFC1132
  */
+
+#endif /* HAVE_NETIPX_IPX_H */

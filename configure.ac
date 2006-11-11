@@ -1,4 +1,4 @@
-AC_INIT([pktstat],[1.8.2],[leonard@users.sourceforge.net])
+AC_INIT([pktstat],[1.8.3alpha2],[leonard@users.sourceforge.net])
 AC_REVISION([$Id$])
 AM_INIT_AUTOMAKE
 
@@ -14,10 +14,13 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 # checks for libraries
+AC_SEARCH_LIBS(socket, [socket])	dnl for Solaris
+AC_SEARCH_LIBS(gethostbyname, [nsl])	dnl for Solaris
 AC_SEARCH_LIBS(pcap_open_live, [pcap])
 AC_SEARCH_LIBS(exp, [m])
 AC_SEARCH_LIBS(tgoto, [termlib termcap curses ncurses ocurses])
 AC_SEARCH_LIBS(initscr, [curses ncurses ocurses])
+AC_SEARCH_LIBS(nanosleep, [posix4])
 
 # checks for headers
 AC_HEADER_STDC
@@ -26,7 +29,7 @@ AC_CHECK_HEADERS([sys/ioctl.h sys/param.h sys/queue.h \
 	sys/socket.h sys/sockio.h sys/types.h sys/signal.h \
 	ncurses.h curses.h err.h errno.h inttypes.h math.h \
 	arpa/inet.h \
-	net/ppp_defs.h netdb.h \
+	net/ppp_defs.h sys/ppp_sys.h netdb.h \
 	netinet/ether.h netinet/in.h netinet/in_systm.h \
 	netinet/tcp.h netinet/udp.h \
 	netipx/ipx.h \
@@ -87,7 +90,7 @@ AC_CHECK_FUNCS([fopen fgets ferror fclose snprintf sscanf],,
 AC_CHECK_FUNCS([err errx warnx warn],,[AC_LIBOBJ(err)])
 AC_CHECK_FUNCS([strlcpy],,[AC_LIBOBJ(strlcpy)])
 AC_CHECK_FUNCS([getenv qsort poll gettimeofday atexit nanosleep signal])
-AC_CHECK_FUNCS([getservbyport gethostbyaddr inet_addr])
+AC_CHECK_FUNCS([getservbyport gethostbyaddr inet_addr resizeterm])
 
 # checks for system services
 # checks for programs

@@ -7,6 +7,8 @@
 # include "config.h"
 #endif
 
+#if HAVE_NETINET_IP6_H
+
 #if HAVE_PCAP_H
 # include <pcap.h>
 #endif
@@ -40,9 +42,8 @@
 #include "main.h"
 #include "display.h"
 
-#ifndef IPV6_VERSION
-# define IPV6_VERSION      0x60
-# define IPV6_VERSION_MASK 0xf0
+#ifndef IPV6_GET_VERSION
+# define IPV6_GET_VERSION(v) ((*(u_int8_t *)(v) & 0xf0) >> 4)
 #endif
 
 /* Compare two IPv6 addresses */
@@ -134,9 +135,9 @@ ip6_tag(p, end)
 	static char tag[TAGLEN];
 
 	ip6 = (struct ip6_hdr *)p;
-	if ((ip6->ip6_vfc & IPV6_VERSION_MASK) != IPV6_VERSION) {
+	if (IPV6_GET_VERSION(ip6) != 6) {
 		snprintf(tag, sizeof tag, "ip6 version %u",
-		    ip6->ip6_vfc & IPV6_VERSION_MASK);
+		    IPV6_GET_VERSION(ip6));
 		return tag;
 	}
 	switch (ip6->ip6_nxt) {
@@ -157,3 +158,5 @@ ip6_tag(p, end)
 		return tag;
 	}
 }
+
+#endif

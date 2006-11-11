@@ -24,7 +24,9 @@
 #if defined(BSD)
 struct arphdr { int ignore; };
 #endif
+#if !defined(_AIX)
 struct ifnet { int ignore; };
+#endif
 
 #if HAVE_SYS_QUEUE_H
 # include <sys/queue.h>
@@ -73,6 +75,9 @@ ether_tag(p, end)
 
 	type = ntohs(eh.ether_type);
 
+#if !defined(ETHER_HDR_LEN)
+# define ETHER_HDR_LEN (6 + 6 + 2)
+#endif
 	/* Skip any 802.1Q tag */
 	if (type == 0x8100) {
 		memcpy(&eh.ether_type, p + 6 + 6 + 2 + 2, sizeof eh.ether_type);
@@ -134,7 +139,10 @@ ether_tagx(type, p, end)
 	switch (type) {
 	case ETHERTYPE_IP:
 		return ip_tag(p, end);
-#if defined(ETHERTYPE_IPV6)
+#if HAVE_NETINET_IP6_H
+#ifndef ETHERTYPE_IPV6
+# define ETHERTYPE_IPV6 0x86DD
+#endif
 	case ETHERTYPE_IPV6:
 		return ip6_tag(p, end);
 #endif
@@ -157,8 +165,10 @@ ether_tagx(type, p, end)
 		return ppp_tag(p-2, end);
 	   }
 #endif
+#if HAVE_NETIPX_IPX_H
 	case 0x8137 /* ETHERTYPE_IPX */:
 		return ipx_tag(p, end);
+#endif
 	default:
 		/*
 		 * A choice is made here that nobody wants to know what 
@@ -209,16 +219,22 @@ llc_tag(p, end)
 
 	/* "Raw" 802.3 */
 	if (h->dsap == 0xff && h->ssap == 0xff)
+#if HAVE_NETIPX_IPX_H
 		return ipx_tag(p + 14, end);
+#else
+		return "ipx";
+#endif
 
 	p = p + sizeof h;
 
 	if (p > end)
 		return "llc short";
 
+#if HAVE_NETIPX_IPX_H
 	/* Novell 802.3 with 802.2 headers */
 	if (h->dsap == 0xe0 && h->ssap == 0xe0)
 		return ipx_tag(p, end);
+#endif
 
 	/* TCP/IP over Novell */
 	if (h->dsap == 0x06 && h->ssap == 0x06) 
@@ -330,8 +346,10 @@ snap_tag(p, end)
 	switch (type) {
 	case ETHERTYPE_IP: 	/* RFC 1042 */
 		return ip_tag(p, end);
+#if HAVE_NETIPX_IPX_H
 	case 0x8137 /* ETHERTYPE_IPX */:
 		return ipx_tag(p, end);
+#endif
 	}
 	snprintf(tag, sizeof tag, 
 		   "snap oui %02x.%02x.%02x %s",

@@ -41,6 +41,9 @@
 
 #if HAVE_INTTYPES_H
 # include <inttypes.h>
+# define u_int8_t uint8_t
+# define u_int16_t uint16_t
+# define u_int32_t uint32_t
 #elif HAVE_STDINT_H
 # include <stdint.h>
 #else
