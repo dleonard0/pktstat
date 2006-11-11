@@ -72,9 +72,7 @@ resize()
 	struct winsize ws;
 
 	*flagp = 0;
-#if HAVE_RESIZETERM
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		err(1, "TIOCGWINSZ");
 	resizeterm(ws.ws_row, ws.ws_col);
-#endif
 }

@@ -141,7 +141,6 @@ udp_tag(p, end, ip, ip6)
 			ip_lookup(&ip->ip_dst), udp_lookup(dport));
 		snprintf(tag, sizeof tag, "udp %s", tag_combine(src, dst));
 	}
-#if HAVE_NETINET_IP6_H
 	if (ip6) {
 		snprintf(src, sizeof src, "%s,%s", 
 			ip6_lookup(&ip6->ip6_src), udp_lookup(sport));
@@ -149,7 +148,6 @@ udp_tag(p, end, ip, ip6)
 			ip6_lookup(&ip6->ip6_dst), udp_lookup(dport));
 		snprintf(tag, sizeof tag, "udp6 %s", tag_combine(src, dst));
 	}
-#endif
 
 	return tag;
 }

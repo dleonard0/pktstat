@@ -42,10 +42,8 @@ loop_tag(p, end)
 	switch (ntohl(af)) {
 	case AF_INET:
 		return ip_tag(p, end);
-#if HAVE_NETINET_IP6_H
 	case AF_INET6:
 		return ip6_tag(p, end);
-#endif
 	default:
 		snprintf(tag, sizeof tag, "loop af 0x%04x", af);
 		return tag;

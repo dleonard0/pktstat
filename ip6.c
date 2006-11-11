@@ -7,8 +7,6 @@
 # include "config.h"
 #endif
 
-#if HAVE_NETINET_IP6_H
-
 #if HAVE_PCAP_H
 # include <pcap.h>
 #endif
@@ -159,5 +157,3 @@ ip6_tag(p, end)
 		return tag;
 	}
 }
-
-#endif

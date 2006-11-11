@@ -160,9 +160,6 @@ ip_fragment(p, end, offset)
 	memcpy(&ipfkey.dst, &ip->ip_dst, sizeof ipfkey.dst);
 	memcpy(&ipfkey.id, &ip->ip_id, sizeof ipfkey.id);
 
-#if !defined(IP_OFFMASK)
-# define IP_OFFMASK 0x1fff
-#endif
 	if (offset & IP_MF) {
 		if (paylen & 7)
 			return "ip fragments";	/* bad length */
@@ -221,7 +218,6 @@ ip_pkt_tag(p, end)
 		    tag_combine(ip_lookup(&ip->ip_src), ip_lookup(&ip->ip_dst))
 		);
 		return tag;
-#if HAVE_NETINET_IP6_H
 	case IPPROTO_IPV6:	/* RFC1933 4.1.5 */
 		snprintf(tag, sizeof tag, "ip %s", ip6_tag(p + hlen, end));
 		/*
@@ -231,7 +227,6 @@ ip_pkt_tag(p, end)
 		 * than how the data is encoded.
 		 */
 		return tag;
-#endif
 	default:
 		snprintf(tag, sizeof tag, "ip proto %u %s", ip->ip_p,
 		    tag_combine(ip_lookup(&ip->ip_src),
