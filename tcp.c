@@ -58,7 +58,9 @@ static struct {
     char ctltag[TAGLEN];
     char datatag[DESCLEN];
     struct in_addr addr;
+#if HAVE_NETINET_IP6_H
     struct in6_addr addr6;
+#endif
     u_int16_t port;
 } ftp;
 
@@ -166,6 +168,7 @@ tcp_tag(p, end, ip, ip6)
 			ip_lookup(&ip->ip_dst), tcp_lookup(dport));
 		snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
 	}
+#if HAVE_NETINET_IP6_H
 	if (ip6) {
 		snprintf(src, sizeof src, "%s,%s", 
 			ip6_lookup(&ip6->ip6_src), tcp_lookup(sport));
@@ -173,6 +176,7 @@ tcp_tag(p, end, ip, ip6)
 			ip6_lookup(&ip6->ip6_dst), tcp_lookup(dport));
 		snprintf(tag, sizeof tag, "tcp6 %s", tag_combine(src, dst));
 	}
+#endif
 
 	direction = (strcmp(src, dst) > 0 ? 0 : 1);
 
@@ -267,7 +271,12 @@ tcp_tag(p, end, ip, ip6)
 		if (memcmp(data, "EPRT ", 5) == 0) 
 			link_ftp_eport(data + 5, tag, end,
 				 ip ? &ip->ip_src : NULL,
-				 ip6 ? &ip6->ip6_src : NULL);
+#if HAVE_NETINET_IP6_H
+				 ip6 ? &ip6->ip6_src : NULL
+#else
+				 NULL
+#endif
+			);
 	}
 
 	if (sport == 21) {
@@ -284,7 +293,12 @@ tcp_tag(p, end, ip, ip6)
 		if (++d < end)
 			link_ftp_eport(d, tag, end,
 				 ip ? &ip->ip_src : NULL,
-				 ip6 ? &ip6->ip6_src : NULL);
+#if HAVE_NETINET_IP6_H
+				 ip6 ? &ip6->ip6_src : NULL
+#else
+				 NULL
+#endif
+			);
 	    }
 	}
 
@@ -292,7 +306,12 @@ tcp_tag(p, end, ip, ip6)
 	if (ftp.datatag[0] == '\0'
 	    && ftp.ctltag[0] != '\0' 
 	    && (ip ? ip->ip_dst.s_addr == ftp.addr.s_addr
-		   : memcmp(&ip6->ip6_src, &ftp.addr6, sizeof ftp.addr6)  == 0)
+#if HAVE_NETINET_IP6_H
+		   : memcmp(&ip6->ip6_src, &ftp.addr6, sizeof ftp.addr6) == 0
+#else
+		   : 0
+#endif
+	       )
 	    && dport == ftp.port)
 	{
 		/* Complete association so that future descs are copied */

@@ -69,6 +69,18 @@ char version[] = PACKAGE_VERSION;
 /* The system time when the current packet capture cycle started */
 static struct timeval starttime;
 
+#if !defined(timersub)
+#define timersub(tvp, uvp, vvp)                                         \
+        do {                                                            \
+                (vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;          \
+                (vvp)->tv_usec = (tvp)->tv_usec - (uvp)->tv_usec;       \
+                if ((vvp)->tv_usec < 0) {                               \
+                        (vvp)->tv_sec--;                                \
+                        (vvp)->tv_usec += 1000000;                      \
+                }                                                       \
+        } while (0)
+#endif
+
 /*
  * Receive a packet from libpcap and determine its category tag.
  * This is called directly from libpcap.

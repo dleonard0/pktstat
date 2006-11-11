@@ -293,17 +293,19 @@ static struct {
 	{ 0x9000,	"loopback" },
 };
 
-/* Return ethernet type if known, or NULL */
+/* Return string form of ethernet type */
 static const char *
 ethertype(type)
 	u_int16_t type;
 {
 	int i;
+	static char unknown[32];
 
 	for (i = 0; i < sizeof ethertypetab / sizeof ethertypetab[0]; i++)
 		if (ethertypetab[i].type == type)
 			return ethertypetab[i].name;
-	return NULL;
+	snprintf(unknown, sizeof unknown, "ethertype 0x%04x", type);
+	return unknown;
 }
 
 /* 802.2 SNAP */
