@@ -18,7 +18,7 @@ pktstat_SOURCES=        abbrev.c display.c ether.c flow.c frag.c hash.c    \
 			type.h
 pktstat_LDADD=		@LIBOBJS@
 
-EXTRA_DIST=	ChangeLog NEWS README COPYING pktstat.spec \
+EXTRA_DIST=	NEWS README COPYING pktstat.spec \
 		pktstat.1.in
 CLEANFILES=	pktstat.1
 
@@ -26,6 +26,7 @@ pktstat.1: pktstat.1.in
 	sed -e 's,@PATH_PKTSTATRC\@,$(PATH_PKTSTATRC),g' \
 		< $(srcdir)/pktstat.1.in >$@
 	
-ChangeLog:
-	cd $(srcdir) && svn2cl -o ChangeLog
+dist-hook: 
+	test ! -d $(srcdir)/.svn || \
+	(cd $(srcdir) && svn2cl --stdout) > $(distdir)/ChangeLog
 
