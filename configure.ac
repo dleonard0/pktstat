@@ -76,6 +76,7 @@ AC_C_VOLATILE
 AC_CHECK_SIZEOF(unsigned short)
 AC_CHECK_SIZEOF(unsigned int)
 AC_CHECK_SIZEOF(unsigned long)
+AC_CHECK_SIZEOF(unsigned long long)
 
 # checks for library functions
 AC_FUNC_MEMCMP

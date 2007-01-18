@@ -10,10 +10,10 @@ struct flow {
 	char		tag[TAGLEN];
 	char		desc[DESCLEN];
 	unsigned int	taghash;
-	unsigned long	octets;
-	unsigned long	total_octets;
-	unsigned long	packets;
-	unsigned long	total_packets;
+	uint64_t	octets;
+	uint64_t	total_octets;
+	uint64_t	packets;
+	uint64_t	total_packets;
 	double		keepalive;
 	int		dontdel;
 	unsigned long	seq[2];		/* seq no for TCP */

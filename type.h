@@ -44,6 +44,7 @@
 # define u_int8_t uint8_t
 # define u_int16_t uint16_t
 # define u_int32_t uint32_t
+# define u_int64_t uint64_t
 #elif HAVE_STDINT_H
 # include <stdint.h>
 #else
@@ -52,11 +53,24 @@ typedef unsigned char u_int8_t;
 typedef unsigned short u_int16_t;
 # elif SIZEOF_UNSIGNED_INT == 2
 typedef unsigned int   u_int16_t;
+# else
+#  error "Don't know what type to use for u_int16_t"
 # endif
 # if SIZEOF_UNSIGNED_INT == 4
 typedef unsigned int   u_int32_t;
 # elif SIZEOF_UNSIGNED_LONG == 4
 typedef unsigned long  u_int32_t;
+# else
+#  error "Don't know what type to use for u_int32_t"
+# endif
+# if SIZEOF_UNSIGNED_INT == 8
+typedef unsigned int   u_int64_t;
+# elif SIZEOF_UNSIGNED_LONG == 8
+typedef unsigned long  u_int64_t;
+# elif SIZEOF_UNSIGNED_LONG_LONG == 8
+typedef unsigned long long u_int64_t;
+# else
+#  error "Don't know what type to use for u_int64_t"
 # endif
 #endif
 

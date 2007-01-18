@@ -80,7 +80,7 @@
 #define BPSS	(Bflag ? "Bps" : "bps")
 #define BS	(Bflag ? "B" : "b")
 
-static unsigned long total_octets = 0;
+static uint64_t total_octets = 0;
 static double total_time = 0;
 static double maxbps = -1;
 static double minbps = -1;
@@ -94,7 +94,7 @@ static double avg_pkt[3] = { 0.0, 0.0, 0.0 };
 static int showhelp = 0;
 static int wasdown = 0;
 
-static unsigned long total_packets = 0;
+static uint64_t total_packets = 0;
 static double maxpps = -1;
 static double minpps = -1;
 
