@@ -86,7 +86,6 @@ static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
 static int display_opened = 0;
-static volatile int resize_needed = 0;
 #if HAVE_EXP
 static double avg[3] = { 0.0, 0.0, 0.0 };
 static double avg_pkt[3] = { 0.0, 0.0, 0.0 };
@@ -190,7 +189,7 @@ display_open(device, filter)
 	scrollok(stdscr, FALSE);
 	nodelay(stdscr, TRUE);
 	display_opened = 1;
-	resize_init(&resize_needed);
+	resize_init();
 	ifc_init(device);		/* XXX shouldn't be here */
 }
 
@@ -218,7 +217,7 @@ display_update(period)
 	unsigned long sum_packets;
 	double pps = 0;
 
-	if (resize_needed) {
+	if (resize_needed()) {
 		resize();
 		redraw_needed = 1;
 	}
@@ -596,8 +595,11 @@ display_message(const char *fmt, ...)
 	char *buf;
 	va_list ap;
 
-	if (resize_needed)
-		resize();
+	if (resize_needed()) {
+	    resize();
+	    clearok(stdscr, TRUE);
+	    refresh();
+	}
 
 	getmaxyx(stdscr, maxy, maxx);
 	buf = alloca(maxx);

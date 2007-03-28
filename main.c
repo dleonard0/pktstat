@@ -342,7 +342,7 @@ main(argc, argv)
 		period = diff.tv_sec + diff.tv_usec * 1e-6;
 
 		/* Update the flow display if the delay period has passed */
-		if (period >= wflag || pfd[1].revents) {
+		if (period >= wflag || pfd[1].revents || resize_needed()) {
 			display_update(period);
 			starttime = now;
 			flow_zero();

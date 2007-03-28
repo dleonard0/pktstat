@@ -39,7 +39,7 @@
 static RETSIGTYPE sigwinch();
 #endif
 
-static volatile int *flagp = NULL;
+static volatile int sigwinch_seen;
 
 #ifdef SIGWINCH
 /* Set the flag when the window size changes */
@@ -47,18 +47,14 @@ static RETSIGTYPE
 sigwinch(sig)
 	int sig;
 {
-	if (flagp)
-		*flagp = 1;
+	sigwinch_seen = 1;
 }
 #endif
 
 /* Install a signal handler that sets a given flag when the window resizes */
 void
-resize_init(fp)
-	volatile int *fp;
+resize_init()
 {
-	flagp = fp;
-	*flagp = 0;
 #ifdef SIGWINCH
 	if (signal(SIGWINCH, sigwinch) == SIG_ERR)
 		err(1, "signal");
@@ -71,10 +67,16 @@ resize()
 {
 	struct winsize ws;
 
-	*flagp = 0;
+	sigwinch_seen = 0;
 #if HAVE_RESIZETERM
 	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
 		err(1, "TIOCGWINSZ");
 	resizeterm(ws.ws_row, ws.ws_col);
 #endif
+}
+
+int
+resize_needed()
+{
+	return sigwinch_seen;
 }
