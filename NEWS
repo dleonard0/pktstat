@@ -1,4 +1,5 @@
   bug 56 (again): further window resize handling improvements
+  avoid some buffer excursions due to malformed IP headers and HTTP packets
 1.8.3
   bug 57: support compilation on Solaris, AIX, *BSD, Linux
   bug 58: segfault when unknown ether type is seen on network
