@@ -164,7 +164,7 @@ tcp_tag(p, end, ip, ip6)
 	if (ip) {
 		snprintf(src, sizeof src, "%s:%s", 
 			ip_lookup(&ip->ip_src), tcp_lookup(sport));
-		snprintf(dst, sizeof src, "%s:%s", 
+		snprintf(dst, sizeof dst, "%s:%s", 
 			ip_lookup(&ip->ip_dst), tcp_lookup(dport));
 		snprintf(tag, sizeof tag, "tcp %s", tag_combine(src, dst));
 	}
