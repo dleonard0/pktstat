@@ -13,6 +13,7 @@
 # include <unistd.h>
 #endif
 
+#include "type.h"
 #include "main.h"
 #include "tag.h"
 #include "flow.h"

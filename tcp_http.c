@@ -24,6 +24,7 @@
 # endif
 #endif
 
+#include "type.h"
 #include "flow.h"
 #include "tcp.h"
 

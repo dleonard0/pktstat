@@ -10,6 +10,7 @@
 # include <string.h>
 #endif
 
+#include "type.h"
 #include "tag.h"
 #include "flow.h"
 
