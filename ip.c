@@ -202,12 +202,12 @@ ip_pkt_tag(p, end)
 	const struct ip *ip = (const struct ip *)p;
 	const char *pktend;
 	static char tag[TAGLEN];
-	int hlen;
+	unsigned int hlen;
 
 	pktend = p + ntohs(ip->ip_len);
 	if (end < pktend)
 		pktend = end;
-	hlen = ip->ip_hl << 2;
+	hlen = (ip->ip_hl << 2) & 0x3c;
 
 	switch(ip->ip_p) {
 	case IPPROTO_TCP:
