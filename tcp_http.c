@@ -40,13 +40,17 @@ tcp_http(f, data, end, toserver)
 {
 	const char *d;
 
+#define startswith(data, text)	\
+	(data + sizeof text - 1 <= end && \
+	 memcmp(data, text, sizeof text - 1) == 0)
+
 	/* Look for HTTP requests at the beginning of a packet */
 	if (toserver && 
-	    (memcmp(data, "GET ", 4)     == 0 ||
-	     memcmp(data, "POST ", 5)    == 0 ||
-	     memcmp(data, "OPTIONS ", 8) == 0 ||
-	     memcmp(data, "CONNECT ", 8) == 0 ||
-	     memcmp(data, "HEAD ", 5)    == 0))
+	    (startswith(data, "GET ") ||
+	     startswith(data, "POST ") ||
+	     startswith(data, "OPTIONS ") ||
+	     startswith(data, "CONNECT ") ||
+	     startswith(data, "HEAD ")))
 	{
 		/* Find the object of the request (usually a URI) */
 		for (d = data; d < end && *d != ' '; d++)
@@ -62,6 +66,7 @@ tcp_http(f, data, end, toserver)
 
 	/* Record responses of form "HTTP/#.# ###" */
 	if (!toserver &&
+	    data + 12 <= end &&
 	    memcmp(data, "HTTP/", 5) == 0 &&
 	    isdigit(data[5]) &&
 	    data[6] == '.' &&
@@ -69,8 +74,7 @@ tcp_http(f, data, end, toserver)
 	    data[8] == ' ' &&
 	    isdigit(data[9]) &&
 	    isdigit(data[10]) &&
-	    isdigit(data[11]) &&
-	    data + 12 <= end) 
+	    isdigit(data[11]))
 	{
 		if (isdigit(f->desc[0])) {
 			/* Replace the existing code */
