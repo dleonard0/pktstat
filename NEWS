@@ -1,5 +1,7 @@
+1.8.4
+  bug 59: increase counter range from 4GiB (32bit) to 64PiB (64bit)
   bug 56 (again): further window resize handling improvements
-  avoid some buffer excursions due to malformed IP headers and HTTP packets
+  avoid crashes due to malformed IP headers and pathological HTTP packets
 1.8.3
   bug 57: support compilation on Solaris, AIX, *BSD, Linux
   bug 58: segfault when unknown ether type is seen on network
