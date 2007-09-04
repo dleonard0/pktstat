@@ -49,6 +49,7 @@
 #include "abbrev.h"
 
 /* Flags set by command-line options */
+int oneflag = 0;
 int Bflag = 0;
 int cflag = 0;
 int Eflag = 0;
@@ -131,8 +132,11 @@ main(argc, argv)
 	int blankAflag = 0;
 
 	/* Process command line options */
-	while ((ch = getopt(argc, argv, "A:a:BcEFi:k:lm:npPtTw:")) != -1)
+	while ((ch = getopt(argc, argv, "1A:a:BcEFi:k:lm:npPtTw:")) != -1)
 		switch (ch) {
+		case '1':
+			oneflag = 1;		/* dump once to output */
+			break;
 		case 'A':
 			if (strcmp(optarg, "none") == 0)
 				blankAflag = 1;
@@ -299,10 +303,12 @@ main(argc, argv)
 	/* Initialise the counters and display */
 	if (gettimeofday(&starttime, NULL) == -1)
 		err(1, "gettimeofday");
-	display_open(interface, expr);
-	atexit(display_close);
 	flow_zero();
-	display_update(0);
+	if (!oneflag) {
+	    display_open(interface, expr);
+	    atexit(display_close);
+	    display_update(0);
+	}
 
 	/* Dump and display the packets */
 	for (;;) {
@@ -312,15 +318,22 @@ main(argc, argv)
 		int error = 0;
 		int cnt;
 		struct pollfd pfd[2];
+		int nfd = 0;
 
 		/* Wait for something to happen */
-		pfd[0].fd = pcap_fileno(p);
-		pfd[0].events = POLLIN;
-		pfd[0].revents = 0;
-		pfd[1].fd = STDIN_FILENO;
-		pfd[1].events = POLLIN;
-		pfd[1].revents = 0;
-		if (poll(pfd, 2, wflag * 1000) == -1) {
+		pfd[nfd].fd = pcap_fileno(p);
+		pfd[nfd].events = POLLIN;
+		pfd[nfd].revents = 0;
+		nfd++;
+
+		if (!oneflag) {
+		    pfd[nfd].fd = STDIN_FILENO;
+		    pfd[nfd].events = POLLIN;
+		    pfd[nfd].revents = 0;
+		    nfd++;
+		}
+
+		if (poll(pfd, nfd, wflag * 1000) == -1) {
 			if (errno != EINTR) 
 				err(1, "poll");
 		}
@@ -343,9 +356,15 @@ main(argc, argv)
 
 		/* Update the flow display if the delay period has passed */
 		if (period >= wflag || pfd[1].revents || resize_needed()) {
-			display_update(period);
-			starttime = now;
-			flow_zero();
+			if (oneflag && period >= wflag) {
+				batch_update(period);
+				break;
+			}
+			if (!oneflag) {
+				display_update(period);
+				starttime = now;
+				flow_zero();
+			}
 		}
 
 		/* Display pcap errors as soon as we can */
@@ -354,11 +373,13 @@ main(argc, argv)
 			struct timespec ts;
 
 			if (!Eflag) {
-				display_close();
+				if (!oneflag)
+				    display_close();
 				errx(1, "%s", errmsg);
 			}
 
 			display_message(errmsg);
+
 			if (t) {
 				/* sleep for the rest of the period */
 				ts.tv_sec = t / 1000000;

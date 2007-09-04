@@ -1,6 +1,7 @@
 /* David Leonard, 2002. Public domain. */
 /* $Id$ */
 
+extern int oneflag;	/* Writing one cycle to stdout */
 extern int Bflag;	/* Show bytes instead of bits */
 extern int cflag;	/* Keep pkt classes separate (no-combine) */
 extern int Eflag;	/* Ignore errors from pcap (not documented) */

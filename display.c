@@ -82,6 +82,7 @@
 
 static uint64_t total_octets = 0;
 static double total_time = 0;
+static double bps = 0;
 static double maxbps = -1;
 static double minbps = -1;
 static const char *display_device, *display_filter;
@@ -94,6 +95,7 @@ static int showhelp = 0;
 static int wasdown = 0;
 
 static uint64_t total_packets = 0;
+static double pps = 0;
 static double maxpps = -1;
 static double minpps = -1;
 
@@ -202,20 +204,88 @@ display_close()
 	display_opened = 0;
 }
 
+static void
+update_stats(period)
+	double period;
+{
+	int i;
+	unsigned long sum;
+	unsigned long sum_packets;
+
+	/* sort the flows by their packet octet count */
+	qsort(flows, nflows, sizeof (struct flow), 
+		lflag ? lastcmp 
+		      : tflag ? (pflag ? packetcmp : octetcmp)
+			      : tagcmp);
+
+	/* Compute total number of octets we have just seen go by */
+	sum = 0;
+	sum_packets = 0;
+	for (i = 0; i < nflows; i++) {
+		sum += flows[i].octets;
+		sum_packets += flows[i].packets;
+	}
+
+	/* Keep track of totals for the -T flag */
+	total_octets += sum;
+	total_packets += sum_packets;
+	total_time += period;
+
+	/* Compute minimum and maximum octet rates */
+	bps = 0;
+	pps = 0;
+	if (period > 0) {
+		bps = sum / period;
+		if (minbps < 0 || bps < minbps)
+			minbps = bps;
+		if (maxbps < 0 || bps > maxbps)
+			maxbps = bps;
+		pps = sum_packets / period;
+		if (minpps < 0 || pps < minpps)
+			minpps = pps;
+		if (maxpps < 0 || pps > maxpps)
+			maxpps = pps;
+
+#if HAVE_EXP
+		/* Compute the 1, 5 and 15 minute average packet/bit rates */
+		for (i = 0; i < 3; i++) {
+			static double T[3] = { 60, 5 * 60, 15 * 60 };
+			double eT = exp(-period / T[i]);
+			avg[i] = avg[i] * eT + bps * (1.0 - eT);
+			avg_pkt[i] = avg_pkt[i] * eT + pps * (1.0 - eT);
+		}
+#endif
+	}
+}
+
+/* Like display_update() but writes to stdout */
+void
+batch_update(double period)
+{
+	int i;
+
+	update_stats(period);
+
+	printf("%u %f\n", nflows, period);
+	for (i = 0; i < nflows; i++) {
+	    printf("%.0f %.0f %s\n",	    /* XXX should be integer format */
+		(double)flows[i].octets,
+		(double)flows[i].packets,
+		flows[i].tag);
+	}
+	fflush(stdout);
+}
+
 /* Update the display, sorting and drawing all the computed tags */
 void
 display_update(period)
 	double period;
 {
 	int i, flags, ch;
-	unsigned long sum;
-	double bps = 0;
 	int maxx, maxy, y, x;
 	int maxi;
 	int redraw_needed = 0;
 	int clearflows = 0;
-	unsigned long sum_packets;
-	double pps = 0;
 
 	if (resize_needed()) {
 		resize();
@@ -333,29 +403,12 @@ display_update(period)
 		break;	
 	}
 
+	update_stats(period);
+
 	if (redraw_needed)
 		clearok(curscr, TRUE);
 
 	move(0,0);
-
-	/* sort the flows by their packet octet count */
-	qsort(flows, nflows, sizeof (struct flow), 
-		lflag ? lastcmp 
-		      : tflag ? (pflag ? packetcmp : octetcmp)
-			      : tagcmp);
-
-	/* Compute total number of octets we have just seen go by */
-	sum = 0;
-	sum_packets = 0;
-	for (i = 0; i < nflows; i++) {
-		sum += flows[i].octets;
-		sum_packets += flows[i].packets;
-	}
-
-	/* Keep track of totals for the -T flag */
-	total_octets += sum;
-	total_packets += sum_packets;
-	total_time += period;
 
 	/* Print information about the interface */
 	printw("interface: %s ", display_device);
@@ -387,30 +440,6 @@ display_update(period)
 		    pflag ? "p" : BS, days(total_time));
 	clrtoeol();
 	printw("\n");
-
-	/* Compute minimum and maximum octet rates */
-	if (period > 0) {
-		bps = sum / period;
-		if (minbps < 0 || bps < minbps)
-			minbps = bps;
-		if (maxbps < 0 || bps > maxbps)
-			maxbps = bps;
-		pps = sum_packets / period;
-		if (minpps < 0 || pps < minpps)
-			minpps = pps;
-		if (maxpps < 0 || pps > maxpps)
-			maxpps = pps;
-
-#if HAVE_EXP
-		/* Compute the 1, 5 and 15 minute average packet/bit rates */
-		for (i = 0; i < 3; i++) {
-			static double T[3] = { 60, 5 * 60, 15 * 60 };
-			double eT = exp(-period / T[i]);
-			avg[i] = avg[i] * eT + bps * (1.0 - eT);
-			avg_pkt[i] = avg_pkt[i] * eT + pps * (1.0 - eT);
-		}
-#endif
-	}
 
 	if (!Tflag) {
 #if HAVE_EXP
@@ -580,7 +609,6 @@ display_update(period)
 		}
 	}
 
-
 	/* If tag names are about to change, we need to reset everything */
 	if (clearflows)
 		while (nflows)
@@ -594,6 +622,17 @@ display_message(const char *fmt, ...)
 	int maxy, maxx;
 	char *buf;
 	va_list ap;
+
+	if (oneflag) {
+#if 0
+		va_start(ap, fmt);
+		vfprintf(stderr, fmt, ap);
+		va_end(ap);
+		fprintf(stderr, "\n");
+#endif
+		return;
+	}
+
 
 	if (resize_needed()) {
 	    resize();

@@ -8,7 +8,7 @@
 .Nd display packet activity on a crt
 .Sh SYNOPSIS
 .Nm pktstat
-.Op Fl BcFlnpPtT
+.Op Fl 1BcFlnpPtT
 .Op Fl a Ar abbrev
 .Op Fl A Ar file
 .Op Fl i Ar interface
@@ -25,6 +25,19 @@ Each line displays the data rate associated with different classes of packets.
 .Nm
 understands the following command line options:
 .Bl -tag -width 12ex -offset indent
+.It Fl 1
+Single-shot (batch) mode.
+.Nm
+collects data for
+.Ar waittime
+seconds (see
+.Fl w
+option)
+then emits a line indicating the number of flows detected, and
+the period of data capture in seconds.
+Then, each flow line is printed in the form of the number of
+data link octets associated with the flow, the number of
+data link frames (packets), and then the flow description.
 .It Fl a Ar abbrev
 Add
 .Ar abbrev
