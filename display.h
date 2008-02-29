@@ -9,3 +9,4 @@ void	display_close(void);
 void	display_update(double period);
 void	batch_update(double period);
 void	display_message(const char *msg, ...);
+void	display_reset(void);

@@ -16,9 +16,10 @@ pktstat_SOURCES=        abbrev.c display.c ether.c flow.c frag.c hash.c    \
                         abbrev.h compat.h display.h flow.h frag.h hash.h   \
 			ifc.h machendian.h main.h resize.h tag.h tcp.h     \
 			type.h
+pktstat_SOURCES+=	xx_malloc.c
 pktstat_LDADD=		@LIBOBJS@
 
-EXTRA_DIST=	NEWS README COPYING pktstat.spec \
+EXTRA_DIST=	NEWS README COPYING pktstat.spec pktstat.spec.in \
 		pktstat.1.in
 CLEANFILES=	pktstat.1
 
@@ -30,3 +31,6 @@ dist-hook:
 	test ! -d $(srcdir)/.svn || \
 	(cd $(srcdir) && svn2cl --stdout) > $(distdir)/ChangeLog
 
+pktstat.spec: pktstat.spec.in
+	sed -e 's,@PACKAGE_VERSION@,$(PACKAGE_VERSION),g' \
+		< $(srcdir)/pktstat.spec.in >$@

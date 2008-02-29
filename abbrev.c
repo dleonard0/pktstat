@@ -193,3 +193,15 @@ abbrev_add_default_files()
 	}
 	abbrev_add_file(PATH_PKTSTATRC, 1);
 }
+
+void
+abbrev_free()
+{
+	while (npatterns--)
+	    free(patterns[npatterns].name);
+	if (allocpatterns) {
+	    free(patterns);
+	    allocpatterns = 0;
+	}
+	npatterns = 0;
+}

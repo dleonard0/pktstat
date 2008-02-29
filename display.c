@@ -367,23 +367,8 @@ display_update(period)
 		clearflows = 1;
 		break;
 	case 'r':			/* reset stats */
-		total_octets = 0;
-		total_packets = 0;
-		total_time = 0;
-		maxbps = -1;
-		minbps = -1;
-		maxpps = -1;
-		minpps = -1;
+		display_reset();
 		period = 0;
-		while (nflows)		/* clear flows now */
-			flow_del(flows);
-#if HAVE_EXP
-		for (i = 0; i < 3; i++)	/* clear averages */
-			avg[i] = avg_pkt[i] = 0;
-#endif
-		ip_reset();
-		udp_reset();
-		tcp_reset();
 		break;
 	case 'w':
 		snprintf(prompt, sizeof prompt, "Wait interval [%u]", wflag);
@@ -689,4 +674,24 @@ printhelp()
 		printw(" ");
 	}
 	printw(" - pktstat %s", version);
+}
+
+void
+display_reset()
+{
+	total_octets = 0;
+	total_packets = 0;
+	total_time = 0;
+	maxbps = -1;
+	minbps = -1;
+	maxpps = -1;
+	minpps = -1;
+	flow_free();
+	#if HAVE_EXP
+	for (i = 0; i < 3; i++)	/* clear averages */
+		avg[i] = avg_pkt[i] = 0;
+	#endif
+	ip_reset();
+	udp_reset();
+	tcp_reset();
 }

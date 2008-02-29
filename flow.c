@@ -51,6 +51,8 @@ hash(tag)
 	return result;
 }
 
+#define MAXFLOWS 1024
+
 /* Find a flow by its tag */
 struct flow *
 findflow(tag)
@@ -65,12 +67,17 @@ findflow(tag)
 			return &flows[i];
 	if (nflows >= maxflows) {
 		if (maxflows == 0) {
-			maxflows = 128;
+			maxflows = 8;
 			flows = (struct flow *)malloc(maxflows * sizeof *flows);
-		} else {
-			maxflows *= 2;
+		} else if (maxflows < MAXFLOWS) {
+			if (maxflows * 2 <= MAXFLOWS)
+			    maxflows *= 2;
+			else 
+			    maxflows = MAXFLOWS;
 			flows = (struct flow *)realloc(flows,
 			    maxflows * sizeof *flows);
+		} else {
+		    flow_del(&flows[nflows - 1]);
 		}
 		if (flows == NULL)
 			errx(1, "malloc/realloc");	
@@ -164,4 +171,15 @@ flow_del(f)
 		memcpy(f, &flows[nflows-1], sizeof (struct flow));
 	}
 	nflows--;
+}
+
+void
+flow_free()
+{
+	while (nflows)
+	    flow_del(flows + nflows - 1);
+	if (maxflows) {
+	    free(flows);
+	    maxflows = 0;
+	}
 }

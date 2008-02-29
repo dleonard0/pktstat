@@ -28,6 +28,7 @@ extern struct flow *flows;
 struct flow *findflow(const char *tag);
 void	     flow_zero(void);
 void	     flow_del(struct flow *);
+void	     flow_free(void);
 
 int	     octetcmp(const void *, const void *);
 int	     tagcmp(const void *, const void *);

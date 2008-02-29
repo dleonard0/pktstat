@@ -41,6 +41,8 @@
 # endif
 #endif
 
+#include <assert.h>
+
 #include "compat.h"
 #include "main.h"
 #include "tag.h"
@@ -82,6 +84,20 @@ static struct timeval starttime;
         } while (0)
 #endif
 
+void set_canary(unsigned char *canary, size_t sz) {
+    int i;
+    for (i = 0; i < sz; i++)
+	canary[i] = i & 0xff;
+}
+void check_canary(const unsigned char *canary, size_t sz) {
+    int i;
+    for (i = 0; i < sz; i++)
+	if (canary[i] != (i & 0xff)) {
+	    fprintf(stderr, "\nCANARY FAILED at %p[%u]\n", canary, i);
+	    abort();
+	}
+}
+
 /*
  * Receive a packet from libpcap and determine its category tag.
  * This is called directly from libpcap.
@@ -97,9 +113,15 @@ upcall_from_pcap(context, hdr, data)
 		(const char *(*)(const char *, const char *))context;
 	struct flow *flow;
 
+	volatile unsigned char canary[8192];
+
+	set_canary(canary, sizeof canary);
+
 	/* 'Tag' this packet. ie identify it in a human-readable way */
 	tag = abbrev_tag((*fn)((const char *)data, 
 		(const char *)data + hdr->caplen));
+
+	check_canary(canary, sizeof canary);
 
 	/* Find which tracked flow the packet belongs to and account it */
 	flow = findflow(tag);
@@ -108,6 +130,14 @@ upcall_from_pcap(context, hdr, data)
 	flow->lastseen = starttime;
 	flow->packets++;
 	flow->total_packets++;
+}
+
+/* Clean up pcap resources */
+pcap_t *pcap_cleanup_ptr;
+void
+pcap_cleanup()
+{
+    pcap_close(pcap_cleanup_ptr);
 }
 
 /* main */
@@ -130,6 +160,10 @@ main(argc, argv)
 	char *expr = NULL;
 	int exprlen;
 	int blankAflag = 0;
+
+	free(malloc(1));
+
+	atexit(abbrev_free);
 
 	/* Process command line options */
 	while ((ch = getopt(argc, argv, "1A:a:BcEFi:k:lm:npPtTw:")) != -1)
@@ -224,6 +258,8 @@ main(argc, argv)
 	p = pcap_open_live(interface, snaplen, Pflag ? 0 : 1, 10, errbuf);
 	if (!p) 
 		errx(1, "%s", errbuf);
+	pcap_cleanup_ptr = p;
+	atexit(pcap_cleanup);
 
 	/* XXX should drop privileges here before opening files */
 	/* if (issetugid()) seteuid(getuid()); */
@@ -304,6 +340,7 @@ main(argc, argv)
 	if (gettimeofday(&starttime, NULL) == -1)
 		err(1, "gettimeofday");
 	flow_zero();
+	atexit(display_reset);
 	if (!oneflag) {
 	    display_open(interface, expr);
 	    atexit(display_close);
@@ -389,6 +426,5 @@ main(argc, argv)
 		}
 	}
 
-	pcap_close(p);
 	exit(0);
 }
