@@ -1,6 +1,6 @@
 # $Id$
 Name: pktstat
-Version: 1.8.2
+Version: @PACKAGE_VERSION@
 Source0: http://www.adaptive-enterprises.com.au/~d/software/pktstat/%{name}-%{version}.tar.gz
 Release: 1
 Summary: Displays a live list of active connections and what files are being transferred.
