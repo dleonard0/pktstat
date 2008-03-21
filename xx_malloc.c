@@ -222,7 +222,7 @@ xx_free(void *ptr)
 	h->place->size -= h->size;
 	h->place->frees++;
 	h->magic = FREED_MAGIC;
-	memset(h + 1, 0, h->size);
+	memset(h + 1, 0xd0, h->size);
     }
     free(h);
 }
