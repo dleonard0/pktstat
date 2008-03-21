@@ -203,6 +203,9 @@ tcp_tag(p, end, ip, ip6)
 				& 0xffffffffUL;
 
 	switch (dport) {
+	case 25:
+		tcp_smtp(f, data, end, 1);
+		break;
 	case 80:
 	case 8080:
 	case 3127:

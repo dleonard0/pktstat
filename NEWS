@@ -1,3 +1,6 @@
+1.9.0
+  added SMTP decoder
+  limit the memory used by historic flow data
 1.8.4
   bug 59: increase counter range from 4GiB (32bit) to 64PiB (64bit)
   bug 56 (again): further window resize handling improvements
