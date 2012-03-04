@@ -43,6 +43,7 @@
 
 #include <assert.h>
 
+#include "resize.h"
 #include "compat.h"
 #include "main.h"
 #include "tag.h"
@@ -380,7 +381,7 @@ main(argc, argv)
 			cnt = pcap_dispatch(p, -1, upcall_from_pcap,
 				(u_char *)fn);
 			if (cnt == -1) {
-				snprintf(errmsg, sizeof errmsg, pcap_geterr(p));
+				snprintf(errmsg, sizeof errmsg, "%s", pcap_geterr(p));
 				error = 1;
 			}
 		}
