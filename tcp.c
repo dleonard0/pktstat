@@ -257,14 +257,15 @@ tcp_tag(p, end, ip, ip6)
 			for (d = data; d < end && *d != '\r' && *d != '\n'; d++)
 				;
 			snprintf(f->desc, sizeof f->desc, "%.*s",
-				 d - data, data);
+				 (int)(d - data), data);
 			/* Copy the desc to the data flow if it is known */
 			if (ftp.datatag[0] != '\0'  &&
 			    strcmp(ftp.ctltag, tag) == 0)
 			{
 			    struct flow *f2 = findflow(ftp.datatag);
 			    snprintf(f2->desc, sizeof f2->desc,
-				"ftp-data: %.*s", d - data - 5, data + 5);
+				"ftp-data: %.*s", 
+                                (int)(d - data) - 5, data + 5);
 			    ftp.ctltag[0] = '\0';
 			    ftp.datatag[0] = '\0';
 			}

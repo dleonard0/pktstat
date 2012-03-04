@@ -62,7 +62,7 @@ tcp_http(f, data, end, toserver)
 		    && *d != ';'; d++)
 			;
 		snprintf(f->desc, sizeof f->desc, "%.*s",
-			d - data, data);
+			(int)(d - data), data);
 	}
 
 	/* Record responses of form "HTTP/#.# ###" */
