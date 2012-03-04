@@ -329,19 +329,17 @@ static const char *
 snap_tag(p, end)
 	const char *p, *end;
 {
-	struct snap {
-		u_int8_t	oui[3];
-		u_int8_t	type[2];
-	} *snap;
+        u_int8_t snap_oui; /* 3 */
+        u_int8_t snap_type; /* 2 */
 	u_int16_t type;
 	static char tag[TAGLEN];
 
-	snap = (struct snap *)p;
-	p += sizeof snap;
+	snap_oui = (u_int8_t *)p; p += 3;
+	snap_type = (u_int8_t *)p; p += 2;
 	if (p > end)
 		return "snap short";
 
-	type = (snap->type[0] << 8) | snap->type[1];
+	type = (snap_type[0] << 8) | snap_type[1];
 
 	switch (type) {
 	case ETHERTYPE_IP: 	/* RFC 1042 */
@@ -353,7 +351,7 @@ snap_tag(p, end)
 	}
 	snprintf(tag, sizeof tag, 
 		   "snap oui %02x.%02x.%02x %s",
-		   snap->oui[0], snap->oui[1], snap->oui[2],
+		   snap_oui[0], snap_oui[1], snap_oui[2],
 		   ethertype(type));
 	return tag;
 }
