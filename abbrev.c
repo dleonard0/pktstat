@@ -24,8 +24,8 @@
 #define iswhite(c)	((c) == ' ' || (c) == '\t')
 
 struct pattern {
-	const char *name;
-	const char *pattern;
+	char *name;
+	char *pattern;  /* pointer into name */
 };
 
 static int npatterns;
