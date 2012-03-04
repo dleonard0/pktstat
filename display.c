@@ -316,7 +316,7 @@ display_update(period)
 	        replybuf[replybuflen] = 0;
 		switch (prompting) {
 		case 'w':
-		    sscanf(replybuf, "%u", &wflag);
+		    sscanf(replybuf, "%d", &wflag);
 		    break;
 		}
 	    	prompting = 0;
@@ -371,7 +371,7 @@ display_update(period)
 		period = 0;
 		break;
 	case 'w':
-		snprintf(prompt, sizeof prompt, "Wait interval [%u]", wflag);
+		snprintf(prompt, sizeof prompt, "Wait interval [%d]", wflag);
 		prompting = ch;
 		showhelp = 0;
 		replybuflen = 0;
