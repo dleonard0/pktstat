@@ -1,4 +1,4 @@
-1.9.0
+1.8.5
   added SMTP decoder
   limit the memory used by historic flow data
   alignment fixes
