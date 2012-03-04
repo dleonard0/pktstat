@@ -250,12 +250,14 @@ tcp_smtp(f, data, end, toserver)
 	} else
 	    state = (struct smtp_state *)f->udata;
 
-	if (state->state == sENCRYPTED)
-	    return;	/* Don't bother for STARTTLS */
-
 	/* Extract data, line by line */
 	for (d = data; d < end; d++) 
 	    switch (state->state) {
+            case sENCRYPTED:
+                /* Don't bother */
+                d = end - 1;
+                break;
+
 	    case sLINE:
 		if (*d == CR) {
 		    state->state = sEXPECT_LF;
