@@ -329,8 +329,8 @@ static const char *
 snap_tag(p, end)
 	const char *p, *end;
 {
-        u_int8_t snap_oui; /* 3 */
-        u_int8_t snap_type; /* 2 */
+        u_int8_t *snap_oui; /* [3] */
+        u_int8_t *snap_type; /* [2] */
 	u_int16_t type;
 	static char tag[TAGLEN];
 
