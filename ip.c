@@ -47,7 +47,7 @@
 static int inaddr_cmp(const void *a, const void *b);
 static unsigned int inaddr_hash(const void *a);
 static const char *ip_fragment(const char *p, const char *end, 
-		u_int16_t offset);
+		unsigned offset);
 static const char *ip_pkt_tag(const char *p, const char *end);
 
 static int
@@ -145,7 +145,7 @@ static const char *
 ip_fragment(p, end, offset)
 	const char *p;
 	const char *end;
-	u_int16_t offset;
+	unsigned offset;
 {
 	const struct ip *ip = (const struct ip *)p;
 	struct ipfkey {

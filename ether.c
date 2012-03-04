@@ -47,7 +47,7 @@ struct ifnet { int ignore; };
 
 static const char *llc_tag(const char *, const char *);
 static const char *snap_tag(const char *, const char *);
-static const char *ethertype(u_int16_t);
+static const char *ethertype(unsigned);
 
 struct pppoe_header {
 	u_int8_t	vertype;		/* 0x11 */
@@ -312,7 +312,7 @@ static struct {
 /* Return string form of ethernet type */
 static const char *
 ethertype(type)
-	u_int16_t type;
+	unsigned type;
 {
 	int i;
 	static char unknown[32];
