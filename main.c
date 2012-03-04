@@ -85,12 +85,12 @@ static struct timeval starttime;
         } while (0)
 #endif
 
-void set_canary(unsigned char *canary, size_t sz) {
+void set_canary(volatile unsigned char *canary, size_t sz) {
     int i;
     for (i = 0; i < sz; i++)
 	canary[i] = i & 0xff;
 }
-void check_canary(const unsigned char *canary, size_t sz) {
+void check_canary(const volatile unsigned char *canary, size_t sz) {
     int i;
     for (i = 0; i < sz; i++)
 	if (canary[i] != (i & 0xff)) {
@@ -114,7 +114,7 @@ upcall_from_pcap(context, hdr, data)
 		(const char *(*)(const char *, const char *))context;
 	struct flow *flow;
 
-	volatile unsigned char canary[8192];
+	volatile auto unsigned char canary[8192];
 
 	set_canary(canary, sizeof canary);
 
