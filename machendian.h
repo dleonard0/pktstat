@@ -37,7 +37,7 @@
 # endif
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD_kernel__)
 # include <endian.h>
 # include <byteswap.h>
 # define swap16(x) bswap_16(x)

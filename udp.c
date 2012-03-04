@@ -16,7 +16,7 @@
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-#if defined(__linux__)
+#if defined(__linux__) || defined(__GLIBC__)
 # define __FAVOR_BSD
 #endif
 #if HAVE_NETINET_IN_H
