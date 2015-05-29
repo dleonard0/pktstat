@@ -21,7 +21,9 @@
 #endif
 
 /* In order to avoid too many unneeded include files, we forge some types */
-#if defined(BSD)
+#if defined(__FreeBSD__)
+# include <net/if_arp.h>
+#elif defined(BSD)
 struct arphdr { int ignore; };
 #endif
 #if !defined(_AIX)
