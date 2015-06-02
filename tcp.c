@@ -118,8 +118,10 @@ tcp_lookup(port)
 
 		if (nflag)
 			se = NULL;
+#if !defined(__FreeBSD__)
 		else if (port > IPPORT_USERRESERVED)
 			se = NULL;
+#endif
 		else {
 #if HAVE_GETSERVBYPORT
 			display_message("resolving tcp port %u", port);
