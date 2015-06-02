@@ -20,12 +20,13 @@
 # include <sys/param.h>
 #endif
 
-/* In order to avoid too many unneeded include files, we forge some types */
-#if defined(__FreeBSD__)
+#if HAVE_NET_IF_ARP_H
 # include <net/if_arp.h>
-#elif defined(BSD)
+#else
 struct arphdr { int ignore; };
 #endif
+
+/* In order to avoid too many unneeded include files, we forge some types */
 #if !defined(_AIX)
 struct ifnet { int ignore; };
 #endif

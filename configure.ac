@@ -35,7 +35,7 @@ AC_CHECK_HEADERS([sys/ioctl.h sys/param.h sys/queue.h \
 	netipx/ipx.h \
 	pcap.h poll.h string.h termios.h unistd.h])
 
-AC_CHECK_HEADERS([net/if.h netinet/if_ether.h netinet/ip.h \
+AC_CHECK_HEADERS([net/if.h net/if_arp.h netinet/if_ether.h netinet/ip.h \
 		  netinet/ip_icmp.h netinet/ip6.h ], [], [],
 [
 #if HAVE_SYS_TYPES_H
@@ -52,6 +52,9 @@ AC_CHECK_HEADERS([net/if.h netinet/if_ether.h netinet/ip.h \
 #endif
 #if HAVE_NET_IF_H
 # include <net/if.h>
+#endif
+#if HAVE_NET_IF_ARP_H
+# include <net/if_arp.h>
 #endif
 #if HAVE_NETINET_IN_SYSTM_H
 # include <netinet/in_systm.h>
