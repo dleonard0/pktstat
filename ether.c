@@ -190,16 +190,33 @@ static struct {
 	u_int8_t	 sap;
 	const char 	*name;
 } saptab[] = {
-	{ 0x00,	"null" },
-	{ 0x06, "IP" },
-	{ 0x42, "802.1d" },
-	{ 0x7E, "X.25" },
-	{ 0x80, "3Com" },
-	{ 0xAA, "SNAP" },
-	{ 0xBC, "Banyan" },
-	{ 0xE0, "Novell" },
-	{ 0xF4, "Lan Manager" },
-	{ 0xFE, "CLNS" },
+	{ 0x00, "null" },	/* Null LSAP */
+	/*0x02*/		/* Individual LLC Sublayer Management Func */
+	/*0x03*/		/* Group LLC Sublayer Management Func */
+	/*0x04*/		/* IBM SNA Path Control (individual) */
+	/*0x04*/		/* IBM SNA Path Control (group) */
+	{ 0x06, "IP" },		/* ARPANET Internet Protocol */
+	/*0x08*/		/* SNA */
+	/*0x0C*/		/* SNA */
+	/*0x0E*/		/* PROWAY (IEC955) network */
+	/*0x18*/		/* Texas Instruments */
+	{ 0x42, "802.1d" },	/* IEEE 802.1 Bridge Spanning Protocol */
+	/*0x4E*/		/* EIA RS-511 Manufacturing Message Service */
+	{ 0x7E, "X.25" },	/* ISO 8208 (X.25 over IEEE 802.2 type 2 LLC */
+	{ 0x80, "3Com" },	/* Xerox Network Systems (XNS) */
+	/*0x86*/		/* Nestar */
+	/*0x8E*/		/* PROWAY (IEC 955) Active Station List Maint */
+	/*0x98*/		/* ARPANET Address Resolution Protocol */
+	{ 0xAA, "SNAP" },	/* SubNetwork Access Protocol */
+	{ 0xBC, "Banyan" },	/* BC Banyan Vines */
+	{ 0xE0, "Novell" },	/* Novell Netware */
+	/*0xF0*/		/* IBM NetBios */
+	{ 0xF4, "Lan Manager" },/* IBM LAN Management (individual) */
+	/*0xF5*/		/* IBM LAN Management (group) */
+	/*0xF8*/		/* IBM Remote Program Load (RPL) */
+	/*0xFA*/		/* Ungermann-Bass */
+	{ 0xFE, "CLNS" },	/* ISO Network Layer Protocol */
+	/*0xFF*/		/* Global LSAP */
 };
 
 /* 802.2 LLC header */
