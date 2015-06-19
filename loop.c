@@ -39,7 +39,11 @@ loop_tag(p, end)
 	memcpy(&af, p, sizeof af);
 	p += sizeof af;
 
+#if defined(__FreeBSD__)
+	switch (af) {
+#else
 	switch (ntohl(af)) {
+#endif
 	case AF_INET:
 		return ip_tag(p, end);
 #if HAVE_NETINET_IP6_H
