@@ -292,12 +292,15 @@ main(argc, argv)
 	case DLT_RAW:
 		fn = ip_tag;
 		break;
-#else
-# if defined(DLT_NULL)
+#endif
+#if defined(DLT_NULL)
 	case DLT_NULL:
+# if defined(__FreeBSD__)
+		fn = loop_tag;
+# else
 		fn = ip_tag;
-		break;
 # endif
+		break;
 #endif
 	default:
 		errx(1, "unknown datalink type %d", datalink_type);
