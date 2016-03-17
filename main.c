@@ -302,6 +302,11 @@ main(argc, argv)
 # endif
 		break;
 #endif
+#if defined(DLT_PPP_ETHER)
+	case DLT_PPP_ETHER:
+		fn = pppoe_tag;
+		break;
+#endif
 	default:
 		errx(1, "unknown datalink type %d", datalink_type);
 	}

@@ -97,6 +97,24 @@ ether_tag(p, end)
 	return buf;
 }
 
+const char *
+pppoe_tag(p, end)
+        const char *p;
+	const char *end;
+{
+        struct pppoe_header ph;
+        int len;
+
+        memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
+        if (ph.vertype != 0x11 || ph.code != 0)
+                return "pppoe";
+        len = ntohl(ph.len);
+        p += sizeof ph;
+        if (len < end - p)
+                end = p + len;
+        return ppp_tag(p - 2, end);
+}
+
 
 /* Return the tag for an ethernet-like frame, or NULL if unknown */
 
@@ -152,21 +170,7 @@ ether_tagx(type, p, end)
 #if defined(ETHERTYPE_PPPOE)
 	case ETHERTYPE_PPPOE:
 	case ETHERTYPE_PPPOEDISC:
-	   {
-		struct pppoe_header ph;
-
-		int len;
-		memcpy(&ph, p, sizeof ph);	/* avoid bus alignment probs */
-		if (ph.vertype != 0x11 || ph.code != 0) 
-			return type == ETHERTYPE_PPPOE
-				? "pppoe"
-				: "pppoe-disc";
-		len = ntohl(ph.len);
-		p += sizeof ph;
-		if (len < end - p)
-			end = p + len;
-		return ppp_tag(p-2, end);
-	   }
+                return pppoe_tag(p, end);
 #endif
 #if HAVE_NETIPX_IPX_H
 	case 0x8137 /* ETHERTYPE_IPX */:

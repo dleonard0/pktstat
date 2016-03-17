@@ -23,6 +23,7 @@ struct in6_addr;
 struct ip6_hdr;
 
 const char *ppp_tag(const char *, const char *);
+const char *pppoe_tag(const char *, const char *);
 const char *ether_tag(const char *, const char *);
 const char *loop_tag(const char *, const char *);
 const char *sll_tag(const char *, const char *);
