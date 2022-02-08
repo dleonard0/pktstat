@@ -669,7 +669,7 @@ printhelp()
 			attron(A_REVERSE);
 		printw("%c", h->name[0]);
 		attroff(A_UNDERLINE);
-		printw((char *)h->name + 1);
+		printw("%s", (char *)h->name + 1);
 		attrset(0);
 		printw(" ");
 	}
